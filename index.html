@@ -932,13 +932,32 @@
             ensureSentinel(3); document.getElementById('text-country').innerText = countryLabel(toKo ? 'ko' : L); koDiv.innerText = title || text; foreignDiv.innerText = "번역 중..."; overlay.style.display = 'flex';
             document.getElementById('scroll-container').scrollTop = 0;
             try {
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(text)}`);
-                const data = await res.json();
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(text)}`;
+                let res;
+                try {
+                    res = await fetch(url);
+                } catch (fetchErr) {
+                    logNav(`FETCH실패 ${fetchErr.name}:${String(fetchErr.message).slice(0,60)}`);
+                    throw fetchErr;
+                }
+                logNav(`res.ok=${res.ok} status=${res.status}`);
+                if (!res.ok) { logNav(`HTTP오류 status=${res.status}`); throw new Error('HTTP ' + res.status); }
+                let data;
+                try {
+                    data = await res.json();
+                } catch (jsonErr) {
+                    logNav(`JSON파싱실패 ${jsonErr.name}:${String(jsonErr.message).slice(0,60)}`);
+                    throw jsonErr;
+                }
+                if (!data || !data[0]) { logNav(`응답형식이상 data=${JSON.stringify(data).slice(0,80)}`); throw new Error('bad response shape'); }
                 lastTranslated = data[0].map(p => p[0]).join('');
                 if (!toKo && langMap[L] === 'en') lastTranslated = localizeEnglishVocab(lastTranslated, L);
                 foreignDiv.innerText = lastTranslated;
                 speak(lastTranslated, lastSpeakLang);
-            } catch(e) { foreignDiv.innerText = "통신 오류가 발생했습니다."; }
+            } catch(e) {
+                logNav(`번역오류 ${e && e.name}:${e && String(e.message).slice(0,60)}`);
+                foreignDiv.innerText = "통신 오류가 발생했습니다.";
+            }
         }
         // ---- 통역 음성 속도 / 스크롤 동기화 ----
         const SPEECH_RATE = 0.81; // 기존 0.85의 95%
