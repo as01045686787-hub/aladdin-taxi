@@ -526,7 +526,13 @@
         // 화면이 열려있는 동안은 계속 버퍼를 채워두고, 완전히 홈으로 돌아오면 더 이상 채우지 않아 종료가 가능해진다.
         const SENTINEL_BUFFER = 6;
         let sentinelCount = 0, toastTimer = null, lastPopTime = 0;
-        function ensureSentinel() { while (sentinelCount < SENTINEL_BUFFER) { history.pushState({ app: 'top' }, ''); sentinelCount++; } }
+        function ensureSentinel() {
+            while (sentinelCount < SENTINEL_BUFFER) {
+                sentinelCount++;
+                try { history.pushState({ app: 'top', n: sentinelCount }, '', location.pathname + location.search + '#s' + sentinelCount); }
+                catch (e) { try { history.pushState({ app: 'top', n: sentinelCount }, ''); } catch (e2) { logNav('pushState 실패: ' + e2.message); } }
+            }
+        }
         function anyLayerOpen() {
             const $ = id => document.getElementById(id);
             return $('category-popup').style.display === 'flex'
