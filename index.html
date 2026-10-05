@@ -446,14 +446,16 @@
         }
         function openInChrome() {
             const u = location.href.split('#')[0];
-            location.href = 'intent://' + u.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u) + ';end';
+            // 카카오톡 안 화면: 카카오톡 전용 주소로 휴대폰 기본 브라우저를 연다. 그 외: 크롬 직접 호출
+            if (/KAKAOTALK/i.test(navigator.userAgent)) location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(u);
+            else location.href = 'intent://' + u.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
         }
         function showNoVoiceBanner() {
             if (!NO_VOICE || document.getElementById('no-voice-banner')) return;
             const b = document.createElement('div'); b.id = 'no-voice-banner';
-            b.style.cssText = 'position:fixed;left:8px;right:8px;top:76px;z-index:99990;background:#2a1d08;border:1px solid #c9a227;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 24px rgba(0,0,0,0.6);font-size:14px;font-weight:700;color:#ece5d6;line-height:1.35;';
-            b.innerHTML = '<span style="flex:1">이 화면에서는 통역 음성이 나오지 않습니다. 크롬으로 열어주세요.</span><button onclick="openInChrome()" style="flex:none;border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:800;background:#e7c766;color:#201802;">크롬으로 열기</button><span onclick="this.parentElement.remove()" style="flex:none;padding:6px 4px;font-size:18px;color:#8d8c92;">✕</span>';
-            document.body.appendChild(b);
+            b.style.cssText = 'margin-bottom:12px;background:#2a1d08;border:1px solid #c9a227;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#ece5d6;line-height:1.35;';
+            b.innerHTML = '<span style="flex:1">이 화면에서는 통역 음성이 나오지 않습니다. 다른 브라우저로 열어주세요.</span><button onclick="openInChrome()" style="flex:none;border:none;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:800;background:#e7c766;color:#201802;">다른 브라우저로 열기</button><span onclick="this.parentElement.remove()" style="flex:none;padding:6px 4px;font-size:18px;color:#8d8c92;">✕</span>';
+            const cv = document.getElementById('country-view'); cv.insertBefore(b, cv.firstChild); // 국기 화면 맨 위에 자리를 차지하게 넣어, 선택된 나라 버튼을 가리지 않게 함
         }
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
