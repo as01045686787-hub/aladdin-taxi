@@ -534,15 +534,21 @@
         // 일부 기기(안드로이드 웹뷰 등)는 history.pushState가 간헐적으로 누락되거나, 뒤로가기 한 번에
         // 실제 history가 2단계 이상 소비되는 경우가 있어, 여유 버퍼(SENTINEL_BUFFER)를 유지해 흡수한다.
         // 화면이 열려있는 동안은 계속 버퍼를 채워두고, 완전히 홈으로 돌아오면 더 이상 채우지 않아 종료가 가능해진다.
-        const SENTINEL_BUFFER = 6;
+        const SENTINEL_BUFFER = 6, SENTINEL_MAX = 30;
         let sentinelCount = 0, toastTimer = null, lastPopTime = 0;
-        function ensureSentinel() {
-            while (sentinelCount < SENTINEL_BUFFER) {
-                sentinelCount++;
-                try { history.pushState({ app: 'top', n: sentinelCount }, '', location.pathname + location.search + '#s' + sentinelCount); }
-                catch (e) { try { history.pushState({ app: 'top', n: sentinelCount }, ''); } catch (e2) { logNav('pushState 실패: ' + e2.message); } }
-            }
+        // 크롬·삼성인터넷은 '화면을 터치하지 않고 쌓은 뒤로가기 칸'을 무시하고 바로 앱을 종료시킨다.
+        // 그래서 일반 브라우저에서는 화면을 터치할 때마다 한 칸씩만 쌓고, 카카오톡 같은 앱 안 화면에서는 기존처럼 자동으로 채운다.
+        const IN_APP_VIEW = /; wv\)|KAKAOTALK|NAVER\(inapp|DaumApps/i.test(navigator.userAgent);
+        function pushSentinel() {
+            sentinelCount++;
+            try { history.pushState({ app: 'top', n: sentinelCount }, '', location.pathname + location.search + '#s' + sentinelCount); }
+            catch (e) { try { history.pushState({ app: 'top', n: sentinelCount }, ''); } catch (e2) { logNav('pushState 실패: ' + e2.message); } }
         }
+        function ensureSentinel(mode) {
+            if (!IN_APP_VIEW && mode !== 'init') return;
+            while (sentinelCount < SENTINEL_BUFFER) pushSentinel();
+        }
+        document.addEventListener('click', () => { if (!IN_APP_VIEW && sentinelCount < SENTINEL_MAX) pushSentinel(); }, true);
         function anyLayerOpen() {
             const $ = id => document.getElementById(id);
             return $('category-popup').style.display === 'flex'
@@ -630,8 +636,8 @@
             if (gap !== null && gap < 350) { ensureSentinel(); logNav(`dup +${gap}ms 무시 buf=${sentinelCount}`); return; }
             lastPopTime = now;
             const closed = closeTopLayer();
-            if (closed) { ensureSentinel(); logNav(`${gap===null?'start':'+'+gap+'ms'} close[${closed}] buf=${sentinelCount}`); }
-            else { showToast('한 번 더 누르면 종료됩니다'); logNav(`${gap===null?'start':'+'+gap+'ms'} HOME(다음에 종료) buf=${sentinelCount}`); } // 재충전하지 않음: 버퍼가 다 소진되면 실제로 종료됨
+            ensureSentinel(); // 국기 화면에서도 다시 채워서 뒤로가기로 종료되지 않게 함
+            logNav(`${gap===null?'start':'+'+gap+'ms'} ${closed ? 'close[' + closed + ']' : 'HOME(머무름)'} buf=${sentinelCount}${IN_APP_VIEW ? ' 앱안' : ''}`);
         });
         // ---- 통역 중 다른 앱으로 전환했다가 돌아오면, 끊긴 문장의 맨 앞부터 이어서 재생 ----
         document.addEventListener('visibilitychange', () => {
@@ -655,7 +661,7 @@
             document.getElementById('last-country-flag').innerText = c.flag; document.getElementById('last-country-name').innerText = c.name; btn.style.display = 'flex';
         }
         function openLastCountry() { const c = findCountry(curL); if (c) showPhraseView(c.id, c.name); }
-        function init() { ensureSentinel(); buildTrLangOptions(); initFab(); renderCountryLists(majorLangs, otherLangs); try { curL = localStorage.getItem('taxi_v10_lastlang') || ''; } catch (e) {} renderLastCountry(); showSavedNavLog(); }
+        function init() { ensureSentinel('init'); buildTrLangOptions(); initFab(); renderCountryLists(majorLangs, otherLangs); try { curL = localStorage.getItem('taxi_v10_lastlang') || ''; } catch (e) {} renderLastCountry(); showSavedNavLog(); }
         function renderCountryLists(majors, others) {
             const majorDiv = document.getElementById('major-list'); majorDiv.innerHTML = majors.map(c => `<div class="item-btn major-btn" onclick="showPhraseView('${c.id}', '${c.name}')"><span class="flag">${c.flag}</span><span class="name">${c.name.replace('(', '<wbr>(')}</span></div>`).join('');
             const otherDiv = document.getElementById('other-list'); otherDiv.innerHTML = others.map(c => `<div class="item-btn" onclick="showPhraseView('${c.id}', '${c.name}')"><span class="flag">${c.flag}</span><span class="name">${c.name.replace('(', '<wbr>(')}</span></div>`).join('');
