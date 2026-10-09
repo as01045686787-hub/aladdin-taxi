@@ -346,6 +346,18 @@
         .tr-go { flex: 1.6; background: linear-gradient(150deg, var(--accent-bright), var(--accent-color)); color: #201802; border-color: transparent !important; }
         .tr-actions { flex-shrink: 0; }
         .tr-actions button { height: 42px; padding: 0 6px; white-space: nowrap; overflow: hidden; line-height: 1; border-radius: 14px; font-size: 25px; font-weight: 900; cursor: pointer; border: 1px solid var(--hairline-soft); font-family: inherit; }
+        /* 인사말 */
+        .greet-layer { position: fixed; inset: 0; background: var(--bg-color); display: none; flex-direction: column; z-index: 2300; }
+        .greet-top { flex: none; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--hairline); font-size: 21px; font-weight: 800; color: var(--accent-bright); }
+        .greet-x { font-size: 26px; color: var(--text-dim); padding: 8px; cursor: pointer; }
+        .greet-body { flex: 1; overflow-y: auto; padding: 14px 16px 40px; }
+        .greet-row { background: var(--card-bg); border: 1px solid var(--hairline-soft); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .greet-row:active { background: var(--surface-2); }
+        .greet-ko { font-size: 15px; font-weight: 700; color: var(--text-dim); }
+        .greet-fx { font-size: 24px; font-weight: 800; color: var(--text-color); margin: 3px 0; line-height: 1.3; }
+        .greet-pr { font-size: 20px; font-weight: 800; color: var(--accent-bright); }
+        .greet-play { flex: none; font-size: 26px; }
+        .greet-edit-row { display: flex; align-items: center; gap: 10px; padding: 14px 4px; border-bottom: 1px solid var(--table-border); font-size: 19px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -363,11 +375,12 @@
         <h2 style="font-family:'Noto Serif KR',serif; color:var(--accent-bright); margin-bottom:30px; font-weight: 700; font-size: 22px; letter-spacing: 0.2px;">고급 설정</h2>
         <div class="menu-item" onclick="exportData()">📤 데이터 백업 (내보내기)</div>
         <div class="menu-item" onclick="importData()">📥 데이터 복원 (가져오기)</div>
+        <div class="menu-item" onclick="toggleMenu(); openGreetEditor()">👋 인사말 넣기</div>
         <button onclick="toggleMenu()" style="margin-top:50px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
         <div id="country-top" style="position:sticky; top:70px; z-index:50; background:var(--bg-color); margin:-16px -16px 0; padding:16px 16px 4px;">
-        <div id="last-country-btn" onclick="openLastCountry()" style="display:none; align-items:center; gap:12px; padding:14px 18px; margin-bottom:12px; border-radius:var(--radius-xl); background:var(--major-grad); border:1px solid var(--accent-color); box-shadow:var(--premium-shadow); cursor:pointer; font-size:22px; font-weight:800; color:var(--text-color);"><span id="last-country-flag" style="font-size:32px; line-height:1;"></span><span id="last-country-name" style="flex:1; min-width:0;"></span><span style="color:var(--accent-bright); font-size:20px;">▶</span></div>
+        <div id="last-country-btn" onclick="openLastCountry()" style="display:none; align-items:center; gap:12px; padding:14px 18px; margin-bottom:12px; border-radius:var(--radius-xl); background:var(--major-grad); border:1px solid var(--accent-color); box-shadow:var(--premium-shadow); cursor:pointer; font-size:22px; font-weight:800; color:var(--text-color);"><span id="last-country-flag" style="font-size:32px; line-height:1;"></span><span id="last-country-name" style="flex:1; min-width:0;"></span><span onclick="event.stopPropagation(); openGreet()" style="flex:none; width:46px; height:46px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline); display:flex; align-items:center; justify-content:center; font-size:24px;">👋</span><span style="color:var(--accent-bright); font-size:20px;">▶</span></div>
         <input type="text" id="country-search" class="country-search-bar" placeholder="찾으시는 국가명을 입력하세요..." oninput="filterCountries(this.value)">
         </div>
         <div id="major-section"><div class="section-title">영어권 국가</div><div id="major-list" class="grid"></div></div>
@@ -450,6 +463,17 @@
                 </div>
             </div>
             <div id="tr-voice-status"></div>
+        </div>
+    </div>
+    <div id="greet-view" class="greet-layer">
+        <div class="greet-top"><span id="greet-title"></span><span class="greet-x" onclick="closeGreet()">✕</span></div>
+        <div id="greet-list" class="greet-body"></div>
+    </div>
+    <div id="greet-editor" class="greet-layer">
+        <div class="greet-top"><span>👋 인사말 넣기</span><span class="greet-x" onclick="closeGreetEditor()">✕</span></div>
+        <div class="greet-body">
+            <div style="display:flex; gap:8px; margin-bottom:14px;"><input id="greet-new" placeholder="한국어 인사말 입력" style="flex:1; min-width:0; background:var(--card-bg); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:14px; padding:14px; font-size:18px; font-weight:700; outline:none;"><button onclick="addGreet()" style="flex:none; border:none; border-radius:14px; padding:0 18px; font-size:20px; font-weight:900; background:var(--emerald); color:#fff;">추가</button></div>
+            <div id="greet-edit-list"></div>
         </div>
     </div>
     <div id="toast"></div>
@@ -574,6 +598,7 @@
                 || $('tour-editor').style.display === 'flex'
                 || $('display-overlay').style.display === 'flex'
                 || $('translator-view').style.display === 'flex'
+                || $('greet-view').style.display === 'flex' || $('greet-editor').style.display === 'flex'
                 || $('tour-view').style.display === 'flex'
                 || !$('phrase-view').classList.contains('hidden');
         }
@@ -588,6 +613,8 @@
             if ($('phrase-editor').style.display === 'flex') { closePhraseEditor(); return 'phrase-editor'; }
             if ($('tour-editor').style.display === 'flex') { closeTourEditor(); return 'tour-editor'; }
             if ($('display-overlay').style.display === 'flex') { closeDisplay(); return 'display-overlay'; }
+            if ($('greet-editor').style.display === 'flex') { closeGreetEditor(); return 'greet-editor'; }
+            if ($('greet-view').style.display === 'flex') { closeGreet(); return 'greet-view'; }
             if ($('translator-view').style.display === 'flex') { closeTranslator(); return 'translator-view'; }
             if ($('tour-view').style.display === 'flex') {
                 if ($('tour-search-input-container').style.display === 'flex') { toggleTourSearch(); return 'tour-search'; }
@@ -664,6 +691,60 @@
             if (!c) { btn.style.display = 'none'; return; }
             document.getElementById('last-country-flag').innerText = c.flag; document.getElementById('last-country-name').innerText = c.name; btn.style.display = 'flex';
         }
+        // ---- 인사말: 선택한 나라 말 + 한글 발음, 누르면 그 나라 발음으로 읽어줌 ----
+        const GREET_DEFAULT = ["안녕하세요", "감사합니다", "안녕히 가세요", "멋진 여행 되시기를"];
+        const GREET_PRON = {"en": {"안녕하세요": ["Hello", "헬로"], "감사합니다": ["Thank you", "땡큐"], "안녕히 가세요": ["Goodbye", "굿바이"], "멋진 여행 되시기를": ["Have a nice trip!", "해브 어 나이스 트립"]}, "ja": {"안녕하세요": ["こんにちは", "곤니치와"], "감사합니다": ["ありがとうございます", "아리가토 고자이마스"], "안녕히 가세요": ["さようなら", "사요나라"], "멋진 여행 되시기를": ["良い旅を！", "요이 타비오"]}, "zh-CN": {"안녕하세요": ["你好", "니하오"], "감사합니다": ["谢谢", "셰셰"], "안녕히 가세요": ["再见", "짜이찌엔"], "멋진 여행 되시기를": ["祝你旅途愉快！", "주 니 뤼투 위콰이"]}, "zh-TW": {"안녕하세요": ["你好", "니하오"], "감사합니다": ["謝謝", "셰셰"], "안녕히 가세요": ["再見", "짜이찌엔"], "멋진 여행 되시기를": ["祝你旅途愉快！", "주 니 뤼투 위콰이"]}, "zh-HK": {"안녕하세요": ["你好", "네이호우"], "감사합니다": ["多謝", "또제"], "안녕히 가세요": ["再見", "조이긴"], "멋진 여행 되시기를": ["祝你旅途愉快！", "죽 네이 로위토우 유파이"]}, "vi": {"안녕하세요": ["Xin chào", "씬 짜오"], "감사합니다": ["Cảm ơn", "깜 언"], "안녕히 가세요": ["Tạm biệt", "땀 비엣"], "멋진 여행 되시기를": ["Chúc bạn có chuyến đi vui vẻ!", "쭉 반 꼬 쭈옌 디 부이 베"]}, "th": {"안녕하세요": ["สวัสดีครับ", "사왓디 크랍"], "감사합니다": ["ขอบคุณครับ", "컵쿤 크랍"], "안녕히 가세요": ["ลาก่อนครับ", "라 꺼은 크랍"], "멋진 여행 되시기를": ["ขอให้เที่ยวให้สนุกนะครับ", "커 하이 티여우 하이 사눅 나 크랍"]}, "tl": {"안녕하세요": ["Kumusta po", "쿠무스타 포"], "감사합니다": ["Salamat po", "살라맛 포"], "안녕히 가세요": ["Paalam po", "파알람 포"], "멋진 여행 되시기를": ["Ingat po sa biyahe!", "잉앗 포 사 비야헤"]}, "ms": {"안녕하세요": ["Selamat datang", "슬라맛 다탕"], "감사합니다": ["Terima kasih", "뜨리마 까시"], "안녕히 가세요": ["Selamat tinggal", "슬라맛 띵갈"], "멋진 여행 되시기를": ["Selamat bercuti!", "슬라맛 버르추티"]}, "id": {"안녕하세요": ["Halo", "할로"], "감사합니다": ["Terima kasih", "뜨리마 까시"], "안녕히 가세요": ["Sampai jumpa", "삼빠이 줌빠"], "멋진 여행 되시기를": ["Selamat berlibur!", "슬라맛 버를리부르"]}, "my": {"안녕하세요": ["မင်္ဂလာပါ", "밍글라바"], "감사합니다": ["ကျေးဇူးတင်ပါတယ်", "쩨주 띤바대"], "안녕히 가세요": ["နောက်မှတွေ့မယ်", "나욱마 뛔메"], "멋진 여행 되시기를": ["ခရီးစဉ် ပျော်ရွှင်ပါစေ", "카이세인 뾰쉰바제"]}, "de": {"안녕하세요": ["Hallo", "할로"], "감사합니다": ["Danke schön", "당케 쇤"], "안녕히 가세요": ["Auf Wiedersehen", "아우프 비더제엔"], "멋진 여행 되시기를": ["Gute Reise!", "구테 라이제"]}, "fr": {"안녕하세요": ["Bonjour", "봉주르"], "감사합니다": ["Merci beaucoup", "메르시 보꾸"], "안녕히 가세요": ["Au revoir", "오 르부아"], "멋진 여행 되시기를": ["Bon voyage !", "봉 부아야주"]}, "es": {"안녕하세요": ["Hola", "올라"], "감사합니다": ["Muchas gracias", "무차스 그라시아스"], "안녕히 가세요": ["Adiós", "아디오스"], "멋진 여행 되시기를": ["¡Buen viaje!", "부엔 비아헤"]}, "it": {"안녕하세요": ["Buongiorno", "부온조르노"], "감사합니다": ["Grazie mille", "그라치에 밀레"], "안녕히 가세요": ["Arrivederci", "아리베데르치"], "멋진 여행 되시기를": ["Buon viaggio!", "부온 비아조"]}, "nl": {"안녕하세요": ["Hallo", "할로"], "감사합니다": ["Dank u wel", "당크 위 벨"], "안녕히 가세요": ["Tot ziens", "톳 진스"], "멋진 여행 되시기를": ["Goede reis!", "후더 레이스"]}, "pt": {"안녕하세요": ["Olá", "올라"], "감사합니다": ["Obrigado", "오브리가두"], "안녕히 가세요": ["Tchau", "차우"], "멋진 여행 되시기를": ["Boa viagem!", "보아 비아장"]}, "pl": {"안녕하세요": ["Dzień dobry", "지엔 도브리"], "감사합니다": ["Dziękuję", "지엥쿠예"], "안녕히 가세요": ["Do widzenia", "도 비제니아"], "멋진 여행 되시기를": ["Udanej podróży!", "우다네이 포드루지"]}, "cs": {"안녕하세요": ["Dobrý den", "도브리 덴"], "감사합니다": ["Děkuji", "데꾸이"], "안녕히 가세요": ["Na shledanou", "나 스흘레다노우"], "멋진 여행 되시기를": ["Šťastnou cestu!", "슈짜스트노우 체스투"]}, "sv": {"안녕하세요": ["Hej", "헤이"], "감사합니다": ["Tack så mycket", "탁 소 뮈케"], "안녕히 가세요": ["Hej då", "헤이 도"], "멋진 여행 되시기를": ["Trevlig resa!", "트레블리그 레사"]}, "tr": {"안녕하세요": ["Merhaba", "메르하바"], "감사합니다": ["Teşekkür ederim", "테셰퀴르 에데림"], "안녕히 가세요": ["Güle güle", "귈레 귈레"], "멋진 여행 되시기를": ["İyi yolculuklar!", "이이 욜줄루클라르"]}, "ru": {"안녕하세요": ["Здравствуйте", "즈드라스트부이쩨"], "감사합니다": ["Спасибо", "스파시바"], "안녕히 가세요": ["До свидания", "다 스비다니야"], "멋진 여행 되시기를": ["Приятного путешествия!", "프리야트나바 푸티셰스트비야"]}, "mn": {"안녕하세요": ["Сайн байна уу", "사인 배노"], "감사합니다": ["Баярлалаа", "바야르랄라"], "안녕히 가세요": ["Баяртай", "바야르태"], "멋진 여행 되시기를": ["Сайхан аялаарай!", "새항 아얄라래"]}, "uz": {"안녕하세요": ["Assalomu alaykum", "앗살로무 알라이쿰"], "감사합니다": ["Rahmat", "라흐맛"], "안녕히 가세요": ["Xayr", "하이르"], "멋진 여행 되시기를": ["Yaxshi sayohat!", "야흐시 사요하트"]}, "kk": {"안녕하세요": ["Сәлеметсіз бе", "셀레메트시즈 베"], "감사합니다": ["Рахмет", "라흐메트"], "안녕히 가세요": ["Сау болыңыз", "사우 볼릉으즈"], "멋진 여행 되시기를": ["Сапарыңыз сәтті болсын!", "사파르응으즈 세티 볼슨"]}, "ar": {"안녕하세요": ["مرحبا", "마르하반"], "감사합니다": ["شكرا جزيلا", "슈크란 자질란"], "안녕히 가세요": ["مع السلامة", "마아 살라마"], "멋진 여행 되시기를": ["رحلة سعيدة", "리흘라 사이다"]}, "hi": {"안녕하세요": ["नमस्ते", "나마스떼"], "감사합니다": ["धन्यवाद", "단야바드"], "안녕히 가세요": ["अलविदा", "알비다"], "멋진 여행 되시기를": ["आपकी यात्रा शुभ हो!", "아쁘끼 야뜨라 슈브 호"]}, "no": {"안녕하세요": ["Hei", "하이"], "감사합니다": ["Tusen takk", "투센 탁"], "안녕히 가세요": ["Ha det bra", "하 데 브라"], "멋진 여행 되시기를": ["God tur!", "구 투르"]}, "ne": {"안녕하세요": ["नमस्ते", "나마스떼"], "감사합니다": ["धन्यवाद", "단냐바드"], "안녕히 가세요": ["फेरि भेटौँला", "페리 베타운라"], "멋진 여행 되시기를": ["यात्रा शुभ रहोस्!", "야뜨라 숩 라호스"]}}; // [그 나라 글, 한글 발음]
+        let greetDB = (() => { try { const v = JSON.parse(localStorage.getItem('taxi_v10_greet')); if (Array.isArray(v)) return v; } catch (e) {} return GREET_DEFAULT.slice(); })();
+        function saveGreet() { try { localStorage.setItem('taxi_v10_greet', JSON.stringify(greetDB)); } catch (e) {} }
+        // 기사님이 직접 적은 한글 발음 (나라|인사말 → 발음). 기본 발음보다 우선
+        let greetPronDB = (() => { try { return JSON.parse(localStorage.getItem('taxi_v10_greetpron')) || {}; } catch (e) { return {}; } })();
+        function saveGreetPron() { try { localStorage.setItem('taxi_v10_greetpron', JSON.stringify(greetPronDB)); } catch (e) {} }
+        function greetPronOf(code, ko) { const k = code + '|' + ko; if (greetPronDB[k] !== undefined) return greetPronDB[k]; const f = (GREET_PRON[code] || {})[ko]; return f ? f[1] : ''; }
+        function editGreetPron(i) {
+            const code = langMap[curL], ko = greetDB[i], cur = greetPronOf(code, ko);
+            const v = prompt(`"${ko}" 의 한글 발음을 적어주세요\n(🔊 소리를 듣고 들리는 대로 적으면 됩니다)`, cur);
+            if (v === null) return;
+            greetPronDB[code + '|' + ko] = v.trim(); saveGreetPron(); renderGreet();
+        }
+        const greetCache = {};
+        function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+        function speakGreet(t) {
+            try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) u.voice = v; window.speechSynthesis.speak(u); } catch (e) {}
+        }
+        function openGreet() {
+            const c = findCountry(curL); if (!c) return;
+            ensureSentinel(3);
+            document.getElementById('greet-title').innerText = '👋 ' + c.flag + ' ' + c.name;
+            document.getElementById('greet-view').style.display = 'flex';
+            renderGreet();
+        }
+        function closeGreet() { document.getElementById('greet-view').style.display = 'none'; try { window.speechSynthesis.cancel(); } catch (e) {} }
+        function renderGreet() {
+            const box = document.getElementById('greet-list'), code = langMap[curL];
+            if (!code || code === 'ko') { box.innerHTML = '<div style="text-align:center; padding:50px; color:var(--text-dim);">한국을 선택하면 인사말이 없습니다.</div>'; return; }
+            const table = GREET_PRON[code] || {};
+            box.innerHTML = greetDB.map((ko, i) => {
+                const fixed = table[ko], key = code + '|' + ko, fx = fixed ? fixed[0] : greetCache[key];
+                if (!fixed && fx === undefined) fetchGreet(code, ko);
+                return `<div class="greet-row" onclick="speakGreetAt(${i})"><div style="flex:1; min-width:0;"><div class="greet-ko">${escHtml(ko)}</div><div class="greet-fx">${fx === undefined ? '번역 중...' : escHtml(fx || '(통신 오류)')}</div><div class="greet-pr">${escHtml(greetPronOf(code, ko)) || '<span style="color:var(--text-faint); font-size:15px;">발음 없음 → ✏️ 눌러 적기</span>'}</div></div><span class="greet-play">🔊</span><span onclick="event.stopPropagation(); editGreetPron(${i})" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">✏️</span></div>`;
+            }).join('') || '<div style="text-align:center; padding:50px; color:var(--text-dim);">메뉴 → 인사말 넣기에서 인사말을 넣어주세요.</div>';
+        }
+        function speakGreetAt(i) { const code = langMap[curL], ko = greetDB[i], fixed = (GREET_PRON[code] || {})[ko], fx = fixed ? fixed[0] : greetCache[code + '|' + ko]; if (fx) speakGreet(fx); }
+        async function fetchGreet(code, ko) {
+            const key = code + '|' + ko; greetCache[key] = undefined;
+            if (fetchGreet.busy && fetchGreet.busy[key]) return; (fetchGreet.busy = fetchGreet.busy || {})[key] = true;
+            try { const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=${code}&dt=t&q=${encodeURIComponent(ko)}`); const data = await res.json(); greetCache[key] = data[0].map(p => p[0]).join(''); }
+            catch (e) { greetCache[key] = ''; }
+            delete fetchGreet.busy[key];
+            if (document.getElementById('greet-view').style.display === 'flex' && langMap[curL] === code) renderGreet();
+        }
+        function openGreetEditor() { ensureSentinel(3); document.getElementById('greet-editor').style.display = 'flex'; renderGreetEditor(); }
+        function closeGreetEditor() { document.getElementById('greet-editor').style.display = 'none'; document.getElementById('greet-new').blur(); }
+        function renderGreetEditor() {
+            document.getElementById('greet-edit-list').innerHTML = greetDB.map((ko, i) => `<div class="greet-edit-row"><span style="flex:1; min-width:0;">${escHtml(ko)}</span><button onclick="deleteGreet(${i})" style="flex:none; border:none; border-radius:12px; padding:10px 14px; font-size:17px; font-weight:800; background:var(--ruby); color:#fff;">삭제</button></div>`).join('');
+        }
+        function addGreet() { const el = document.getElementById('greet-new'), v = el.value.trim(); if (!v) return; greetDB.push(v); saveGreet(); el.value = ''; renderGreetEditor(); }
+        function deleteGreet(i) { if (!confirm(`"${greetDB[i]}" 를 삭제할까요?`)) return; greetDB.splice(i, 1); saveGreet(); renderGreetEditor(); }
         function openLastCountry() { const c = findCountry(curL); if (c) showPhraseView(c.id, c.name); }
         function init() { ensureSentinel('init'); setTimeout(() => logNav('버전 1005-C ' + (IN_APP_VIEW ? '앱안화면' : '일반브라우저')), 0); buildTrLangOptions(); initFab(); renderCountryLists(majorLangs, otherLangs); try { curL = localStorage.getItem('taxi_v10_lastlang') || ''; } catch (e) {} renderLastCountry(); }
         function renderCountryLists(majors, others) {
@@ -1115,8 +1196,8 @@
         function deleteCategory() { if(confirm("카테고리를 삭제하면 안의 문장도 모두 삭제됩니다.")) { categories.splice(categories.indexOf(curC),1); delete phraseDB[curC]; curC=categories[0]||""; selectedPhraseIdx=-1; renderTabs(); renderPhrases(); saveCats(); saveData(); } }
         function moveCategory(dir) { const idx = categories.indexOf(curC), newIdx = idx + dir; if (newIdx >= 0 && newIdx < categories.length) { [categories[idx], categories[newIdx]] = [categories[newIdx], categories[idx]]; saveCats(); renderTabs(); } }
         function stampNow() { const d = new Date(), p = n => String(n).padStart(2, '0'); return { label: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`, file: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}` }; }
-        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
-        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
+        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB, greet: greetDB, greetPron: greetPronDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
+        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; if(data.greet) { greetDB = data.greet; saveGreet(); } if(data.greetPron) { greetPronDB = data.greetPron; saveGreetPron(); } saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
         window.onload = init;
     </script>
 </body>
