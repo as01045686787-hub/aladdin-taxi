@@ -322,25 +322,28 @@
         #translator-fab:active { transform: scale(0.92); }
         #translator-fab svg { width: 26px; height: 26px; fill: #201802; }
         #translator-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: none; flex-direction: column; z-index: 2200; box-sizing: border-box; }
-        .tr-body { flex: 1; overflow-y: auto; padding: 4px 16px 120px; }
-        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .tr-body { flex: 1; overflow-y: auto; padding: 16px 16px 120px; }
+        .tr-panel { margin-bottom: 18px; }
+        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 14px 16px; cursor: pointer; }
         .tr-from:active { background: var(--surface-2); }
         .tr-swap { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--hairline); background: var(--surface-2); color: var(--accent-bright); font-size: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
         .tr-swap:active { transform: scale(0.92); }
         #tr-lang { flex: 1; min-width: 0; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--border-radius-lg); padding: 14px 12px; font-size: 17px; font-weight: 700; outline: none; font-family: inherit; }
-        #tr-input { width: 100%; height: 26vh; min-height: 130px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--radius-xl); padding: 18px; font-size: 19px; font-weight: 600; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); font-family: inherit; -webkit-user-select: text; user-select: text; }
+        #tr-input, #tr-input2 { width: 100%; height: 17vh; min-height: 100px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--radius-xl); padding: 18px; font-size: 19px; font-weight: 600; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); font-family: inherit; -webkit-user-select: text; user-select: text; }
         #tr-input:focus { border-color: var(--accent-color); }
-        #tr-input::placeholder { color: var(--text-faint); }
-        .tr-actions { display: flex; gap: 12px; margin-top: 12px; }
-        #tr-mic { flex: 0 0 64px; padding: 0 !important; font-size: 24px !important; background: var(--surface-2); color: var(--text-color); }
-        #tr-mic.on { background: var(--ruby); border-color: transparent; animation: micPulse 1.2s ease-out infinite; }
+        #tr-input2 { cursor: pointer; }
+        #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
+        .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .tr-mic { flex: 0 0 46px; padding: 0 !important; font-size: 24px !important; background: var(--surface-2); color: var(--text-color); }
+        .tr-mic.on { background: var(--ruby); border-color: transparent; animation: micPulse 1.2s ease-out infinite; }
         @keyframes micPulse { 0% { box-shadow: 0 0 0 0 rgba(162,68,68,0.55); } 100% { box-shadow: 0 0 0 16px rgba(162,68,68,0); } }
-        #tr-input.listening { border-color: var(--ruby); }
+        #tr-input.listening, #tr-input2.listening { border-color: var(--ruby); }
         #tr-voice-status { display: none; margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--text-dim); font-weight: 600; }
         #tr-voice-status.err { color: #e6a3a3; }
-        .tr-actions button { padding: 18px; border-radius: var(--radius-xl); font-size: 18px; font-weight: 800; cursor: pointer; border: 1px solid var(--hairline-soft); font-family: inherit; }
+        .tr-go { flex: 1.6; background: linear-gradient(150deg, var(--accent-bright), var(--accent-color)); color: #201802; border-color: transparent !important; }
+        .tr-actions button { height: 42px; padding: 0 6px; line-height: 1; border-radius: 14px; font-size: 25px; font-weight: 900; cursor: pointer; border: 1px solid var(--hairline-soft); font-family: inherit; }
     </style>
 </head>
 <body>
@@ -423,16 +426,26 @@
     </div>
     <div id="translator-fab" onclick="fabClick()" title="번역기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg></div>
     <div id="translator-view">
-        <div class="tour-topbar"><span id="tr-title">번역기</span></div>
         <div class="tr-body">
-            <div class="tr-lang-row" id="tr-lang-row"><span class="tr-from" onclick="swapTranslator()">Korean</span><button class="tr-swap" onclick="swapTranslator()" aria-label="번역 방향 바꾸기">⇄</button><select id="tr-lang" onchange="if (trReverse && recog) startVoiceInput()"></select></div>
-            <textarea id="tr-input" placeholder="번역할 텍스트를 입력하세요" onfocus="stopVoiceInput()"></textarea>
-            <div id="tr-voice-status"></div>
-            <div class="tr-actions">
-                <button id="tr-mic" onclick="toggleVoiceInput()" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
-                <button onclick="clearTranslator()" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
-                <button onclick="runTranslator()" style="flex:2; background:linear-gradient(150deg, var(--accent-bright), var(--accent-color)); color:#201802; border-color:transparent;">번역</button>
+            <div class="tr-panel">
+                <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span></div>
+                <textarea id="tr-input" placeholder="번역할 텍스트를 입력하세요" onfocus="stopVoiceInput()"></textarea>
+                <div class="tr-actions">
+                    <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
+                    <button onclick="clearTranslator(false)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
+                    <button onclick="runTranslator(false)" class="tr-go">통역</button>
+                </div>
             </div>
+            <div class="tr-panel">
+                <div class="tr-lang-row"><select id="tr-lang" onchange="trLangChanged()"></select></div>
+                <textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea>
+                <div class="tr-actions">
+                    <button id="tr-mic2" class="tr-mic" onclick="toggleVoiceInput(true)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
+                    <button onclick="clearTranslator(true)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
+                    <button onclick="runTranslator(true)" class="tr-go">통역</button>
+                </div>
+            </div>
+            <div id="tr-voice-status"></div>
         </div>
     </div>
     <div id="toast"></div>
@@ -811,11 +824,19 @@
             const el = document.getElementById('tr-voice-status');
             el.innerText = msg || ''; el.style.display = msg ? 'block' : 'none'; el.classList.toggle('err', !!isErr);
         }
+        // 위 칸(한국어)·아래 칸(외국어) 중 지금 쓰는 칸: trReverse가 true면 아래 칸
+        function trInputEl() { return document.getElementById(trReverse ? 'tr-input2' : 'tr-input'); }
+        const TR_TAP_SPEAK = { en: 'Tap here and speak', ja: 'ここをタップして話してください', 'zh-CN': '点击这里说话', 'zh-TW': '點擊這裡說話', 'zh-HK': '點擊這裡說話', vi: 'Chạm vào đây và nói', th: 'แตะที่นี่แล้วพูด', tl: 'I-tap dito at magsalita', ms: 'Ketik di sini dan bercakap', id: 'Ketuk di sini dan bicara', my: 'ဒီမှာနှိပ်ပြီး ပြောပါ', de: 'Hier tippen und sprechen', fr: 'Touchez ici et parlez', es: 'Toque aquí y hable', it: 'Tocca qui e parla', nl: 'Tik hier en spreek', pt: 'Toque aqui e fale', pl: 'Dotknij tutaj i mów', cs: 'Klepněte sem a mluvte', sv: 'Tryck här och tala', tr: 'Buraya dokunun ve konuşun', ru: 'Нажмите здесь и говорите', mn: 'Энд дарж ярина уу', uz: 'Shu yerga bosing va gapiring', kk: 'Осы жерді басып, сөйлеңіз', ar: 'اضغط هنا وتحدث', hi: 'यहाँ टैप करें और बोलें', no: 'Trykk her og snakk', ne: 'यहाँ थिच्नुहोस् र बोल्नुहोस्' };
+        function trForeignPlaceholder() { return '🎤 ' + (TR_TAP_SPEAK[langMap[document.getElementById('tr-lang').value]] || TR_TAP_SPEAK.en); }
         function setMic(on) {
-            document.getElementById('tr-mic').classList.toggle('on', on);
-            const i = document.getElementById('tr-input'); i.classList.toggle('listening', on);
-            i.placeholder = on ? '말씀하세요...' : '번역할 텍스트를 입력하세요';
+            const top = document.getElementById('tr-input'), bot = document.getElementById('tr-input2');
+            document.getElementById('tr-mic').classList.toggle('on', on && !trReverse);
+            document.getElementById('tr-mic2').classList.toggle('on', on && trReverse);
+            top.classList.toggle('listening', on && !trReverse); bot.classList.toggle('listening', on && trReverse);
+            top.placeholder = on && !trReverse ? '말씀하세요...' : '번역할 텍스트를 입력하세요';
+            bot.placeholder = trForeignPlaceholder();
         }
+        function trLangChanged() { document.getElementById('tr-input2').placeholder = trForeignPlaceholder(); if (trReverse && recog) startVoiceInput(); }
         function micErrorText(name) {
             if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'not-allowed' || name === 'service-not-allowed')
                 return '마이크가 허용되지 않았어요. ① 크롬 주소창 왼쪽 아이콘 → 권한 → 마이크 허용, ② 그래도 안 되면 폰 설정 → 앱 → Chrome → 권한 → 마이크 → "앱 사용 중에만 허용".' + KEYBOARD_TIP;
@@ -844,7 +865,7 @@
             if (!(await ensureMic())) return;
             if (token !== voiceToken) return; // 준비 중에 닫히거나 다른 동작이 시작됨
             window.speechSynthesis.cancel();
-            const input = document.getElementById('tr-input');
+            const input = trInputEl();
             // 말을 잠깐 멈추면 인식기가 스스로 꺼지므로, 번역·닫기·🎤를 누를 때까지 계속 다시 켜서 이어 듣는다
             let quickEnds = 0;
             const listen = first => {
@@ -871,16 +892,9 @@
             listen(true);
         }
         function stopVoiceInput() { voiceToken++; const r = recog; recog = null; if (r) { try { r.abort(); } catch (e) {} } setMic(false); }
-        function toggleVoiceInput() { if (recog) stopVoiceInput(); else startVoiceInput(); }
+        function toggleVoiceInput(rev) { if (recog && trReverse === !!rev) { stopVoiceInput(); return; } stopVoiceInput(); trReverse = !!rev; startVoiceInput(); }
 
         let trReverse = false; // false: 한국어 → 외국어, true: 외국어 → 한국어
-        function swapTranslator() {
-            trReverse = !trReverse;
-            document.getElementById('tr-lang-row').classList.toggle('reversed', trReverse);
-            const i = document.getElementById('tr-input');
-            stopVoiceInput();
-            if (i.value.trim()) runTranslator(); else startVoiceInput();
-        }
         // ---- 번역기 아이콘: 손가락으로 끌어 위치 이동 (좌/우 가장자리에 붙고 위치 기억) ----
         let fabDragged = false;
         function applyFabPos() {
@@ -916,24 +930,25 @@
             fab.addEventListener('pointerup', end); fab.addEventListener('pointercancel', end);
         }
         function openTranslator() {
-            trReverse = false; document.getElementById('tr-lang-row').classList.remove('reversed');
+            trReverse = false;
             ensureSentinel(3);
             const sel = document.getElementById('tr-lang'), saved = localStorage.getItem('taxi_v10_trlang');
             sel.value = (curL && curL !== 'ko' && langMap[curL]) ? curL : (saved || 'en_us');
             if (!sel.value) sel.value = 'en_us';
             document.getElementById('translator-view').style.display = 'flex';
-            document.getElementById('tr-input').value = ''; showVoiceStatus('', false);
+            document.getElementById('tr-input').value = ''; document.getElementById('tr-input2').value = ''; setMic(false); showVoiceStatus('', false);
             startVoiceInput();
             if (!voiceSupported()) setTimeout(() => document.getElementById('tr-input').focus(), 60);
         }
-        function closeTranslator() { stopVoiceInput(); const v = document.getElementById('translator-view'); v.style.display = 'none'; document.getElementById('tr-input').blur(); }
-        function clearTranslator() { const i = document.getElementById('tr-input'); i.value = ''; startVoiceInput(); }
-        function runTranslator() {
-            const text = document.getElementById('tr-input').value.trim();
+        function closeTranslator() { stopVoiceInput(); const v = document.getElementById('translator-view'); v.style.display = 'none'; document.getElementById('tr-input').blur(); trReverse = false; }
+        function clearTranslator(rev) { stopVoiceInput(); trReverse = !!rev; trInputEl().value = ''; startVoiceInput(); }
+        function runTranslator(rev) {
+            if (rev !== undefined) trReverse = !!rev;
+            const text = trInputEl().value.trim();
             if (!text) { showToast('번역할 텍스트를 입력하세요'); return; }
             const id = document.getElementById('tr-lang').value;
             try { localStorage.setItem('taxi_v10_trlang', id); } catch (e) {}
-            stopVoiceInput(); document.getElementById('tr-input').blur();
+            stopVoiceInput(); trInputEl().blur();
             translateAndOpen(text, null, id, trReverse);
         }
         function selectTour(i) {
