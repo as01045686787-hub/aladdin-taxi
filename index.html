@@ -80,6 +80,8 @@
             box-sizing: border-box;
         }
         #header-title {
+            position: absolute; left: 112px; right: 60px; top: 50%; transform: translateY(-50%);
+            text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             font-family: 'Noto Serif KR', serif;
             font-weight: 700;
             font-size: 21px;
@@ -378,7 +380,7 @@
 <body>
     <header id="main-header">
         <div class="menu-btn" id="menu-btn" onclick="toggleMenu()"><div></div><div></div><div></div></div>
-        <div id="head-greet-btn" onclick="openGreet()" style="position:absolute; left:58px; width:44px; height:44px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline); display:none; align-items:center; justify-content:center; font-size:22px; cursor:pointer; z-index:1001;">👋</div>
+        <div id="head-greet-btn" onclick="openGreet()" style="position:absolute; left:58px; width:44px; height:44px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline); display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; z-index:1001;">👋</div>
         <span id="header-title">ALADIN TAXI</span>
         <div id="rate-btn" onclick="sayRateRequest()" title="좋은 평가 부탁" style="position:absolute; left:8px; width:44px; height:44px; border-radius:50%; background:linear-gradient(150deg, var(--accent-bright), var(--accent-color)); display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; z-index:1001; box-shadow:0 8px 20px -8px rgba(201,162,39,0.6);">⭐</div>
         <div id="search-trigger" onclick="toggleSearch()">검색</div>
