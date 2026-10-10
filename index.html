@@ -335,7 +335,7 @@
         #tr-input, #tr-input2 { width: 100%; flex: 1; min-height: 70px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--radius-xl); padding: 18px; font-size: 19px; font-weight: 600; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); font-family: inherit; -webkit-user-select: text; user-select: text; }
         #tr-input:focus { border-color: var(--accent-color); }
         #tr-input2 { cursor: pointer; }
-        #tr-speak-now { display: none; position: absolute; left: 10px; right: 10px; bottom: 14px; text-align: center; font-size: 34px; font-weight: 900; line-height: 1.2; color: #ff6b6b; pointer-events: none; animation: speakBlink 1s ease-in-out infinite; }
+        #tr-speak-now { display: none; position: absolute; left: 10px; right: 10px; bottom: 14px; text-align: center; font-size: 34px; font-weight: 900; line-height: 1.2; color: #ff6b6b; pointer-events: none; animation: speakBlink 0.33s ease-in-out infinite; }
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
@@ -451,9 +451,10 @@
         <div class="tr-body">
             <div class="tr-panel">
                 <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span></div>
-                <textarea id="tr-input" placeholder="번역할 텍스트를 입력하세요" onfocus="stopVoiceInput()"></textarea>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
+                    <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력">⌨️</button>
                     <button onclick="clearTranslator(false)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
                     <button onclick="runTranslator(false)" class="tr-go">통역</button>
                 </div>
@@ -920,6 +921,7 @@
             el.innerText = msg || ''; el.style.display = msg ? 'block' : 'none'; el.classList.toggle('err', !!isErr);
         }
         // 위 칸(한국어)·아래 칸(외국어) 중 지금 쓰는 칸: trReverse가 true면 아래 칸
+        function typeKo() { stopVoiceInput(); const t = document.getElementById('tr-input'); t.readOnly = false; t.focus(); }
         function trInputEl() { return document.getElementById(trReverse ? 'tr-input2' : 'tr-input'); }
         const TR_TAP_SPEAK = { en: 'Tap here and speak', ja: 'ここをタップして話してください', 'zh-CN': '点击这里说话', 'zh-TW': '點擊這裡說話', 'zh-HK': '點擊這裡說話', vi: 'Chạm vào đây và nói', th: 'แตะที่นี่แล้วพูด', tl: 'I-tap dito at magsalita', ms: 'Ketik di sini dan bercakap', id: 'Ketuk di sini dan bicara', my: 'ဒီမှာနှိပ်ပြီး ပြောပါ', de: 'Hier tippen und sprechen', fr: 'Touchez ici et parlez', es: 'Toque aquí y hable', it: 'Tocca qui e parla', nl: 'Tik hier en spreek', pt: 'Toque aqui e fale', pl: 'Dotknij tutaj i mów', cs: 'Klepněte sem a mluvte', sv: 'Tryck här och tala', tr: 'Buraya dokunun ve konuşun', ru: 'Нажмите здесь и говорите', mn: 'Энд дарж ярина уу', uz: 'Shu yerga bosing va gapiring', kk: 'Осы жерді басып, сөйлеңіз', ar: 'اضغط هنا وتحدث', hi: 'यहाँ टैप करें और बोलें', no: 'Trykk her og snakk', ne: 'यहाँ थिच्नुहोस् र बोल्नुहोस्' };
         const TR_BTN = { en: ['Clear', 'Translate'], ja: ['消去', '翻訳'], 'zh-CN': ['清除', '翻译'], 'zh-TW': ['清除', '翻譯'], 'zh-HK': ['清除', '翻譯'], vi: ['Xóa', 'Dịch'], th: ['ลบ', 'แปล'], tl: ['Burahin', 'Isalin'], ms: ['Padam', 'Terjemah'], id: ['Hapus', 'Terjemahkan'], my: ['ဖျက်', 'ဘာသာပြန်'], de: ['Löschen', 'Übersetzen'], fr: ['Effacer', 'Traduire'], es: ['Borrar', 'Traducir'], it: ['Cancella', 'Traduci'], nl: ['Wissen', 'Vertalen'], pt: ['Apagar', 'Traduzir'], pl: ['Wyczyść', 'Tłumacz'], cs: ['Smazat', 'Přeložit'], sv: ['Rensa', 'Översätt'], tr: ['Sil', 'Çevir'], ru: ['Очистить', 'Перевести'], mn: ['Арилгах', 'Орчуулах'], uz: ['Tozalash', 'Tarjima'], kk: ['Тазалау', 'Аудару'], ar: ['مسح', 'ترجمة'], hi: ['मिटाएँ', 'अनुवाद'], no: ['Tøm', 'Oversett'], ne: ['मेटाउनुहोस्', 'अनुवाद'] };
