@@ -323,7 +323,14 @@
         #translator-fab svg { width: 26px; height: 26px; fill: #201802; }
         #translator-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: none; flex-direction: column; z-index: 2200; box-sizing: border-box; }
         .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 16px 14px; }
-        .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; }
+        .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; }
+        .tr-panel.speaker textarea { border: 2px solid var(--accent-color); background: #2a2f3a; box-shadow: 0 0 22px -6px rgba(224,184,74,.55); }
+        .tr-role { position: absolute; right: 22px; top: 58px; display: none; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; z-index: 2; }
+        .tr-panel.speaker .tr-role, .tr-panel.listener .tr-role { display: flex; }
+        .tr-role .tr-icon { font-size: 40px; line-height: 1; }
+        .tr-role .tr-say { font-size: 15px; font-weight: 900; color: var(--accent-bright); }
+        .tr-panel.speaker .tr-say { animation: speakBlink 0.33s ease-in-out infinite; }
+        .tr-panel.listener .tr-say { color: var(--text-dim); }
         .tr-panel:last-of-type { margin-bottom: 0; }
         .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
@@ -450,6 +457,7 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
+                <div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
                 <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea>
                 <div class="tr-actions">
@@ -460,6 +468,7 @@
                 </div>
             </div>
             <div class="tr-panel">
+                <div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
                 <div class="tr-lang-row"><select id="tr-lang" onchange="trLangChanged()"></select></div>
                 <div style="position:relative; flex:1; min-height:0; display:flex;"><textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea><div id="tr-speak-now"></div></div>
                 <div class="tr-actions">
@@ -940,6 +949,17 @@
             document.getElementById('tr-mic2').classList.toggle('on', on && trReverse);
             top.classList.toggle('listening', on && !trReverse); bot.classList.toggle('listening', on && trReverse);
             top.placeholder = on && !trReverse ? '말씀하세요...' : '번역할 텍스트를 입력하세요';
+            const panels = document.querySelectorAll('#translator-view .tr-panel'), kor = panels[0], fxp = panels[1];
+            if (kor && fxp) {
+                kor.classList.toggle('speaker', on && !trReverse); kor.classList.toggle('listener', on && trReverse);
+                fxp.classList.toggle('speaker', on && trReverse); fxp.classList.toggle('listener', on && !trReverse);
+                const ico = [kor, fxp].map(p => p.querySelector('.tr-icon'));
+                ico[0].textContent = on && !trReverse ? '👄' : '👂';
+                ico[1].textContent = on && trReverse ? '👄' : '👂';
+                const say = [kor, fxp].map(p => p.querySelector('.tr-say'));
+                say[0].textContent = on && !trReverse ? '말씀하세요' : '듣는 중';
+                say[1].textContent = on && trReverse ? '말씀하세요' : '듣는 중';
+            }
             bot.placeholder = trForeignPlaceholder();
             document.getElementById('tr-speak-now').style.display = on && trReverse ? 'block' : 'none'; // 외국어 마이크가 켜지면 큰 글씨로 '말씀하세요' 깜박임
         }
