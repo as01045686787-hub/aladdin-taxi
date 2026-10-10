@@ -1048,7 +1048,7 @@
             listen(true);
         }
         function stopVoiceInput() { voiceToken++; const r = recog; recog = null; if (r) { try { r.abort(); } catch (e) {} } setMic(false); }
-        function toggleVoiceInput(rev) { if (recog && trReverse === !!rev) { stopVoiceInput(); return; } stopVoiceInput(); trReverse = !!rev; startVoiceInput(); }
+        function toggleVoiceInput(rev) { if (recog && trReverse === !!rev) { stopVoiceInput(); return; } stopVoiceInput(); trReverse = !!rev; document.getElementById(trReverse ? 'tr-input2' : 'tr-input').value = ''; startVoiceInput(); } // 새로 말하기 시작할 때 그쪽 칸의 이전 글자를 자동으로 지움
 
         let trReverse = false; // false: 한국어 → 외국어, true: 외국어 → 한국어
         // ---- 번역기 아이콘: 손가락으로 끌어 위치 이동 (좌/우 가장자리에 붙고 위치 기억) ----
