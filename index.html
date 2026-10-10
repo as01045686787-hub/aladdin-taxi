@@ -89,7 +89,7 @@
             background-clip: text;
             color: transparent;
         }
-        .menu-btn { position: absolute; left: 20px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; padding: 5px; }
+        .menu-btn { position: absolute; right: 20px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; padding: 5px; }
         .menu-btn div { width: 24px; height: 2px; background: var(--text-color); border-radius: 2px; opacity: 0.85; }
         #tour-btn {
             position: absolute;
@@ -367,7 +367,7 @@
         <div class="menu-btn" id="menu-btn" onclick="toggleMenu()"><div></div><div></div><div></div></div>
         <div id="head-greet-btn" onclick="openGreet()" style="position:absolute; left:14px; width:52px; height:52px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline); display:none; align-items:center; justify-content:center; font-size:26px; cursor:pointer; z-index:1001;">👋</div>
         <span id="header-title">ALADIN TAXI</span>
-        <div id="rate-btn" onclick="sayRateRequest()" title="좋은 평가 부탁" style="position:absolute; right:14px; width:52px; height:52px; border-radius:50%; background:linear-gradient(150deg, var(--accent-bright), var(--accent-color)); display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; z-index:1001; box-shadow:0 8px 20px -8px rgba(201,162,39,0.6);">⭐</div>
+        <div id="rate-btn" onclick="sayRateRequest()" title="좋은 평가 부탁" style="position:absolute; right:78px; width:52px; height:52px; border-radius:50%; background:linear-gradient(150deg, var(--accent-bright), var(--accent-color)); display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; z-index:1001; box-shadow:0 8px 20px -8px rgba(201,162,39,0.6);">⭐</div>
         <div id="search-trigger" onclick="toggleSearch()">검색</div>
         <div id="search-input-container">
             <input type="text" id="search-input" placeholder="검색어 입력..." oninput="handleSearch(this.value)">
@@ -450,7 +450,7 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
-                <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span></div>
+                <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
