@@ -1029,19 +1029,15 @@
                 const r = new SR();
                 r.lang = trReverse ? getLangCode(document.getElementById('tr-lang').value) : 'ko-KR'; // 입력 언어에 맞춰 인식
                 r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
-                const base = '', startedAt = Date.now(); // 문장마다 새로 인식해서 바로 통역함
-                let started = false, fatal = false, heard = false, lastText = '';
+                const base = input.value.trim(), startedAt = Date.now();
+                let started = false, fatal = false, heard = false;
                 r.onstart = () => { started = true; if (recog === r) { setMic(true); showVoiceStatus('', false); } };
-                r.onresult = e => { heard = true; let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; lastText = t.trim(); input.value = (base ? base + ' ' : '') + lastText; };
+                r.onresult = e => { heard = true; let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; input.value = (base ? base + ' ' : '') + t.trim(); };
                 r.onerror = e => { if (recog !== r) return; started = true; if (e.error === 'no-speech' || e.error === 'aborted') return; fatal = true; setMic(false); showVoiceStatus(micErrorText(e.error), true); };
                 r.onend = () => {
                     if (recog !== r) return;
                     quickEnds = (!heard && Date.now() - startedAt < 400) ? quickEnds + 1 : 0; // 켜자마자 꺼지는 일이 반복되면 무한 반복하지 않고 멈춤
-                    if (!fatal && token === voiceToken && !document.hidden && quickEnds < 5) {
-                        const go = () => { if (recog === r && token === voiceToken) listen(false); };
-                        if (lastText) autoInterpret(lastText).then(go, go); else setTimeout(go, 120); // 말이 끝나면 바로 통역해서 읽어 준 뒤 다시 듣기 시작 (마이크가 번역 음성을 다시 듣지 않도록 읽는 동안은 멈춤)
-                        return;
-                    }
+                    if (!fatal && token === voiceToken && !document.hidden && quickEnds < 5) { setTimeout(() => { if (recog === r && token === voiceToken) listen(false); }, 120); return; }
                     recog = null; setMic(false);
                 };
                 recog = r;
