@@ -328,16 +328,17 @@
         .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; transition: flex .3s ease, opacity .3s ease; }
         .tr-panel.speaker { flex: 1.8; }
         .tr-panel.listener { flex: 0.8; }
-        .tr-panel.listener > :not(.tr-role) { opacity: 0.22; }
+        .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
+        .tr-panel.listener > .tr-lang-row, .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea, .tr-panel.listener .tr-box > #tr-speak-now { opacity: 0.22; }
         .tr-panel.listener .tr-role .tr-icon { font-size: 34px; }
         .tr-panel.speaker textarea { border: 2px solid var(--accent-color); background: #2a2f3a; box-shadow: 0 0 22px -6px rgba(224,184,74,.55); padding-right: 118px; }
-        .tr-role { position: absolute; right: 22px; top: 58px; display: none; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; z-index: 2; }
+        .tr-role { position: absolute; right: 12px; top: 12px; display: none; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; z-index: 2; }
         .tr-panel.speaker .tr-role, .tr-panel.listener .tr-role { display: flex; }
         .tr-role .tr-icon { font-size: 40px; line-height: 1; }
         .tr-role .tr-say { font-size: 15px; font-weight: 900; color: var(--accent-bright); }
         .tr-panel.speaker .tr-say { animation: sayBlink 0.33s ease-in-out infinite; }
         @keyframes sayBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .tr-panel.listener .tr-say { color: var(--text-dim); }
+        .tr-panel.listener .tr-say { color: var(--text-color); }
         .tr-panel.listener .tr-role { opacity: 1; }
         .tr-panel:last-of-type { margin-bottom: 0; }
         .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -465,9 +466,9 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
-                <div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
                 <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea>
+                <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력">⌨️</button>
@@ -476,9 +477,8 @@
                 </div>
             </div>
             <div class="tr-panel">
-                <div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
                 <div class="tr-lang-row"><select id="tr-lang" onchange="trLangChanged()"></select></div>
-                <div style="position:relative; flex:1; min-height:0; display:flex;"><textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea><div id="tr-speak-now"></div></div>
+                <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div><textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea><div id="tr-speak-now"></div></div>
                 <div class="tr-actions">
                     <button id="tr-mic2" class="tr-mic" onclick="toggleVoiceInput(true)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-clear2" onclick="clearTranslator(true)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
@@ -942,6 +942,9 @@
         function trInputEl() { return document.getElementById(trReverse ? 'tr-input2' : 'tr-input'); }
         const TR_TAP_SPEAK = { en: 'Tap here and speak', ja: 'ここをタップして話してください', 'zh-CN': '点击这里说话', 'zh-TW': '點擊這裡說話', 'zh-HK': '點擊這裡說話', vi: 'Chạm vào đây và nói', th: 'แตะที่นี่แล้วพูด', tl: 'I-tap dito at magsalita', ms: 'Ketik di sini dan bercakap', id: 'Ketuk di sini dan bicara', my: 'ဒီမှာနှိပ်ပြီး ပြောပါ', de: 'Hier tippen und sprechen', fr: 'Touchez ici et parlez', es: 'Toque aquí y hable', it: 'Tocca qui e parla', nl: 'Tik hier en spreek', pt: 'Toque aqui e fale', pl: 'Dotknij tutaj i mów', cs: 'Klepněte sem a mluvte', sv: 'Tryck här och tala', tr: 'Buraya dokunun ve konuşun', ru: 'Нажмите здесь и говорите', mn: 'Энд дарж ярина уу', uz: 'Shu yerga bosing va gapiring', kk: 'Осы жерді басып, сөйлеңіз', ar: 'اضغط هنا وتحدث', hi: 'यहाँ टैप करें और बोलें', no: 'Trykk her og snakk', ne: 'यहाँ थिच्नुहोस् र बोल्नुहोस्' };
         const TR_BTN = { en: ['Clear', 'Translate'], ja: ['消去', '翻訳'], 'zh-CN': ['清除', '翻译'], 'zh-TW': ['清除', '翻譯'], 'zh-HK': ['清除', '翻譯'], vi: ['Xóa', 'Dịch'], th: ['ลบ', 'แปล'], tl: ['Burahin', 'Isalin'], ms: ['Padam', 'Terjemah'], id: ['Hapus', 'Terjemahkan'], my: ['ဖျက်', 'ဘာသာပြန်'], de: ['Löschen', 'Übersetzen'], fr: ['Effacer', 'Traduire'], es: ['Borrar', 'Traducir'], it: ['Cancella', 'Traduci'], nl: ['Wissen', 'Vertalen'], pt: ['Apagar', 'Traduzir'], pl: ['Wyczyść', 'Tłumacz'], cs: ['Smazat', 'Přeložit'], sv: ['Rensa', 'Översätt'], tr: ['Sil', 'Çevir'], ru: ['Очистить', 'Перевести'], mn: ['Арилгах', 'Орчуулах'], uz: ['Tozalash', 'Tarjima'], kk: ['Тазалау', 'Аудару'], ar: ['مسح', 'ترجمة'], hi: ['मिटाएँ', 'अनुवाद'], no: ['Tøm', 'Oversett'], ne: ['मेटाउनुहोस्', 'अनुवाद'] };
+        const TR_LISTEN = { en: 'Listening', ja: '聞いています', 'zh-CN': '正在听', 'zh-TW': '正在聽', 'zh-HK': '正在聽', vi: 'Đang nghe', th: 'กำลังฟัง', tl: 'Nakikinig', ms: 'Mendengar', id: 'Mendengarkan', my: 'နားထောင်နေသည်', de: 'Hört zu', fr: 'Écoute', es: 'Escuchando', it: 'Ascolta', nl: 'Luistert', pt: 'Ouvindo', pl: 'Słucham', cs: 'Poslouchám', sv: 'Lyssnar', tr: 'Dinliyor', ru: 'Слушаю', mn: 'Сонсож байна', uz: 'Tinglamoqda', kk: 'Тыңдап жатыр', ar: 'يستمع', hi: 'सुन रहे हैं', no: 'Lytter', ne: 'सुन्दै हुनुहुन्छ' };
+        function trFxLang() { return langMap[document.getElementById('tr-lang').value] || 'en'; }
+        function trFxSayLabel(on) { const k = trFxLang(); return on ? (TR_SPEAK_NOW[k] || TR_SPEAK_NOW.en) : (TR_LISTEN[k] || TR_LISTEN.en); } // 외국어 쪽 라벨: 말할 때는 그 나라 말 '말씀하세요', 들을 때는 그 나라 말 '듣는 중'
         function fitBtnText(b) { b.style.fontSize = ''; let f = 25; while (f > 12 && b.scrollWidth > b.clientWidth) { f--; b.style.fontSize = f + 'px'; } } // 긴 외국어는 버튼 안에 들어가게 글자를 줄임
         const TR_SPEAK_NOW = { en: 'Please speak', ja: 'お話しください', 'zh-CN': '请说话', 'zh-TW': '請說話', 'zh-HK': '請講', vi: 'Mời bạn nói', th: 'กรุณาพูด', tl: 'Magsalita po kayo', ms: 'Sila bercakap', id: 'Silakan bicara', my: 'ပြောပါ', de: 'Bitte sprechen', fr: 'Parlez, s’il vous plaît', es: 'Hable, por favor', it: 'Parli, per favore', nl: 'Spreek alstublieft', pt: 'Fale, por favor', pl: 'Proszę mówić', cs: 'Mluvte, prosím', sv: 'Tala, tack', tr: 'Lütfen konuşun', ru: 'Говорите, пожалуйста', mn: 'Ярина уу', uz: 'Gapiring', kk: 'Сөйлеңіз', ar: 'تفضل بالكلام', hi: 'कृपया बोलिए', no: 'Vennligst snakk', ne: 'कृपया बोल्नुहोस्' };
         function fitForeignText() { // 외국어 국가명과 아래 안내 문구를 칸 너비에 맞게 자동으로 키움 (잘리지 않게)
@@ -953,14 +956,10 @@
                 let f = 40; while (f > 14) { cv.font = `700 ${f}px ${cs.fontFamily}`; if (cv.measureText(txt).width <= avail) break; f--; }
                 s.style.fontSize = f + 'px';
             }
-            const n = document.getElementById('tr-speak-now'), box = n.parentElement;
-            const bw = n.clientWidth || (box.clientWidth - 20);
-            if (bw > 0) {
-                const cn = getComputedStyle(n);
-                cv.font = `900 40px ${cn.fontFamily}`;
-                const w = cv.measureText(n.innerText).width;
-                n.style.fontSize = Math.max(14, Math.min(44, Math.floor(40 * bw / Math.max(w, 1)))) + 'px';
-            }
+            const n = document.getElementById('tr-speak-now');
+            let f = 40; n.style.fontSize = f + 'px';
+            while (f > 12 && n.scrollWidth > n.clientWidth) { f--; n.style.fontSize = f + 'px'; } // 실제 화면 기준으로 잘리지 않을 때까지 줄임
+
         }
         function trForeignButtons() {
             document.getElementById('tr-speak-now').innerText = '🎤 ' + (TR_TAP_SPEAK[langMap[document.getElementById('tr-lang').value]] || TR_TAP_SPEAK.en);
@@ -985,11 +984,11 @@
                 ico[1].textContent = on && trReverse ? '👄' : '👂';
                 const say = [kor, fxp].map(p => p.querySelector('.tr-say'));
                 say[0].textContent = on && !trReverse ? '말씀하세요' : '듣는 중';
-                say[1].textContent = on && trReverse ? '말씀하세요' : '듣는 중';
+                say[1].textContent = trFxSayLabel(on && trReverse);
             }
             bot.placeholder = ''; // 위쪽 중복 안내문은 없애고, 아래 노란색 안내 문구 한 개만 표시
         }
-        function trLangChanged() { document.getElementById('tr-input2').placeholder = ''; trForeignButtons(); if (trReverse && recog) startVoiceInput(); }
+        function trLangChanged() { document.getElementById('tr-input2').placeholder = ''; trForeignButtons(); document.getElementById('tr-input2').closest('.tr-panel').querySelector('.tr-say').textContent = trFxSayLabel(!!(recog && trReverse)); if (trReverse && recog) startVoiceInput(); }
         function micErrorText(name) {
             if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'not-allowed' || name === 'service-not-allowed')
                 return '마이크가 허용되지 않았어요. ① 크롬 주소창 왼쪽 아이콘 → 권한 → 마이크 허용, ② 그래도 안 되면 폰 설정 → 앱 → Chrome → 권한 → 마이크 → "앱 사용 중에만 허용".' + KEYBOARD_TIP;
