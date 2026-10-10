@@ -326,20 +326,20 @@
         #translator-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: none; flex-direction: column; z-index: 2200; box-sizing: border-box; }
         .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 16px 14px; }
         .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; transition: flex .3s ease, opacity .3s ease; }
-        .tr-panel.speaker { flex: 1.8; }
-        .tr-panel.listener { flex: 0.8; }
+        .tr-panel.speaker { flex: 3; } /* 말하는 칸이 화면의 약 3/4 */
+        .tr-panel.listener { flex: 0 0 auto; } /* 듣는 칸은 필요한 만큼만(얇게), 나머지는 말하는 칸이 차지 */
         .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
-        .tr-panel.listener > .tr-lang-row, .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea, .tr-panel.listener .tr-box > #tr-speak-now { opacity: 0.1; }
-        .tr-panel.listener .tr-role .tr-icon { font-size: 34px; }
-        .tr-panel.speaker textarea { border: 2px solid var(--accent-color); background: #3d4558; box-shadow: 0 0 22px -6px rgba(224,184,74,.55); padding-right: 118px; }
+        .tr-panel.listener > .tr-lang-row, .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea { opacity: 0.1; }
+        #translator-view .tr-panel.listener textarea { min-height: 44px; }
+        .tr-panel.listener .tr-box { min-height: 60px; } /* 듣는 칸이 너무 줄어 글자가 겹치지 않게 최소 높이 */
+        .tr-panel.listener #tr-speak-now { font-size: 22px !important; bottom: 50%; transform: translateY(50%); } /* 듣는 칸 안내는 작게, 가운데 */
+        #translator-view .tr-panel.speaker textarea { background: #4b5468; }
+        .tr-panel.speaker textarea { border: 2px solid var(--accent-color); background: #4b5468; box-shadow: 0 0 22px -6px rgba(224,184,74,.55); padding-right: 64px; } /* 말하는 칸 바탕을 밝게 */
         .tr-role { position: absolute; right: 12px; top: 12px; display: none; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; z-index: 2; }
-        .tr-panel.speaker .tr-role, .tr-panel.listener .tr-role { display: flex; }
+        .tr-panel.speaker .tr-role { display: flex; opacity: 0.45; } /* 입술은 말하는 쪽에만, 희미하게, 깜빡임 없음. 듣는 쪽은 귀·글씨 없음 */
         .tr-role .tr-icon { font-size: 40px; line-height: 1; }
-        .tr-role .tr-say { font-size: 15px; font-weight: 900; color: var(--accent-bright); }
-        .tr-panel.speaker .tr-say { animation: sayBlink 0.33s ease-in-out infinite; }
+        .tr-role .tr-say { display: none; } /* 입술 아래 글씨는 아래 안내 문구와 겹쳐서 표시 안 함 */
         @keyframes sayBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .tr-panel.listener .tr-say { color: var(--text-color); }
-        .tr-panel.listener .tr-role { opacity: 1; }
         .tr-panel.listener .tr-lang-row select { pointer-events: none; } /* 듣는 쪽일 때는 나라 선택창이 열리지 않게 막음 */
         .tr-body > .tr-panel:first-child .tr-role { display: none !important; } /* 한국어 쪽에는 귀·입술 표시 안 함 */
         .tr-panel:last-of-type { margin-bottom: 0; }
@@ -353,7 +353,9 @@
         #tr-input, #tr-input2 { width: 100%; flex: 1; min-height: 70px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--radius-xl); padding: 18px; font-size: 19px; font-weight: 600; resize: none; outline: none; box-sizing: border-box; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); font-family: inherit; -webkit-user-select: text; user-select: text; }
         #tr-input:focus { border-color: var(--accent-color); }
         #tr-input2 { cursor: pointer; }
-        #tr-speak-now { display: block; position: absolute; left: 10px; right: 10px; bottom: 14px; text-align: center; white-space: nowrap; overflow: hidden; font-size: 34px; font-weight: 900; line-height: 1.2; color: #ffd54a; text-shadow: 0 0 12px rgba(255,213,74,.45); pointer-events: none; animation: speakBlink 0.33s ease-in-out infinite; }
+        #tr-speak-now { display: block; position: absolute; left: 10px; right: 10px; bottom: 14px; text-align: center; white-space: nowrap; overflow: hidden; font-size: 34px; font-weight: 900; line-height: 1.2; color: var(--text-dim); pointer-events: none; } /* 대기·듣는 중: "Tap here and speak" 흐린 회색, 깜빡임 없음 */
+        #tr-speak-now.live { color: #ffd54a; text-shadow: 0 0 12px rgba(255,213,74,.45); animation: speakBlink 0.33s ease-in-out infinite; } /* 마이크가 켜지면: "Please speak" 노란색 깜빡임 */
+        .tr-panel.listener #tr-speak-now { opacity: 0.6; }
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
@@ -990,8 +992,12 @@
             }
             bot.placeholder = '';
             const sn = document.getElementById('tr-speak-now'); // 말할 때는 그 나라 말 "Please speak" 문구, 아닐 때는 "Tap here" 문구
-            if (sn) { const k = trFxLang(); sn.innerText = '🎤 ' + (on && trReverse ? (TR_SPEAK_NOW[k] || TR_SPEAK_NOW.en) : (TR_TAP_SPEAK[k] || TR_TAP_SPEAK.en)); fitForeignText(); }
+            if (sn) { const k = trFxLang(); sn.innerText = '🎤 ' + (on && trReverse ? (TR_SPEAK_NOW[k] || TR_SPEAK_NOW.en) : (TR_TAP_SPEAK[k] || TR_TAP_SPEAK.en)); sn.classList.toggle('live', on && trReverse); fitForeignText(); }
         }
+        setInterval(() => { // 외국어 칸에 말한 글자가 나오면 안내 문구를 숨기고, 칸이 비면 다시 보임
+            const sn = document.getElementById('tr-speak-now'), b = document.getElementById('tr-input2');
+            if (sn && b) sn.style.visibility = b.value.trim() ? 'hidden' : 'visible';
+        }, 250);
         function trLangChanged() { document.getElementById('tr-input2').placeholder = ''; trForeignButtons(); document.getElementById('tr-input2').closest('.tr-panel').querySelector('.tr-say').textContent = trFxSayLabel(!!(recog && trReverse)); if (trReverse && recog) startVoiceInput(); }
         function micErrorText(name) {
             if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'not-allowed' || name === 'service-not-allowed')
