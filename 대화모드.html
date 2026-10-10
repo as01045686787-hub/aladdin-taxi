@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>대화 모드 · 알라딘 택시</title>
+<style>
+  :root { --bg:#0f1115; --card:#1a1d24; --line:#2b3039; --text:#f2f2f2; --dim:#9aa3b2; --gold:#e0b84a; --gold2:#c9a227; --red:#ff6b6b; --green:#4cd38a; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  body { display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+
+  /* 상단: 언어 선택 + 상태 */
+  .top { display:flex; align-items:center; gap:10px; padding:calc(env(safe-area-inset-top) + 10px) 14px 10px; border-bottom:1px solid var(--line); }
+  .top select { flex:1; min-width:0; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:14px; padding:12px; font-size:17px; font-weight:700; font-family:inherit; }
+  .status { flex:none; font-size:13px; font-weight:800; padding:8px 10px; border-radius:999px; background:var(--card); color:var(--dim); white-space:nowrap; }
+  .status.on { color:var(--green); }
+  .status.busy { color:var(--gold); }
+
+  /* 중앙: 가장 최근 대화 (운전 중 시선 최소화를 위해 크게, 짧게) */
+  .stage { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; padding:16px 18px; gap:14px; overflow:hidden; }
+  .who { font-size:14px; font-weight:800; letter-spacing:.3px; color:var(--dim); }
+  .box { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:18px 18px; min-height:0; position:relative; transition: background .2s, border-color .2s, box-shadow .2s; }
+  .box.speaker { background:#2a2f3a; border:2px solid var(--gold); box-shadow:0 0 22px -6px rgba(224,184,74,.55); }
+  .box .role { position:absolute; right:14px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; align-items:center; gap:4px; pointer-events:none; }
+  .box.speaker .role, .box.listener .role { display:flex; }
+  .role .icon { font-size:44px; line-height:1; }
+  .role .say { font-size:17px; font-weight:900; color:var(--gold); }
+  .box.speaker .role .say { animation: blink 0.33s steps(2, start) infinite; }
+  .box.listener .role .say { color: var(--dim); font-weight:700; }
+  @keyframes blink { 0%, 100% { opacity:1; } 50% { opacity:0.15; } }
+  .box.ko .txt { font-size:26px; font-weight:800; line-height:1.4; word-break:keep-all; }
+  .box.fx .txt { font-size:30px; font-weight:800; line-height:1.35; word-break:break-word; color:var(--gold); }
+  .box .sub { margin-top:10px; font-size:15px; color:var(--dim); line-height:1.45; word-break:break-word; }
+  .interim { font-size:16px; color:var(--dim); font-style:italic; min-height:22px; text-align:center; }
+  .hint { font-size:15px; color:var(--dim); text-align:center; line-height:1.5; }
+
+  /* 하단: 큰 버튼 */
+  .bottom { display:flex; gap:12px; padding:12px 14px calc(env(safe-area-inset-bottom) + 14px); border-top:1px solid var(--line); }
+  .bottom button { flex:1; height:64px; border:none; border-radius:18px; font-size:20px; font-weight:900; font-family:inherit; cursor:pointer; }
+  #btn-main { background:linear-gradient(150deg, #e0b84a, #c9a227); color:#201802; }
+  #btn-main.stop { background:var(--red); color:#fff; }
+  #btn-repeat { flex:0 0 96px; background:var(--card); color:var(--text); border:1px solid var(--line) !important; }
+  #btn-repeat:disabled { opacity:.4; }
+  button:active { transform:scale(.97); }
+
+  .log { display:none; }
+  .log.open { display:block; position:fixed; inset:0; background:rgba(0,0,0,.6); }
+  .log .sheet { position:absolute; left:0; right:0; bottom:0; max-height:70vh; overflow:auto; background:var(--bg); border-radius:22px 22px 0 0; padding:16px; }
+  .log .row { border-bottom:1px solid var(--line); padding:10px 0; font-size:16px; line-height:1.45; }
+  .log .row b { color:var(--gold); }
+  .log .row .dim { color:var(--dim); font-size:14px; }
+  #btn-log { flex:0 0 52px; font-size:22px !important; }
+  #err { display:none; margin:0 18px 8px; font-size:14px; line-height:1.5; color:#f0a3a3; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <select id="lang" aria-label="손님 언어"></select>
+  <div id="status" class="status">대기</div>
+</div>
+
+<div class="stage">
+  <div class="who">🚕 기사님 (한국어)</div>
+  <div class="box ko" id="box-ko">
+    <div class="role"><div class="icon">👄</div><div class="say">말씀하세요</div></div>
+    <div id="ko-txt" class="txt">말씀하시면 자동으로 통역합니다</div>
+    <div id="ko-sub" class="sub"></div>
+  </div>
+
+  <div class="who" id="fx-who">🌏 손님</div>
+  <div class="box fx" id="box-fx">
+    <div class="role"><div class="icon">👄</div><div class="say">말씀하세요</div></div>
+    <div id="fx-txt" class="txt">—</div>
+    <div id="fx-sub" class="sub"></div>
+  </div>
+
+  <div id="interim" class="interim"></div>
+  <div id="hint" class="hint">시작을 누르고 화면을 켜 둔 채로 사용하세요.<br>통역 음성이 나오는 동안은 듣지 않습니다.</div>
+</div>
+
+<div id="err"></div>
+
+<div class="bottom">
+  <button id="btn-repeat" disabled onclick="repeatLast()">🔁 다시</button>
+  <button id="btn-main" onclick="toggleRun()">▶ 대화 시작</button>
+</div>
+
+
+<script>
+/* ====================================================================
+ * 대화 모드 (기존 index.html과 독립된 별도 화면)
+ *  - 기사님 말: 한국어 인식 / 손님 말: 선택한 언어 인식 (두 인식기를 동시에 돌림)
+ *  - 두 인식 결과 중 신뢰도가 높은 쪽을 채택
+ *  - 통역 음성이 나오는 동안은 인식을 멈춰 되먹임을 막음
+ *  - 번역은 기존 앱과 같은 구글 gtx 엔드포인트 사용 (상용화 시 공식 API로 교체 필요)
+ * ==================================================================== */
+
+const LANGS = [
+  ['en-US','en','🇺🇸 영어 (미국)'], ['en-GB','en','🇬🇧 영어 (영국)'], ['en-AU','en','🇦🇺 영어 (호주)'], ['en-CA','en','🇨🇦 영어 (캐나다)'],
+  ['zh-CN','zh-CN','🇨🇳 중국어 (간체)'], ['zh-TW','zh-TW','🇹🇼 대만어 (번체)'], ['zh-HK','zh-HK','🇭🇰 홍콩어'],
+  ['ja-JP','ja','🇯🇵 일본어'], ['vi-VN','vi','🇻🇳 베트남어'], ['th-TH','th','🇹🇭 태국어'],
+  ['tl-PH','tl','🇵🇭 필리핀어'], ['id-ID','id','🇮🇩 인도네시아어'], ['ms-MY','ms','🇲🇾 말레이어'],
+  ['mn-MN','mn','🇲🇳 몽골어'], ['uz-UZ','uz','🇺🇿 우즈베크어'], ['kk-KZ','kk','🇰🇿 카자흐어'],
+  ['ar-AE','ar','🇦🇪 아랍어'], ['hi-IN','hi','🇮🇳 힌디어'], ['ne-NP','ne','🇳🇵 네팔어'],
+  ['ru-RU','ru','🇷🇺 러시아어'], ['de-DE','de','🇩🇪 독일어'], ['fr-FR','fr','🇫🇷 프랑스어'],
+  ['es-ES','es','🇪🇸 스페인어'], ['es-MX','es','🇲🇽 스페인어 (멕시코)'], ['it-IT','it','🇮🇹 이탈리아어'],
+  ['pt-PT','pt','🇵🇹 포르투갈어'], ['pt-BR','pt','🇧🇷 포르투갈어 (브라질)'], ['nl-NL','nl','🇳🇱 네덜란드어'],
+  ['pl-PL','pl','🇵🇱 폴란드어'], ['cs-CZ','cs','🇨🇿 체코어'], ['sv-SE','sv','🇸🇪 스웨덴어'],
+  ['tr-TR','tr','🇹🇷 튀르키예어'], ['no-NO','no','🇳🇴 노르웨이어'], ['my-MM','my','🇲🇲 미얀마어']
+];
+const KO = { rec: 'ko-KR', tr: 'ko', name: '한국어' };
+const SAVE_KEY = 'taxi_conv_lang';
+const COMMIT_WAIT = 700;   // 두 인식기 결과를 기다리는 시간(ms)
+const DUP_WINDOW = 3000;   // 같은 문장이 연달아 들어오면 무시(ms)
+
+const $ = id => document.getElementById(id);
+let running = false, paused = false, speaking = false;
+let recs = {};             // { ko: SpeechRecognition, fx: SpeechRecognition }
+let pending = null;        // 신뢰도 비교 대기 중인 결과
+let lastCommit = { text: '', at: 0 };
+let lastTurn = null;       // { from, ko, fx, foreignRec }
+let wakeLock = null;
+let log = [];
+
+/* ---------- 초기화 ---------- */
+(function init() {
+  const sel = $('lang');
+  sel.innerHTML = LANGS.map(l => `<option value="${l[0]}" data-tr="${l[1]}">${l[2]}</option>`).join('');
+  let saved = null; try { saved = localStorage.getItem(SAVE_KEY); } catch (e) {}
+  if (saved && LANGS.some(l => l[0] === saved)) sel.value = saved;
+  sel.onchange = () => { try { localStorage.setItem(SAVE_KEY, sel.value); } catch (e) {} setFxLabel(); if (running) { stopAll(); startAll(); } };
+  setFxLabel();
+  if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    showErr('이 브라우저는 음성 인식을 지원하지 않아요. 크롬으로 열어 주세요. (카카오톡·네이버 앱 안에서는 안 돼요)');
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden && running) stopRun('화면이 꺼져 대화를 멈췄어요. 다시 시작해 주세요.'); });
+})();
+
+function setFxLabel() {
+  const o = currentLang();
+  $('fx-who').textContent = `🌏 손님 (${o.name})`;
+}
+function currentLang() {
+  const sel = $('lang'), opt = sel.options[sel.selectedIndex];
+  return { rec: sel.value, tr: opt.dataset.tr, name: opt.textContent.replace(/^\S+\s/, '') };
+}
+
+/* ---------- 시작 / 종료 ---------- */
+async function toggleRun() {
+  if (running) { stopRun(); return; }
+  showErr('');
+  if (!(await ensureMic())) return;
+  running = true; paused = false;
+  setMainBtn(true);
+  setStatus('듣는 중', 'on');
+  setSpeaker(nextSpeaker);
+  await takeWakeLock();
+  startAll();
+}
+
+function stopRun(msg) {
+  running = false;
+  stopAll();
+  setMainBtn(false);
+  setSpeaker(null);
+  setStatus('대기', '');
+  releaseWakeLock();
+  if (msg) showErr(msg);
+}
+
+async function ensureMic() {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    s.getTracks().forEach(t => t.stop());
+    return true;
+  } catch (e) {
+    showErr('마이크 권한이 필요해요. 주소창 옆 설정에서 마이크를 허용해 주세요.');
+    return false;
+  }
+}
+
+async function takeWakeLock() {
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+function releaseWakeLock() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+function setMainBtn(on) {
+  const b = $('btn-main');
+  b.textContent = on ? '■ 대화 종료' : '▶ 대화 시작';
+  b.classList.toggle('stop', on);
+}
+function setStatus(text, cls) { const s = $('status'); s.textContent = text; s.className = 'status' + (cls ? ' ' + cls : ''); }
+function showErr(msg) { const e = $('err'); e.textContent = msg || ''; e.style.display = msg ? 'block' : 'none'; }
+
+/* ---------- 인식기 두 개 ---------- */
+function makeRecognizer(side, lang) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = lang;
+  r.continuous = false;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+  r.onresult = e => {
+    let interim = '', final = '', conf = 0;
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const res = e.results[i];
+      if (res.isFinal) { final += res[0].transcript; conf = Math.max(conf, res[0].confidence || 0); }
+      else interim += res[0].transcript;
+    }
+    if (interim && !speaking) $('interim').textContent = interim;
+    if (final.trim()) offer(side, final.trim(), conf);
+  };
+  r.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { stopRun('마이크 권한이 거부되었어요.'); }
+    // no-speech, aborted 등은 무시하고 onend에서 다시 켠다
+  };
+  r.onend = () => {
+    if (running && !paused && recs[side] === r) setTimeout(() => startOne(side), 150);
+  };
+  return r;
+}
+
+function startOne(side) {
+  if (!running || paused) return;
+  const r = recs[side];
+  if (!r) return;
+  try { r.start(); } catch (e) { /* 이미 시작된 경우 무시 */ }
+}
+
+function startAll() {
+  const fxLang = currentLang().rec;
+  recs.ko = makeRecognizer('ko', KO.rec);
+  recs.fx = makeRecognizer('fx', fxLang);
+  if (!recs.ko || !recs.fx) return;
+  startOne('ko');
+  setTimeout(() => startOne('fx'), 300); // 두 인식기를 한꺼번에 켜면 충돌하는 기기가 있어 살짝 엇갈리게 시작
+}
+
+function stopAll() {
+  const rs = recs; recs = {};
+  Object.values(rs).forEach(r => { if (!r) return; r.onend = null; try { r.abort(); } catch (e) {} });
+  pending = null;
+  $('interim').textContent = '';
+}
+
+function pauseListening() {
+  paused = true;
+  Object.values(recs).forEach(r => { if (!r) return; r.onend = null; try { r.abort(); } catch (e) {} });
+}
+function resumeListening() {
+  if (!running) return;
+  paused = false;
+  const fxLang = currentLang().rec;
+  if (recs.ko && recs.fx && recs.ko.lang === KO.rec && recs.fx.lang === fxLang) {
+    Object.keys(recs).forEach(side => {
+      const r = recs[side];
+      r.onend = () => { if (running && !paused && recs[side] === r) setTimeout(() => startOne(side), 150); };
+      startOne(side);
+    });
+  } else {
+    startAll();
+  }
+}
+
+/* ---------- 신뢰도 비교 후 채택 ---------- */
+function offer(side, text, conf) {
+  if (speaking || paused) return;
+  if (!pending) {
+    pending = { best: null, timer: setTimeout(commit, COMMIT_WAIT) };
+  }
+  // 신뢰도가 없는 기기(0)는 같은 조건으로 비교하도록 0.5를 준다
+  const score = conf > 0 ? conf : 0.5;
+  if (!pending.best || score > pending.best.score) pending.best = { side, text, score };
+}
+
+function commit() {
+  const p = pending; pending = null;
+  if (!p || !p.best || !running || paused) return;
+  const { side, text } = p.best;
+  const now = Date.now();
+  if (text === lastCommit.text && now - lastCommit.at < DUP_WINDOW) return;
+  lastCommit = { text, at: now };
+  $('interim').textContent = '';
+  handleTurn(side, text);
+}
+
+/* ---------- 번역 · 표시 · 음성 ---------- */
+async function translate(text, from, to) {
+  const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+  const data = await res.json();
+  return data[0].map(p => p[0]).join('');
+}
+
+// 말할 차례 표시: 말하는 쪽 박스만 밝게, 입술 아이콘 + 깜빡이는 "말씀하세요"
+let nextSpeaker = 'ko';          // 처음엔 기사님이 먼저 말함
+function setSpeaker(side) {       // side: 'ko' | 'fx' | null(통역 음성 재생 중)
+  const boxes = { ko: document.getElementById('box-ko'), fx: document.getElementById('box-fx') };
+  ['ko', 'fx'].forEach(k => {
+    const b = boxes[k], isSpeaker = side === k, isListener = !!side && side !== k;
+    b.classList.toggle('speaker', isSpeaker);
+    b.classList.toggle('listener', isListener);
+    b.querySelector('.icon').textContent = isSpeaker ? '👄' : '👂';
+    b.querySelector('.say').textContent = isSpeaker ? '말씀하세요' : '듣는 중';
+  });
+}
+
+async function handleTurn(side, text) {
+  const o = currentLang();
+  setStatus('통역 중', 'busy');
+  setSpeaker(null);
+  nextSpeaker = side === 'ko' ? 'fx' : 'ko';   // 기사님 말 뒤엔 손님 차례, 손님 말 뒤엔 기사님 차례
+  try {
+    if (side === 'ko') {
+      // 기사님 → 손님: 한국어를 손님 언어로
+      const fx = await translate(text, KO.tr, o.tr);
+      lastTurn = { from: 'ko', ko: text, fx, lang: o.rec };
+      showTurn(lastTurn);
+      await speakOut(fx, o.rec);
+    } else {
+      // 손님 → 기사님: 손님 말을 한국어로
+      const ko = await translate(text, o.tr, KO.tr);
+      lastTurn = { from: 'fx', ko, fx: text, lang: KO.rec };
+      showTurn(lastTurn);
+      await speakOut(ko, KO.rec);
+    }
+  } catch (e) {
+    showErr('통신 오류로 번역하지 못했어요. 인터넷 연결을 확인해 주세요.');
+  }
+  if (running) { setStatus('듣는 중', 'on'); setSpeaker(nextSpeaker); }
+}
+
+function showTurn(t) {
+  $('btn-repeat').disabled = false;
+  $('interim').textContent = '';
+  if (t.from === 'ko') {
+    $('ko-txt').textContent = t.ko;  $('ko-sub').textContent = '';
+    $('fx-txt').textContent = t.fx;  $('fx-sub').textContent = '';
+  } else {
+    $('fx-txt').textContent = t.fx;  $('fx-sub').textContent = '';
+    $('ko-txt').textContent = t.ko;  $('ko-sub').textContent = '';
+  }
+}
+
+function speakOut(text, lang) {
+  return new Promise(resolve => {
+    if (!('speechSynthesis' in window)) { resolve(); return; }
+    pauseListening();
+    speaking = true;
+    setStatus('말하는 중', 'busy');
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang; u.rate = 0.81; u.pitch = 1.0;
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      speaking = false;
+      setTimeout(() => { resumeListening(); if (running) setStatus('듣는 중', 'on'); resolve(); }, 400); // 잔향이 인식되지 않도록 짧게 대기
+    };
+    u.onend = finish; u.onerror = finish;
+    // 음성 엔진이 끝 이벤트를 주지 않는 기기 대비 안전장치
+    setTimeout(finish, Math.min(20000, 2000 + text.length * 250));
+    speechSynthesis.speak(u);
+  });
+}
+
+function repeatLast() {
+  if (!lastTurn) return;
+  if (speaking) return;
+  const t = lastTurn;
+  speakOut(t.from === 'ko' ? t.fx : t.ko, t.lang);
+}
+
+/* ---------- 대화 기록 ---------- */
+function addLog(from, orig, tr) {
+  log.unshift({ from, orig, tr, at: new Date() });
+  if (log.length > 100) log.length = 100;
+  renderLog();
+}
+function renderLog() {
+  $('log-list').innerHTML = log.length ? log.map(r => {
+    const who = r.from === 'ko' ? '🚕 기사님' : '🌏 손님';
+    const time = r.at.toTimeString().slice(0, 5);
+    return `<div class="row"><span class="dim">${time} · ${who}</span><br><b>${escapeHtml(r.tr)}</b><br><span class="dim">${escapeHtml(r.orig)}</span></div>`;
+  }).join('') : '<div class="dim" style="text-align:center; padding:20px;">아직 대화가 없어요</div>';
+}
+function toggleLog(open) { $('log').classList.toggle('open', !!open); if (open) renderLog(); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+</script>
+</body>
+</html>
