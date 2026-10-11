@@ -324,10 +324,10 @@
         #translator-fab:active { transform: scale(0.92); }
         #translator-fab svg { width: 26px; height: 26px; fill: #201802; }
         #translator-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: none; flex-direction: column; z-index: 2200; box-sizing: border-box; }
-        .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 16px 14px; }
+        .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 6px 14px; } /* 좌우 여백을 줄여 대화창을 넓힘 */
         .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; transition: flex .3s ease, opacity .3s ease; }
-        .tr-panel.speaker { flex: 10; } /* 말하는 칸을 길게 늘림 (폰 기준) */
-        .tr-panel.listener { flex: 0 0 auto; margin-top: auto; margin-bottom: 0; } /* 듣는 칸은 필요한 만큼만(얇게), 화면 아래로 밀어냄 */
+        .tr-panel.speaker { flex: 7; } /* 말하는 칸을 길게 늘림 (폰 기준) */
+        .tr-panel.listener { flex: 0 0 auto; } /* 듣는 칸은 필요한 만큼만(얇게), 나머지는 말하는 칸이 차지 */
         .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
         .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea { opacity: 0.1; }
         .tr-panel.listener > .tr-lang-row { opacity: 0.6; } /* 국가명은 "Tap here and speak"와 같은 밝기 */
@@ -336,7 +336,7 @@
         .tr-box:has(.tr-note:not(:empty)) textarea { padding-top: 48px; } /* 작은 글씨가 있으면 입력 글자는 그 아래부터 */
         .tr-panel.listener .tr-note { opacity: 0.2; }
         #translator-view .tr-panel.listener textarea { min-height: 44px; }
-        .tr-panel.listener .tr-box { min-height: 44px; } /* 듣는 칸이 너무 줄어 글자가 겹치지 않게 최소 높이 */
+        .tr-panel.listener .tr-box { min-height: 60px; } /* 듣는 칸이 너무 줄어 글자가 겹치지 않게 최소 높이 */
         .tr-panel.listener #tr-speak-now { font-size: 22px !important; bottom: 50%; transform: translateY(50%); } /* 듣는 칸 안내는 작게, 가운데 */
         #translator-view .tr-panel.speaker textarea { background: #4b5468; }
         .tr-panel.speaker textarea { border: 2px solid var(--accent-color); background: #4b5468; box-shadow: 0 0 22px -6px rgba(224,184,74,.55); padding-right: 64px; } /* 말하는 칸 바탕을 밝게 */
@@ -347,8 +347,8 @@
         @keyframes sayBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
         .tr-panel.listener .tr-lang-row select { pointer-events: none; } /* 듣는 쪽일 때는 나라 선택창이 열리지 않게 막음 */
         .tr-body > .tr-panel:first-child .tr-role { display: none !important; } /* 한국어 쪽에는 귀·입술 표시 안 함 */
-        .tr-panel:last-of-type { margin-bottom: 0; margin-top: auto; } /* 외국어 영역을 화면 아래로 밀어냄 */
-        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+        .tr-panel:last-of-type { margin-bottom: 0; }
+        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 10px 16px; cursor: pointer; }
         .tr-from:active { background: var(--surface-2); }
@@ -361,6 +361,10 @@
         #tr-speak-now { display: block; position: absolute; left: 10px; right: 10px; bottom: 14px; text-align: center; white-space: nowrap; overflow: hidden; font-size: 34px; font-weight: 900; line-height: 1.2; letter-spacing: -0.04em; color: var(--text-dim); pointer-events: none; } /* 대기·듣는 중: "Tap here and speak" 흐린 회색, 깜빡임 없음 */
         #tr-speak-now.live { color: #ffd54a; text-shadow: 0 0 12px rgba(255,213,74,.45); animation: speakBlink 0.33s ease-in-out infinite; } /* 마이크가 켜지면: "Please speak" 노란색 깜빡임 */
         .tr-panel.listener #tr-speak-now { opacity: 0.6; }
+        .tr-body > .tr-panel + .tr-panel.listener > .tr-actions { display: none; } /* 맨 밑 줄(흐린 마이크·지우기·통역 버튼)은 외국어 쪽이 듣는 동안 없앰 */
+        .tr-panel.listener { margin-bottom: 0; } /* 맨 밑 여백 제거 */
+        .tr-panel.listener > .tr-lang-row { margin-bottom: 2px; } /* 국가명과 아래 칸 사이 줄간격 줄임 */
+        .tr-panel.listener .tr-box { min-height: 48px; }
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
