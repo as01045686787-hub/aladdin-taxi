@@ -327,7 +327,7 @@
         .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 16px 14px; }
         .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; transition: flex .3s ease, opacity .3s ease; }
         .tr-panel.speaker { flex: 10; } /* 말하는 칸을 길게 늘림 (폰 기준) */
-        .tr-panel.listener { flex: 0 0 auto; } /* 듣는 칸은 필요한 만큼만(얇게), 나머지는 말하는 칸이 차지 */
+        .tr-panel.listener { flex: 0 0 auto; margin-top: auto; margin-bottom: 0; } /* 듣는 칸은 필요한 만큼만(얇게), 화면 아래로 밀어냄 */
         .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
         .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea { opacity: 0.1; }
         .tr-panel.listener > .tr-lang-row { opacity: 0.6; } /* 국가명은 "Tap here and speak"와 같은 밝기 */
@@ -347,8 +347,8 @@
         @keyframes sayBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
         .tr-panel.listener .tr-lang-row select { pointer-events: none; } /* 듣는 쪽일 때는 나라 선택창이 열리지 않게 막음 */
         .tr-body > .tr-panel:first-child .tr-role { display: none !important; } /* 한국어 쪽에는 귀·입술 표시 안 함 */
-        .tr-panel:last-of-type { margin-bottom: 0; }
-        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+        .tr-panel:last-of-type { margin-bottom: 0; margin-top: auto; } /* 외국어 영역을 화면 아래로 밀어냄 */
+        .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 10px 16px; cursor: pointer; }
         .tr-from:active { background: var(--surface-2); }
