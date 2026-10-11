@@ -365,6 +365,13 @@
         .tr-panel.listener { margin-bottom: 0; } /* 맨 밑 여백 제거 */
         .tr-panel.listener > .tr-lang-row { margin-bottom: 2px; } /* 국가명과 아래 칸 사이 줄간격 줄임 */
         .tr-panel.listener .tr-box { min-height: 48px; }
+        .tr-body > .tr-panel + .tr-panel.listener > .tr-box { flex: 0 0 40px; min-height: 0; height: 40px; }
+        #translator-view .tr-body > .tr-panel + .tr-panel.listener textarea { min-height: 0; height: 40px; padding: 0; border: none; box-shadow: none; background: transparent; }
+        .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 4px; }
+        .tr-body > .tr-panel + .tr-panel.listener > .tr-box { flex: 0 0 40px; min-height: 0; height: 40px; } /* 아래 외국어 칸: "Tap here and speak" 한 줄 높이만 남기고 맨 아래로 */
+        #translator-view .tr-body > .tr-panel + .tr-panel.listener textarea { min-height: 0; height: 40px; padding: 0; border: none; box-shadow: none; background: transparent; }
+        .tr-body > .tr-panel + .tr-panel.listener #tr-speak-now { bottom: 50%; }
+        .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 4px; } /* 맨 밑 여백 최소화 */
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
