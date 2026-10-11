@@ -326,7 +326,7 @@
         #translator-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: none; flex-direction: column; z-index: 2200; box-sizing: border-box; }
         .tr-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 16px 14px; }
         .tr-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-bottom: 14px; position: relative; transition: flex .3s ease, opacity .3s ease; }
-        .tr-panel.speaker { flex: 4; } /* 말하는 칸을 길게 늘림 */
+        .tr-panel.speaker { flex: 7; } /* 말하는 칸을 길게 늘림 (폰 기준) */
         .tr-panel.listener { flex: 0 0 auto; } /* 듣는 칸은 필요한 만큼만(얇게), 나머지는 말하는 칸이 차지 */
         .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
         .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea { opacity: 0.1; }
