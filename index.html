@@ -365,13 +365,11 @@
         .tr-panel.listener { margin-bottom: 0; } /* 맨 밑 여백 제거 */
         .tr-panel.listener > .tr-lang-row { margin-bottom: 2px; } /* 국가명과 아래 칸 사이 줄간격 줄임 */
         .tr-panel.listener .tr-box { min-height: 48px; }
-        .tr-body > .tr-panel + .tr-panel.listener > .tr-box { flex: 0 0 40px; min-height: 0; height: 40px; }
-        #translator-view .tr-body > .tr-panel + .tr-panel.listener textarea { min-height: 0; height: 40px; padding: 0; border: none; box-shadow: none; background: transparent; }
-        .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 4px; }
         .tr-body > .tr-panel + .tr-panel.listener > .tr-box { flex: 0 0 40px; min-height: 0; height: 40px; } /* 아래 외국어 칸: "Tap here and speak" 한 줄 높이만 남기고 맨 아래로 */
         #translator-view .tr-body > .tr-panel + .tr-panel.listener textarea { min-height: 0; height: 40px; padding: 0; border: none; box-shadow: none; background: transparent; }
         .tr-body > .tr-panel + .tr-panel.listener #tr-speak-now { bottom: 50%; }
-        .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 4px; } /* 맨 밑 여백 최소화 */
+        .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 18px; } /* 맨 밑 안내 줄이 폰 하단 버튼에 붙지 않게 약간 띄움 */
+        .tr-body > .tr-panel.listener:first-child > .tr-box, .tr-body > .tr-panel.listener:first-child > .tr-actions { display: none; } /* 외국인이 말할 때 위쪽 흐린 한국어 칸·버튼 줄 숨김, "Korean" 줄만 남김 */
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
@@ -486,7 +484,7 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
-                <div class="tr-lang-row"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
+                <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
                 <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
