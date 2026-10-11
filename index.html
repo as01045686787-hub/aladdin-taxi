@@ -995,8 +995,8 @@
             top.placeholder = on && !trReverse ? '말씀하세요...' : '번역할 텍스트를 입력하세요';
             const panels = document.querySelectorAll('#translator-view .tr-panel'), kor = panels[0], fxp = panels[1];
             if (kor && fxp) {
-                kor.classList.toggle('speaker', on && !trReverse); kor.classList.toggle('listener', on && trReverse);
-                fxp.classList.toggle('speaker', on && trReverse); fxp.classList.toggle('listener', on && !trReverse);
+                kor.classList.toggle('speaker', !trReverse); kor.classList.toggle('listener', trReverse); // 마이크가 꺼져도 마지막으로 말한 쪽 화면 배치를 그대로 유지
+                fxp.classList.toggle('speaker', trReverse); fxp.classList.toggle('listener', !trReverse);
                 const ico = [kor, fxp].map(p => p.querySelector('.tr-icon'));
                 ico[0].textContent = on && !trReverse ? '👄' : '👂';
                 ico[1].textContent = on && trReverse ? '👄' : '👂';
