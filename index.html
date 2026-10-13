@@ -822,7 +822,7 @@
         function savePhraseData() { const ko = document.getElementById('edit-phrase-ko').value; if(!ko) return; if(phraseEditIdx > -1) { phraseDB[curC][phraseEditIdx].ko = ko; } else { if(!phraseDB[curC]) phraseDB[curC] = []; phraseDB[curC].push({ko}); } saveData(); if (isSearchActive) { const searchVal = document.getElementById('search-input').value; handleSearch(searchVal); } else { renderPhrases(); } closePhraseEditor(); }
         function deletePhrase() { if(selectedPhraseIdx === -1) return; if(confirm("문장을 삭제할까요?")) { phraseDB[curC].splice(selectedPhraseIdx, 1); selectedPhraseIdx = -1; saveData(); if (isSearchActive) { const searchVal = document.getElementById('search-input').value; handleSearch(searchVal); } else { renderPhrases(); } } }
 
-        function openTour(){ ensureSentinel(3); selectedTourIdx = -1; document.getElementById('tour-header-title').innerText = document.getElementById('header-title').innerText; document.getElementById('tour-view').style.display = 'flex'; renderTour(); }
+        function openTour(){ ensureSentinel(3); selectedTourIdx = -1; const tc = findCountry(curL); document.getElementById('tour-header-title').innerText = tc && curL !== 'ko' ? tc.name : document.getElementById('header-title').innerText; document.getElementById('tour-view').style.display = 'flex'; renderTour(); }
         function closeTour(){ document.getElementById('tour-view').style.display = 'none'; document.getElementById('tour-search-input-container').style.display = 'none'; document.getElementById('tour-search-trigger').style.display = 'flex'; document.getElementById('tour-search-input').value = ''; }
         function toggleTourSearch() { const trig = document.getElementById('tour-search-trigger'), cont = document.getElementById('tour-search-input-container'), input = document.getElementById('tour-search-input'); if (cont.style.display === 'flex') { cont.style.display = 'none'; trig.style.display = 'flex'; input.value = ''; renderTour(); } else { ensureSentinel(3); cont.style.display = 'flex'; trig.style.display = 'none'; input.focus(); } }
 
@@ -1024,7 +1024,14 @@
             const sn = document.getElementById('tr-speak-now'), b = document.getElementById('tr-input2');
             if (sn && b) sn.style.visibility = b.value.trim() ? 'hidden' : 'visible';
         }, 250);
-        function trLangChanged() { document.getElementById('tr-input2').placeholder = ''; trForeignButtons(); document.getElementById('tr-input2').closest('.tr-panel').querySelector('.tr-say').textContent = trFxSayLabel(!!(recog && trReverse)); if (trReverse && recog) startVoiceInput(); }
+        // 통역 화면에서 나라를 바꾸면 앱 전체(첫 화면·문구·관광·인사말)의 나라도 같이 바꿈 — 어디서 고르든 한 나라로 맞춤
+        function syncCountryFromTr(id) {
+            const c = findCountry(id); if (!c || id === 'ko') return;
+            curL = id; try { localStorage.setItem('taxi_v10_lastlang', id); localStorage.setItem('taxi_v10_trlang', id); } catch (e) {}
+            renderLastCountry();
+            if (!document.getElementById('phrase-view').classList.contains('hidden')) document.getElementById('header-title').innerText = c.name;
+        }
+        function trLangChanged() { syncCountryFromTr(document.getElementById('tr-lang').value); document.getElementById('tr-input2').placeholder = ''; trForeignButtons(); document.getElementById('tr-input2').closest('.tr-panel').querySelector('.tr-say').textContent = trFxSayLabel(!!(recog && trReverse)); if (trReverse && recog) startVoiceInput(); }
         function micErrorText(name) {
             if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'not-allowed' || name === 'service-not-allowed')
                 return '마이크가 허용되지 않았어요. ① 크롬 주소창 왼쪽 아이콘 → 권한 → 마이크 허용, ② 그래도 안 되면 폰 설정 → 앱 → Chrome → 권한 → 마이크 → "앱 사용 중에만 허용".' + KEYBOARD_TIP;
