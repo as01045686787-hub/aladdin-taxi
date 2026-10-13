@@ -953,8 +953,12 @@
             document.getElementById('tr-lang').innerHTML = `<optgroup label="영어권 국가">${majorLangs.map(opt).join('')}</optgroup><optgroup label="비영어권 국가">${otherLangs.filter(c => c.id !== 'ko').map(opt).join('')}</optgroup>`;
         }
         function trLangListKo(on) { [...document.getElementById('tr-lang').options].forEach(o => { o.text = on ? o.dataset.ko : o.dataset.en; }); }
-        ['pointerdown', 'mousedown', 'touchstart', 'focus'].forEach(ev => document.addEventListener(ev, e => { if (e.target && e.target.id === 'tr-lang') trLangListKo(true); }, true));
-        ['change', 'blur'].forEach(ev => document.addEventListener(ev, e => { if (e.target && e.target.id === 'tr-lang') trLangListKo(false); }, true));
+        // 나라를 고르는 동안은 마이크를 잠깐 쉬게 해서 "띵" 소리가 나지 않게 함. 고른 뒤 같은 쪽 마이크를 한 번만 다시 켬
+        let trPickResume = null;
+        function trPickStart() { if (trPickResume === null && recog) { trPickResume = trReverse; stopVoiceInput(); } }
+        function trPickEnd() { if (trPickResume === null) return; const side = trPickResume; trPickResume = null; setTimeout(() => { if (recog) return; trReverse = side; startVoiceInput(); }, 150); }
+        ['pointerdown', 'mousedown', 'touchstart', 'focus'].forEach(ev => document.addEventListener(ev, e => { if (e.target && e.target.id === 'tr-lang') { trPickStart(); trLangListKo(true); } }, true));
+        ['change', 'blur'].forEach(ev => document.addEventListener(ev, e => { if (e.target && e.target.id === 'tr-lang') { trLangListKo(false); trPickEnd(); } }, true));
         // ---- 음성 입력: 번역기를 열면 바로 듣기 시작 (말하면 입력창에 글자로 채워짐) ----
         let recog = null, voiceToken = 0;
         const KEYBOARD_TIP = ' (지금은 글자 입력창을 누르고 키보드의 🎤로 말해도 됩니다)';
