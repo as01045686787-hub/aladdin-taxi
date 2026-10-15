@@ -498,7 +498,7 @@
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="if (!this.readOnly) this.blur(); toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력">⌨️</button>
@@ -997,6 +997,11 @@
         (() => { const vv = window.visualViewport; if (!vv) return; let full = vv.height;
             vv.addEventListener('resize', () => { full = Math.max(full, vv.height); const t = document.getElementById('tr-input');
                 if (t && !t.readOnly && document.activeElement === t && vv.height > full - 80) t.blur(); }); })();
+        // 한국어 칸 누르기: 자판으로 고치는 중이면 자판을 내리고, 자판이 다 내려간 뒤(0.4초) 마이크를 켬. 고친 글 뒤에 이어서 적힘
+        function trBoxTap(t) {
+            if (!t.readOnly) { t.blur(); trKeepText = true; setTimeout(() => { trReverse = false; stopVoiceInput(); startVoiceInput(); }, 400); return; }
+            toggleVoiceInput(false);
+        }
         function typeKo() { stopVoiceInput(); trKeepText = true; const t = document.getElementById('tr-input'); t.readOnly = false; t.focus(); }
         function trInputEl() { return document.getElementById(trReverse ? 'tr-input2' : 'tr-input'); }
         const TR_TAP_SPEAK = { en: 'Tap here and speak', ja: 'ここをタップして話してください', 'zh-CN': '点击这里说话', 'zh-TW': '點擊這裡說話', 'zh-HK': '點擊這裡說話', vi: 'Chạm vào đây và nói', th: 'แตะที่นี่แล้วพูด', tl: 'I-tap dito at magsalita', ms: 'Ketik di sini dan bercakap', id: 'Ketuk di sini dan bicara', my: 'ဒီမှာနှိပ်ပြီး ပြောပါ', de: 'Hier tippen und sprechen', fr: 'Touchez ici et parlez', es: 'Toque aquí y hable', it: 'Tocca qui e parla', nl: 'Tik hier en spreek', pt: 'Toque aqui e fale', pl: 'Dotknij tutaj i mów', cs: 'Klepněte sem a mluvte', sv: 'Tryck här och tala', tr: 'Buraya dokunun ve konuşun', ru: 'Нажмите здесь и говорите', mn: 'Энд дарж ярина уу', uz: 'Shu yerga bosing va gapiring', kk: 'Осы жерді басып, сөйлеңіз', ar: 'اضغط هنا وتحدث', hi: 'यहाँ टैप करें और बोलें', no: 'Trykk her og snakk', ne: 'यहाँ थिच्नुहोस् र बोल्नुहोस्', da: 'Tryk her og tal', fi: 'Napauta tästä ja puhu', el: 'Πατήστε εδώ και μιλήστε', he: 'הקישו כאן ודברו', km: 'ចុចទីនេះ ហើយនិយាយ', bn: 'এখানে ট্যাপ করে বলুন', ur: 'یہاں ٹیپ کریں اور بولیں', si: 'මෙතන ස්පර්ශ කර කතා කරන්න', uk: 'Натисніть тут і говоріть', hu: 'Koppintson ide, és beszéljen', ro: 'Atingeți aici și vorbiți' };
