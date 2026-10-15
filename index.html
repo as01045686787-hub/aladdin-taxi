@@ -498,10 +498,10 @@
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
-                    <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력">⌨️</button>
+                    <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력" style="display:none">⌨️</button>
                     <button onclick="clearTranslator(false)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
                     <button onclick="runTranslator(false)" class="tr-go">통역</button>
                 </div>
@@ -996,10 +996,17 @@
         // 자판으로 고친 뒤 키보드를 내리면(뒤로 버튼 등) 고치기 상태를 끝냄 → 그다음 칸을 누르면 바로 마이크가 켜지고, 고친 글 뒤에 이어서 적힘
         (() => { const vv = window.visualViewport; if (!vv) return; let full = vv.height;
             vv.addEventListener('resize', () => { full = Math.max(full, vv.height); const t = document.getElementById('tr-input');
-                if (t && !t.readOnly && document.activeElement === t && vv.height > full - 80) t.blur(); }); })();
-        // 한국어 칸 누르기: 자판으로 고치는 중이면 자판을 내리고, 자판이 다 내려간 뒤(0.4초) 마이크를 켬. 고친 글 뒤에 이어서 적힘
+                if (t && !t.readOnly && document.activeElement === t && vv.height > full - 80) { t.blur(); trResumeMic(); } }); })(); // 키보드를 내려도 고치기 끝 → 마이크 다시 켬
+        // 한국어 칸 고치기 (자판 버튼 없이):
+        //  1) 글이 있을 때 틀린 곳을 누르면 → 마이크 멈추고, 누른 자리에 커서 + 자판이 올라옴
+        //  2) 자판으로 고친 뒤 칸을 한 번 더 누르면(또는 자판을 내리면) → 자판 내려가고 마이크가 켜져 글 맨 뒤에 이어서 적힘
+        //  3) 글이 없을 때 누르면 → 지금처럼 마이크 켜기
+        let trEnterEdit = false;
+        function trBoxDown(t) { if (t.readOnly && t.value.trim()) { stopVoiceInput(); trKeepText = true; t.readOnly = false; trEnterEdit = true; } }
+        function trResumeMic() { trKeepText = true; setTimeout(() => { if (recog) return; trReverse = false; stopVoiceInput(); startVoiceInput(); }, 400); }
         function trBoxTap(t) {
-            if (!t.readOnly) { t.blur(); trKeepText = true; setTimeout(() => { trReverse = false; stopVoiceInput(); startVoiceInput(); }, 400); return; }
+            if (trEnterEdit) { trEnterEdit = false; return; } // 방금 고치기를 시작한 누름
+            if (!t.readOnly) { t.blur(); trResumeMic(); return; }
             toggleVoiceInput(false);
         }
         function typeKo() { stopVoiceInput(); trKeepText = true; const t = document.getElementById('tr-input'); t.readOnly = false; t.focus(); }
