@@ -370,6 +370,16 @@
         .tr-body > .tr-panel + .tr-panel.listener #tr-speak-now { bottom: 50%; }
         .tr-body:has(> .tr-panel + .tr-panel.listener) { padding-bottom: 18px; } /* 맨 밑 안내 줄이 폰 하단 버튼에 붙지 않게 약간 띄움 */
         .tr-body > .tr-panel.listener:first-child > .tr-box, .tr-body > .tr-panel.listener:first-child > .tr-actions { display: none; } /* 외국인이 말할 때 위쪽 흐린 한국어 칸·버튼 줄 숨김, "Korean" 줄만 남김 */
+        /* 2026-10-15: 통역 버튼은 Korean·관광 글자와 같은 노랑 / 버튼 4개 크기 통일 / 외국인 말하는 칸 흰 바탕·검은 글자·글자 2배 */
+        #translator-view .tr-actions .tr-go { background: var(--accent-bright) !important; color: #201802; }
+        #translator-view .tr-actions button, #translator-view .tr-mic { flex: 1 1 0 !important; height: 52px; min-width: 0; }
+        #translator-view #tr-kbd, #translator-view #tr-mic, #translator-view #tr-mic2 { font-size: 44px !important; line-height: 1; } /* 마이크·자판 그림을 칸에 꽉 차게 */
+        #translator-view .tr-actions { gap: 14px; } /* 버튼 사이를 조금 띄워 구획이 보이게 */
+        #translator-view #tr-kbd, #translator-view .tr-actions button[onclick^="clearTranslator"] { background: var(--accent-bright) !important; color: #201802 !important; border-color: transparent !important; } /* 자판·지우기도 통역과 같은 노랑, 검은 글자 */
+        #translator-view .tr-body > .tr-panel + .tr-panel.speaker textarea { background: #ffffff !important; color: #111111; font-size: 38px; line-height: 1.3; padding-right: 76px !important; }
+        #translator-view .tr-body > .tr-panel + .tr-panel.speaker #tr-speak-now { color: #777777; }
+        #translator-view .tr-body > .tr-panel + .tr-panel.speaker #tr-speak-now.live { color: #111111; text-shadow: none; }
+        #translator-view .tr-body > .tr-panel + .tr-panel.speaker .tr-note { color: #555555; }
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
@@ -389,6 +399,8 @@
         .greet-body { flex: 1; overflow-y: auto; padding: 14px 16px 40px; }
         .greet-row { background: var(--card-bg); border: 1px solid var(--hairline-soft); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
         .greet-row:active { background: var(--surface-2); }
+        .greet-row.selected { background: rgba(201,162,39,0.1); border-left: 4px solid var(--accent-color); } /* 고른 인사말: 문구 화면처럼 옆줄 표시 */
+        .greet-admin { flex: none; margin: 0 16px 14px; }
         .greet-ko { font-size: 15px; font-weight: 700; color: var(--text-dim); }
         .greet-fx { font-size: 24px; font-weight: 800; color: var(--text-color); margin: 3px 0; line-height: 1.3; }
         .greet-pr { font-size: 20px; font-weight: 800; color: var(--accent-bright); }
@@ -486,7 +498,7 @@
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onclick="if (this.readOnly) toggleVoiceInput(false)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력">⌨️</button>
@@ -507,8 +519,9 @@
         </div>
     </div>
     <div id="greet-view" class="greet-layer">
-        <div class="greet-top"><span id="greet-title"></span><span class="greet-x" onclick="closeGreet()">✕</span></div>
+        <div class="greet-top"><span style="position:relative; display:inline-flex; align-items:center; gap:8px;"><span id="greet-title"></span><span style="font-size:18px;">▼</span><select id="greet-lang" onchange="greetLangChanged()" aria-label="나라 바꾸기" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; font-size:18px;"></select></span><span class="greet-x" onclick="closeGreet()">✕</span></div>
         <div id="greet-list" class="greet-body"></div>
+        <div class="admin-bar greet-admin"><span class="admin-label">문장</span><button onclick="greetAdd()" class="action-btn" style="background:var(--emerald)">추가</button><button onclick="greetMove(-1)" class="action-btn" style="background:var(--sapphire)">▲</button><button onclick="greetMove(1)" class="action-btn" style="background:var(--sapphire)">▼</button><button onclick="greetEdit()" class="action-btn" style="background:var(--slate)">수정</button><button onclick="greetDelete()" class="action-btn" style="background:var(--ruby)">삭제</button></div>
     </div>
     <div id="greet-editor" class="greet-layer">
         <div class="greet-top"><span>👋 인사말 넣기</span><span class="greet-x" onclick="closeGreetEditor()">✕</span></div>
@@ -760,10 +773,19 @@
             const c = findCountry(curL); if (!c) return;
             ensureSentinel(3);
             document.getElementById('greet-title').innerText = '👋 ' + c.flag + ' ' + c.name;
+            document.getElementById('greet-lang').value = curL;
             document.getElementById('greet-view').style.display = 'flex';
             renderGreet();
         }
+        function greetLangChanged() { const id = document.getElementById('greet-lang').value; syncCountryFromTr(id); document.getElementById('tr-lang').value = id; openGreet(); } // 인사말 화면에서 나라를 바꾸면 앱 전체 나라도 같이 바뀜
         function closeGreet() { document.getElementById('greet-view').style.display = 'none'; try { window.speechSynthesis.cancel(); } catch (e) {} }
+        // 인사말 화면: 한 번 누르면 고르기(옆줄 표시), 한 번 더 누르면 읽기. 아래 줄 버튼으로 추가·이동·수정·삭제
+        let selectedGreetIdx = -1;
+        function selectGreet(i) { if (selectedGreetIdx === i) speakGreetAt(i); else { selectedGreetIdx = i; renderGreet(); } }
+        function greetAdd() { const v = (prompt('추가할 인사말 (한국어)') || '').trim(); if (!v) return; greetDB.push(v); saveGreet(); selectedGreetIdx = greetDB.length - 1; renderGreet(); }
+        function greetEdit() { if (selectedGreetIdx < 0) { showToast('먼저 문장을 고르세요'); return; } const v = (prompt('인사말 수정', greetDB[selectedGreetIdx]) || '').trim(); if (!v) return; greetDB[selectedGreetIdx] = v; saveGreet(); renderGreet(); }
+        function greetDelete() { if (selectedGreetIdx < 0) { showToast('먼저 문장을 고르세요'); return; } if (!confirm(`"${greetDB[selectedGreetIdx]}" 를 삭제할까요?`)) return; greetDB.splice(selectedGreetIdx, 1); selectedGreetIdx = -1; saveGreet(); renderGreet(); }
+        function greetMove(d) { const i = selectedGreetIdx, j = i + d; if (i < 0 || j < 0 || j >= greetDB.length) return; [greetDB[i], greetDB[j]] = [greetDB[j], greetDB[i]]; selectedGreetIdx = j; saveGreet(); renderGreet(); }
         function renderGreet() {
             const box = document.getElementById('greet-list'), code = langMap[curL];
             if (!code || code === 'ko') { box.innerHTML = '<div style="text-align:center; padding:50px; color:var(--text-dim);">한국을 선택하면 인사말이 없습니다.</div>'; return; }
@@ -771,7 +793,7 @@
             box.innerHTML = greetDB.map((ko, i) => {
                 const fixed = table[ko], key = code + '|' + ko, fx = fixed ? fixed[0] : greetCache[key];
                 if (!fixed && fx === undefined) fetchGreet(code, ko);
-                return `<div class="greet-row" onclick="speakGreetAt(${i})"><div style="flex:1; min-width:0;"><div class="greet-ko">${escHtml(ko)}</div><div class="greet-fx">${fx === undefined ? '번역 중...' : escHtml(fx || '(통신 오류)')}</div><div class="greet-pr">${escHtml(greetPronOf(code, ko)) || '<span style="color:var(--text-faint); font-size:15px;">발음 없음 → ✏️ 눌러 적기</span>'}</div></div><span class="greet-play">🔊</span><span onclick="event.stopPropagation(); editGreetPron(${i})" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">✏️</span></div>`;
+                return `<div class="greet-row ${i === selectedGreetIdx ? 'selected' : ''}" onclick="selectGreet(${i})"><div style="flex:1; min-width:0;"><div class="greet-ko">${escHtml(ko)}</div><div class="greet-fx">${fx === undefined ? '번역 중...' : escHtml(fx || '(통신 오류)')}</div><div class="greet-pr">${escHtml(greetPronOf(code, ko)) || '<span style="color:var(--text-faint); font-size:15px;">발음 없음 → ✏️ 눌러 적기</span>'}</div></div><span class="greet-play" onclick="event.stopPropagation(); speakGreetAt(${i})">🔊</span><span onclick="event.stopPropagation(); editGreetPron(${i})" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline-soft); display:flex; align-items:center; justify-content:center; font-size:20px;">✏️</span></div>`;
             }).join('') || '<div style="text-align:center; padding:50px; color:var(--text-dim);">메뉴 → 인사말 넣기에서 인사말을 넣어주세요.</div>';
         }
         function speakGreetAt(i) { const code = langMap[curL], ko = greetDB[i], fixed = (GREET_PRON[code] || {})[ko], fx = fixed ? fixed[0] : greetCache[code + '|' + ko]; if (fx) speakGreet(fx); }
@@ -950,6 +972,8 @@
             // 고른 뒤 칸에는 승객이 보는 영어 이름(🇨🇦 Canada)만 표시
             const en = c => `${c.flag} ${enNames[c.id] || c.name}`, ko = c => `${c.flag} ${c.name.replace(/\(.*\)/, '').trim()} (${(enNames[c.id] || c.name).replace(' (', ' · ').replace(')', '')})`; // 괄호 안은 승객이 알아보도록 영어
             const opt = c => `<option value="${c.id}" data-en="${en(c)}" data-ko="${ko(c)}">${en(c)}</option>`;
+            const gko = c => `<option value="${c.id}">${c.flag} ${c.name}</option>`; // 인사말 화면 나라 바꾸기 목록 (기사님용 한국어 이름)
+            document.getElementById('greet-lang').innerHTML = `<optgroup label="영어권 국가">${majorLangs.map(gko).join('')}</optgroup><optgroup label="비영어권 국가">${otherLangs.filter(c => c.id !== 'ko').map(gko).join('')}</optgroup>`;
             document.getElementById('tr-lang').innerHTML = `<optgroup label="영어권 국가">${majorLangs.map(opt).join('')}</optgroup><optgroup label="비영어권 국가">${otherLangs.filter(c => c.id !== 'ko').map(opt).join('')}</optgroup>`;
         }
         function trLangListKo(on) { [...document.getElementById('tr-lang').options].forEach(o => { o.text = on ? o.dataset.ko : o.dataset.en; }); }
@@ -968,7 +992,8 @@
             el.innerText = msg || ''; el.style.display = msg ? 'block' : 'none'; el.classList.toggle('err', !!isErr);
         }
         // 위 칸(한국어)·아래 칸(외국어) 중 지금 쓰는 칸: trReverse가 true면 아래 칸
-        function typeKo() { stopVoiceInput(); const t = document.getElementById('tr-input'); t.readOnly = false; t.focus(); }
+        let trKeepText = false; // 자판으로 고친 글자는 마이크를 다시 켜도 지우지 않고 그 뒤에 이어서 적음
+        function typeKo() { stopVoiceInput(); trKeepText = true; const t = document.getElementById('tr-input'); t.readOnly = false; t.focus(); }
         function trInputEl() { return document.getElementById(trReverse ? 'tr-input2' : 'tr-input'); }
         const TR_TAP_SPEAK = { en: 'Tap here and speak', ja: 'ここをタップして話してください', 'zh-CN': '点击这里说话', 'zh-TW': '點擊這裡說話', 'zh-HK': '點擊這裡說話', vi: 'Chạm vào đây và nói', th: 'แตะที่นี่แล้วพูด', tl: 'I-tap dito at magsalita', ms: 'Ketik di sini dan bercakap', id: 'Ketuk di sini dan bicara', my: 'ဒီမှာနှိပ်ပြီး ပြောပါ', de: 'Hier tippen und sprechen', fr: 'Touchez ici et parlez', es: 'Toque aquí y hable', it: 'Tocca qui e parla', nl: 'Tik hier en spreek', pt: 'Toque aqui e fale', pl: 'Dotknij tutaj i mów', cs: 'Klepněte sem a mluvte', sv: 'Tryck här och tala', tr: 'Buraya dokunun ve konuşun', ru: 'Нажмите здесь и говорите', mn: 'Энд дарж ярина уу', uz: 'Shu yerga bosing va gapiring', kk: 'Осы жерді басып, сөйлеңіз', ar: 'اضغط هنا وتحدث', hi: 'यहाँ टैप करें और बोलें', no: 'Trykk her og snakk', ne: 'यहाँ थिच्नुहोस् र बोल्नुहोस्', da: 'Tryk her og tal', fi: 'Napauta tästä ja puhu', el: 'Πατήστε εδώ και μιλήστε', he: 'הקישו כאן ודברו', km: 'ចុចទីនេះ ហើយនិយាយ', bn: 'এখানে ট্যাপ করে বলুন', ur: 'یہاں ٹیپ کریں اور بولیں', si: 'මෙතන ස්පර්ශ කර කතා කරන්න', uk: 'Натисніть тут і говоріть', hu: 'Koppintson ide, és beszéljen', ro: 'Atingeți aici și vorbiți' };
         const TR_BTN = { en: ['Clear', 'Translate'], ja: ['消去', '翻訳'], 'zh-CN': ['清除', '翻译'], 'zh-TW': ['清除', '翻譯'], 'zh-HK': ['清除', '翻譯'], vi: ['Xóa', 'Dịch'], th: ['ลบ', 'แปล'], tl: ['Burahin', 'Isalin'], ms: ['Padam', 'Terjemah'], id: ['Hapus', 'Terjemahkan'], my: ['ဖျက်', 'ဘာသာပြန်'], de: ['Löschen', 'Übersetzen'], fr: ['Effacer', 'Traduire'], es: ['Borrar', 'Traducir'], it: ['Cancella', 'Traduci'], nl: ['Wissen', 'Vertalen'], pt: ['Apagar', 'Traduzir'], pl: ['Wyczyść', 'Tłumacz'], cs: ['Smazat', 'Přeložit'], sv: ['Rensa', 'Översätt'], tr: ['Sil', 'Çevir'], ru: ['Очистить', 'Перевести'], mn: ['Арилгах', 'Орчуулах'], uz: ['Tozalash', 'Tarjima'], kk: ['Тазалау', 'Аудару'], ar: ['مسح', 'ترجمة'], hi: ['मिटाएँ', 'अनुवाद'], no: ['Tøm', 'Oversett'], ne: ['मेटाउनुहोस्', 'अनुवाद'], da: ['Ryd', 'Oversæt'], fi: ['Tyhjennä', 'Käännä'], el: ['Διαγραφή', 'Μετάφραση'], he: ['ניקוי', 'תרגום'], km: ['លុប', 'បកប្រែ'], bn: ['মুছুন', 'অনুবাদ'], ur: ['صاف کریں', 'ترجمہ'], si: ['මකන්න', 'පරිවර්තනය'], uk: ['Очистити', 'Перекласти'], hu: ['Törlés', 'Fordítás'], ro: ['Șterge', 'Tradu'] };
@@ -1087,7 +1112,7 @@
             listen(true);
         }
         function stopVoiceInput() { voiceToken++; const r = recog; recog = null; if (r) { try { r.abort(); } catch (e) {} } setMic(false); }
-        function toggleVoiceInput(rev) { if (recog && trReverse === !!rev) { stopVoiceInput(); return; } stopVoiceInput(); trReverse = !!rev; document.getElementById(trReverse ? 'tr-input2' : 'tr-input').value = ''; startVoiceInput(); } // 새로 말하기 시작할 때 그쪽 칸의 이전 글자를 자동으로 지움
+        function toggleVoiceInput(rev) { if (recog && trReverse === !!rev) { stopVoiceInput(); return; } stopVoiceInput(); trReverse = !!rev; if (!(trKeepText && !trReverse)) document.getElementById(trReverse ? 'tr-input2' : 'tr-input').value = ''; startVoiceInput(); } // 새로 말하기 시작할 때 그쪽 칸의 이전 글자를 자동으로 지움
 
         let trReverse = false; // false: 한국어 → 외국어, true: 외국어 → 한국어
         // ---- 번역기 아이콘: 손가락으로 끌어 위치 이동 (좌/우 가장자리에 붙고 위치 기억) ----
@@ -1136,14 +1161,14 @@
             if (!voiceSupported()) setTimeout(() => document.getElementById('tr-input').focus(), 60);
         }
         function closeTranslator() { stopVoiceInput(); const v = document.getElementById('translator-view'); v.style.display = 'none'; document.getElementById('tr-input').blur(); trReverse = false; }
-        function clearTranslator(rev) { stopVoiceInput(); trReverse = !!rev; trInputEl().value = ''; startVoiceInput(); }
+        function clearTranslator(rev) { stopVoiceInput(); trKeepText = false; trReverse = !!rev; trInputEl().value = ''; startVoiceInput(); }
         function runTranslator(rev) {
             if (rev !== undefined) trReverse = !!rev;
             const text = trInputEl().value.trim();
             if (!text) { showToast('번역할 텍스트를 입력하세요'); return; }
             const id = document.getElementById('tr-lang').value;
             try { localStorage.setItem('taxi_v10_trlang', id); } catch (e) {}
-            stopVoiceInput(); trInputEl().blur();
+            stopVoiceInput(); trInputEl().blur(); trKeepText = false;
             const next = !trReverse; // 번역이 끝나면 반대쪽 입력창의 마이크를 자동으로 켬
             Promise.resolve(translateAndOpen(text, null, id, trReverse)).then(async () => {
                 if (document.getElementById('display-overlay').style.display !== 'flex') return; // 번역이 안 됐으면 그대로 둠
