@@ -331,9 +331,9 @@
         .tr-box { position: relative; flex: 1; min-height: 0; display: flex; }
         .tr-panel.listener > .tr-actions, .tr-panel.listener .tr-box > textarea { opacity: 0.1; }
         .tr-panel.listener > .tr-lang-row { opacity: 0.6; } /* 국가명은 "Tap here and speak"와 같은 밝기 */
-        .tr-note { position: absolute; left: 14px; right: 70px; top: 10px; font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--text-dim); pointer-events: none; z-index: 2; text-align: left; max-height: 2.6em; overflow: hidden; }
+        .tr-note { position: absolute; left: 14px; right: 14px; top: 10px; font-size: 30px; font-weight: 800; line-height: 1.3; color: #eef0f4; pointer-events: none; z-index: 2; text-align: left; max-height: 5.2em; overflow: hidden; } /* 상대방이 한 말: 뒷좌석에서도 보이게 두 배 크기 */
         .tr-note:empty { display: none; }
-        .tr-box:has(.tr-note:not(:empty)) textarea { padding-top: 48px; } /* 작은 글씨가 있으면 입력 글자는 그 아래부터 */
+        .tr-box:has(.tr-note:not(:empty)) textarea { padding-top: var(--note-h, 48px); } /* 작은 글씨가 있으면 입력 글자는 그 아래부터 */
         .tr-panel.listener .tr-note { opacity: 0.2; }
         #translator-view .tr-panel.listener textarea { min-height: 44px; }
         .tr-panel.listener .tr-box { min-height: 60px; } /* 듣는 칸이 너무 줄어 글자가 겹치지 않게 최소 높이 */
@@ -379,7 +379,7 @@
         #translator-view .tr-body > .tr-panel + .tr-panel.speaker textarea { background: #ffffff !important; color: #111111; font-size: 38px; line-height: 1.3; padding-right: 76px !important; }
         #translator-view .tr-body > .tr-panel + .tr-panel.speaker #tr-speak-now { color: #777777; }
         #translator-view .tr-body > .tr-panel + .tr-panel.speaker #tr-speak-now.live { color: #111111; text-shadow: none; }
-        #translator-view .tr-body > .tr-panel + .tr-panel.speaker .tr-note { color: #555555; }
+        #translator-view .tr-body > .tr-panel + .tr-panel.speaker .tr-note { color: #222222; }
         @keyframes speakBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         #tr-input::placeholder, #tr-input2::placeholder { color: var(--text-faint); }
         .tr-actions { display: flex; gap: 10px; margin-top: 8px; }
@@ -406,6 +406,13 @@
         .greet-pr { font-size: 20px; font-weight: 800; color: var(--accent-bright); }
         .greet-play { flex: none; font-size: 26px; }
         .greet-edit-row { display: flex; align-items: center; gap: 10px; padding: 14px 4px; border-bottom: 1px solid var(--table-border); font-size: 19px; font-weight: 700; }
+        #translator-view .tr-icon:empty { display: none; } /* 입술 그림 없앰 */
+        .tr-body > .tr-panel + .tr-panel.listener .tr-note { display: none; } /* 아래로 접힌 손님 칸에서는 큰 글이 밖으로 넘치지 않게 숨김 */
+        #tr-speak-now.two { white-space: normal; display: flex; align-items: center; justify-content: center; gap: 12px; } /* 손님이 말할 때 안내: 원래 자리(칸 아래), 왼쪽 마이크 + 가운데 맞춘 두 줄 */
+        #tr-speak-now.two .sn-mic { flex: none; font-size: 56px; line-height: 1; }
+        #tr-speak-now.two .sn-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+        #tr-speak-now.two .sn-l { display: block; white-space: nowrap; line-height: 1.15; font-weight: 900; }
+        #tr-speak-now.two .sn-l + .sn-l { margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -497,7 +504,7 @@
         <div class="tr-body">
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
-                <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div>
+                <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div>
                 <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
@@ -508,7 +515,7 @@
             </div>
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(true)"><select id="tr-lang" onchange="trLangChanged()"></select></div>
-                <div class="tr-box"><div class="tr-role"><div class="tr-icon">👄</div><div class="tr-say">말씀하세요</div></div><textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea><div id="tr-speak-now"></div></div>
+                <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div><textarea id="tr-input2" readonly onclick="if (!(recog && trReverse)) toggleVoiceInput(true)"></textarea><div id="tr-speak-now"></div></div>
                 <div class="tr-actions">
                     <button id="tr-mic2" class="tr-mic" onclick="toggleVoiceInput(true)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-clear2" onclick="clearTranslator(true)" style="flex:1; background:var(--surface-2); color:var(--text-color);">지우기</button>
@@ -1021,7 +1028,8 @@
         function trFxLang() { return langMap[document.getElementById('tr-lang').value] || 'en'; }
         function trFxSayLabel(on) { const k = trFxLang(); return on ? (TR_SPEAK_NOW[k] || TR_SPEAK_NOW.en) : (TR_LISTEN[k] || TR_LISTEN.en); } // 외국어 쪽 라벨: 말할 때는 그 나라 말 '말씀하세요', 들을 때는 그 나라 말 '듣는 중'
         function fitBtnText(b) { b.style.fontSize = ''; let f = 25; while (f > 12 && b.scrollWidth > b.clientWidth) { f--; b.style.fontSize = f + 'px'; } } // 긴 외국어는 버튼 안에 들어가게 글자를 줄임
-        const TR_SPEAK_NOW = { en: 'Please speak', ja: 'お話しください', 'zh-CN': '请说话', 'zh-TW': '請說話', 'zh-HK': '請講', vi: 'Mời bạn nói', th: 'กรุณาพูด', tl: 'Magsalita po kayo', ms: 'Sila bercakap', id: 'Silakan bicara', my: 'ပြောပါ', de: 'Bitte sprechen', fr: 'Parlez, s’il vous plaît', es: 'Hable, por favor', it: 'Parli, per favore', nl: 'Spreek alstublieft', pt: 'Fale, por favor', pl: 'Proszę mówić', cs: 'Mluvte, prosím', sv: 'Tala, tack', tr: 'Lütfen konuşun', ru: 'Говорите, пожалуйста', mn: 'Ярина уу', uz: 'Gapiring', kk: 'Сөйлеңіз', ar: 'تفضل بالكلام', hi: 'कृपया बोलिए', no: 'Vennligst snakk', ne: 'कृपया बोल्नुहोस्', da: 'Tal venligst', fi: 'Puhu, ole hyvä', el: 'Παρακαλώ, μιλήστε', he: 'בבקשה, דברו', km: 'សូមនិយាយ', bn: 'অনুগ্রহ করে বলুন', ur: 'براہ کرم بولیں', si: 'කරුණාකර කතා කරන්න', uk: 'Говоріть, будь ласка', hu: 'Kérem, beszéljen', ro: 'Vă rog, vorbiți' };
+        const TR_SPEAK_NOW = { en: "Please speak loudly", ja: "大きな声で話してください", "zh-CN": "请大声说话", "zh-TW": "請大聲說話", "zh-HK": "請大聲講", vi: "Xin hãy nói to", th: "กรุณาพูดดังๆ", tl: "Pakilakasan po ang boses", ms: "Sila bercakap dengan kuat", id: "Silakan bicara dengan keras", my: "ကျယ်ကျယ်ပြောပါ", de: "Bitte laut sprechen", fr: "Parlez fort, s’il vous plaît", es: "Hable fuerte, por favor", it: "Parli a voce alta, per favore", nl: "Spreek alstublieft luid", pt: "Fale alto, por favor", pl: "Proszę mówić głośno", cs: "Mluvte prosím nahlas", sv: "Tala högt, tack", tr: "Lütfen yüksek sesle konuşun", ru: "Говорите громко, пожалуйста", mn: "Чанга ярина уу", uz: "Iltimos, baland ovozda gapiring", kk: "Қатты сөйлеңіз", ar: "تكلم بصوت عالٍ من فضلك", hi: "कृपया ज़ोर से बोलिए", no: "Vennligst snakk høyt", ne: "कृपया ठूलो स्वरमा बोल्नुहोस्", da: "Tal venligst højt", fi: "Puhu kovaa, ole hyvä", el: "Παρακαλώ, μιλήστε δυνατά", he: "בבקשה, דברו בקול רם", km: "សូមនិយាយខ្លាំងៗ", bn: "অনুগ্রহ করে জোরে বলুন", ur: "براہ کرم اونچی آواز میں بولیں", si: "කරුණාකර හයියෙන් කතා කරන්න", uk: "Говоріть голосно, будь ласка", hu: "Kérem, beszéljen hangosan", ro: "Vă rog, vorbiți tare" }; // 뒷좌석 손님 목소리가 작아 잘 안 받아 적혀서 '크게 말씀해 주세요'로
+        const TR_SPEAK_2 = {"en": ["Please speak", "*LOUDLY"], "ja": ["*大きな声で", "お話しください"], "zh-CN": ["*大声", "请说话"], "zh-TW": ["*大聲", "請說話"], "zh-HK": ["*大聲", "請講"], "vi": ["Mời bạn nói", "*TO LÊN"], "th": ["กรุณาพูด", "*ดังๆ"], "tl": ["Magsalita po kayo", "*NANG MALAKAS"], "ms": ["Sila bercakap", "*DENGAN KUAT"], "id": ["Silakan bicara", "*DENGAN KERAS"], "my": ["*ကျယ်ကျယ်", "ပြောပါ"], "de": ["Bitte sprechen", "*LAUT"], "fr": ["Parlez, s’il vous plaît", "*FORT"], "es": ["Hable, por favor", "*FUERTE"], "it": ["Parli, per favore", "*A VOCE ALTA"], "nl": ["Spreek alstublieft", "*LUID"], "pt": ["Fale, por favor", "*ALTO"], "pl": ["Proszę mówić", "*GŁOŚNO"], "cs": ["Mluvte, prosím", "*NAHLAS"], "sv": ["Tala, tack", "*HÖGT"], "tr": ["Lütfen konuşun", "*YÜKSEK SESLE"], "ru": ["Говорите, пожалуйста", "*ГРОМКО"], "mn": ["*Чанга", "Ярина уу"], "uz": ["*Baland ovozda", "Gapiring"], "kk": ["*Қатты", "Сөйлеңіз"], "ar": ["تفضل بالكلام", "*بصوت عالٍ"], "hi": ["*ज़ोर से", "कृपया बोलिए"], "no": ["Vennligst snakk", "*HØYT"], "ne": ["*ठूलो स्वरमा", "कृपया बोल्नुहोस्"], "da": ["Tal venligst", "*HØJT"], "fi": ["Puhu, ole hyvä", "*KOVAA"], "el": ["Παρακαλώ, μιλήστε", "*ΔΥΝΑΤΑ"], "he": ["בבקשה, דברו", "*בקול רם"], "km": ["សូមនិយាយ", "*ខ្លាំងៗ"], "bn": ["*জোরে", "অনুগ্রহ করে বলুন"], "ur": ["*اونچی آواز میں", "براہ کرم بولیں"], "si": ["*හයියෙන්", "කරුණාකර කතා කරන්න"], "uk": ["Говоріть, будь ласка", "*ГОЛОСНО"], "hu": ["Kérem, beszéljen", "*HANGOSAN"], "ro": ["Vă rog, vorbiți", "*TARE"]}; // 손님 칸 안내: 어제까지 쓰던 문구(원래 크기) + '크게' 말만 따로 한 줄 더 크게
         function fitForeignText() { // 외국어 국가명과 아래 안내 문구를 칸 너비에 맞게 자동으로 키움 (잘리지 않게)
             const cv = document.createElement('canvas').getContext('2d');
             const s = document.getElementById('tr-lang'), cs = getComputedStyle(s);
@@ -1032,9 +1040,15 @@
                 s.style.fontSize = f + 'px';
             }
             const n = document.getElementById('tr-speak-now');
+            if (n.classList.contains('two')) { fitLive(); return; }
             let f = 40; n.style.fontSize = f + 'px';
             while (f > 12 && n.scrollWidth > n.clientWidth) { f--; n.style.fontSize = f + 'px'; } // 실제 화면 기준으로 잘리지 않을 때까지 줄임
 
+        }
+        function fitLive() { // 두 줄 안내: 보통 줄은 원래 크기(최대 40px), '크게' 줄은 더 크게(최대 64px), 칸 너비에 맞춤
+            const n = document.getElementById('tr-speak-now'); n.style.fontSize = '';
+            const mic = n.querySelector('.sn-mic'), avail = n.clientWidth - (mic ? mic.offsetWidth + 12 : 0);
+            n.querySelectorAll('.sn-l').forEach(el => { let f = el.classList.contains('sn-big') ? 64 : 40; el.style.fontSize = f + 'px'; while (f > 14 && el.scrollWidth > avail) { f -= 2; el.style.fontSize = f + 'px'; } });
         }
         function trForeignButtons() {
             document.getElementById('tr-speak-now').innerText = '🎤 ' + (TR_TAP_SPEAK[langMap[document.getElementById('tr-lang').value]] || TR_TAP_SPEAK.en);
@@ -1055,23 +1069,29 @@
                 kor.classList.toggle('speaker', !trReverse); kor.classList.toggle('listener', trReverse); // 마이크가 꺼져도 마지막으로 말한 쪽 화면 배치를 그대로 유지
                 fxp.classList.toggle('speaker', trReverse); fxp.classList.toggle('listener', !trReverse);
                 const ico = [kor, fxp].map(p => p.querySelector('.tr-icon'));
-                ico[0].textContent = on && !trReverse ? '👄' : '👂';
-                ico[1].textContent = on && trReverse ? '👄' : '👂';
+                ico[0].textContent = on && !trReverse ? '' : '👂'; // 말하는 쪽 입술 그림은 없앰
+                ico[1].textContent = on && trReverse ? '' : '👂';
                 const say = [kor, fxp].map(p => p.querySelector('.tr-say'));
                 say[0].textContent = on && !trReverse ? '말씀하세요' : '듣는 중';
                 say[1].textContent = trFxSayLabel(on && trReverse);
             }
             bot.placeholder = '';
             const sn = document.getElementById('tr-speak-now'); // 말할 때는 그 나라 말 "Please speak" 문구, 아닐 때는 "Tap here" 문구
-            if (sn) { const k = trFxLang(); sn.innerText = '🎤 ' + (on && trReverse ? (TR_SPEAK_NOW[k] || TR_SPEAK_NOW.en) : (TR_TAP_SPEAK[k] || TR_TAP_SPEAK.en)); sn.classList.toggle('live', on && trReverse); fitForeignText(); }
+            if (sn) { const k = trFxLang(), live = on && trReverse;
+                if (live) sn.innerHTML = '<span class="sn-mic">🎤</span><span class="sn-col">' + (TR_SPEAK_2[k] || TR_SPEAK_2.en).map(t => `<span class="sn-l${t[0] === '*' ? ' sn-big' : ''}" dir="auto">${escHtml(t.replace(/^\*/, ''))}</span>`).join('') + '</span>'; // 마이크는 왼쪽, 두 줄 글은 가운데 맞춤 // 손님이 말할 때: 두 줄로 크게
+                else sn.innerText = '🎤 ' + (TR_TAP_SPEAK[k] || TR_TAP_SPEAK.en);
+                sn.classList.toggle('live', live); sn.classList.toggle('two', live); fitForeignText(); }
         }
         setInterval(() => { // 외국어 칸에 말한 글자가 나오면 안내 문구를 숨기고, 칸이 비면 다시 보임
             const sn = document.getElementById('tr-speak-now'), b = document.getElementById('tr-input2');
             if (sn && b) sn.style.visibility = b.value.trim() ? 'hidden' : 'visible';
+            document.querySelectorAll('#translator-view .tr-note').forEach(n => { n.parentElement.style.setProperty('--note-h', (n.offsetHeight + 22) + 'px'); }); // 큰 글 아래부터 입력 글자가 나오게
         }, 250);
         // 통역 화면에서 나라를 바꾸면 앱 전체(첫 화면·문구·관광·인사말)의 나라도 같이 바꿈 — 어디서 고르든 한 나라로 맞춤
+        function clearTrNotes() { document.querySelectorAll('#translator-view .tr-note').forEach(n => n.remove()); } // 지난 대화의 작은 글(상대 말) 지우기
         function syncCountryFromTr(id) {
             const c = findCountry(id); if (!c || id === 'ko') return;
+            if (id !== curL) { clearTrNotes(); document.getElementById('tr-input2').value = ''; } // 다른 나라로 바꾸면 지난 대화 글을 지움
             curL = id; try { localStorage.setItem('taxi_v10_lastlang', id); localStorage.setItem('taxi_v10_trlang', id); } catch (e) {}
             renderLastCountry();
             if (!document.getElementById('phrase-view').classList.contains('hidden')) document.getElementById('header-title').innerText = c.name;
@@ -1176,7 +1196,7 @@
             sel.value = (curL && curL !== 'ko' && langMap[curL]) ? curL : (saved || 'en_us');
             if (!sel.value) sel.value = 'en_us';
             document.getElementById('translator-view').style.display = 'flex'; trForeignButtons();
-            document.getElementById('tr-input').value = ''; document.getElementById('tr-input2').value = ''; setMic(false); showVoiceStatus('', false);
+            document.getElementById('tr-input').value = ''; document.getElementById('tr-input2').value = ''; clearTrNotes(); setMic(false); showVoiceStatus('', false);
             startVoiceInput();
             if (!voiceSupported()) setTimeout(() => document.getElementById('tr-input').focus(), 60);
         }
