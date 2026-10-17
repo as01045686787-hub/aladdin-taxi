@@ -352,6 +352,8 @@
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 10px 16px; cursor: pointer; }
         .tr-from:active { background: var(--surface-2); }
+        #tr-paste-top, #tr-kbd-top { width: 43px; height: 44px; flex: 0 0 43px; padding: 0; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; color: var(--accent-bright); } /* 붙여넣기·자판: 폭 3분의 1, 관광 왼쪽 */
+        #tr-kbd-top svg { width: 100%; height: 100%; display: block; }
         .tr-swap { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--hairline); background: var(--surface-2); color: var(--accent-bright); font-size: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
         .tr-swap:active { transform: scale(0.92); }
         #tr-lang { flex: 1; min-width: 0; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--border-radius-lg); padding: 10px 12px; font-size: 34px; font-weight: 700; white-space: nowrap; outline: none; font-family: inherit; }
@@ -413,6 +415,7 @@
         #tr-speak-now.two .sn-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
         #tr-speak-now.two .sn-l { display: block; white-space: nowrap; line-height: 1.15; font-weight: 900; }
         #tr-speak-now.two .sn-l + .sn-l { margin-top: 4px; }
+        #translator-view .tr-box:has(.tr-note:not(:empty)) .tr-icon { display: none; } /* 상대 말(큰 글)이 있으면 귀 그림이 글을 가리지 않게 숨김 */
         /* ===== 단어장 · 말풍선 ===== */
         #translator-view .tr-panel:first-child .tr-box { position: relative; }
         #fix-bubble { display: none; position: absolute; z-index: 5; cursor: pointer; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); }
@@ -428,6 +431,7 @@
         .w-right { flex: 1; min-width: 0; font-size: 22px; font-weight: 800; color: var(--text-color); }
         .w-ro { font-size: 17px; color: var(--text-dim); font-weight: 700; }
         .w-del { flex: none; border: none; border-radius: 12px; padding: 10px 14px; font-size: 17px; font-weight: 800; background: var(--ruby); color: #fff; font-family: inherit; }
+        #tr-input[readonly], #tr-input2[readonly] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* 길게 누르기를 붙여넣기에 쓰려고 글자 선택 막음 (고치는 중에는 선택 가능) */
     </style>
 </head>
 <body>
@@ -519,7 +523,7 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
-                <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
+                <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button id="tr-paste-top" class="tr-from tr-tb" style="margin-left:auto;" onclick="trPasteBtn()" aria-label="붙여넣기">COPY</button><button id="tr-kbd-top" class="tr-from tr-tb" onclick="typeKo()" aria-label="직접 입력"><svg viewBox="0 0 43 40"><rect x="3" y="8" width="37" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><g fill="currentColor"><rect x="8" y="13" width="4" height="4" rx="1"/><rect x="15" y="13" width="4" height="4" rx="1"/><rect x="22" y="13" width="4" height="4" rx="1"/><rect x="29" y="13" width="4" height="4" rx="1"/><rect x="8" y="20" width="4" height="4" rx="1"/><rect x="15" y="20" width="4" height="4" rx="1"/><rect x="22" y="20" width="4" height="4" rx="1"/><rect x="29" y="20" width="4" height="4" rx="1"/><rect x="12" y="27" width="19" height="3" rx="1"/></g></svg></button><button class="tr-from" onclick="closeTranslator(); openTour()" style="font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div>
                 <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea><div id="fix-bubble" onpointerdown="bubbleTap(event)"></div></div>
                 <div class="tr-actions">
@@ -1053,13 +1057,20 @@
         //  빈 칸을 길게 누르면: 복사해 둔 글을 바로 넣음 (폰이 허락을 물으면 '허용'). 안 되면 자판과 '붙여넣기' 메뉴가 뜨게 칸을 열어 줌
         //  글이 있는 칸은 원래처럼 길게 누르면 폰의 '붙여넣기' 메뉴를 쓸 수 있게 칸을 열어 둠
         let trLongPressed = false;
+        // 폰은 손가락을 '뗄 때'에만 붙여넣기 권한이 생겨서: 길게 누르면 '드르륵' 진동 → 손을 떼는 순간 붙여넣음
         function trSetupLongPaste(id, rev) {
             const t = document.getElementById(id); if (!t) return;
-            let timer = null, sx = 0, sy = 0;
-            const cancel = () => { clearTimeout(timer); timer = null; };
-            t.addEventListener('pointerdown', e => { trLongPressed = false; sx = e.clientX; sy = e.clientY; cancel(); timer = setTimeout(() => { timer = null; trLongPaste(t, rev); }, 600); });
-            t.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - sx, e.clientY - sy) > 12) cancel(); });
-            ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => t.addEventListener(ev, cancel));
+            let timer = null, armed = false, sx = 0, sy = 0;
+            const reset = () => { clearTimeout(timer); timer = null; armed = false; };
+            t.addEventListener('touchstart', e => { trLongPressed = false; reset(); const p = e.touches[0]; sx = p.clientX; sy = p.clientY;
+                timer = setTimeout(() => { timer = null; armed = true; try { navigator.vibrate && navigator.vibrate(40); } catch (err) {} }, 550); }, { passive: true });
+            t.addEventListener('touchmove', e => { const p = e.touches[0]; if (Math.hypot(p.clientX - sx, p.clientY - sy) > 12) reset(); }, { passive: true });
+            t.addEventListener('touchend', e => { const go = armed; reset(); if (!go) return; e.preventDefault(); trLongPressed = true; trLongPaste(t, rev); }, { passive: false });
+            t.addEventListener('touchcancel', reset);
+            t.addEventListener('contextmenu', e => { if (t.readOnly) e.preventDefault(); }); // 길게 누를 때 폰의 글자 선택 메뉴가 끼어들지 않게
+            // 컴퓨터(마우스)용: 길게 눌렀다 떼면 붙여넣기
+            let mt = 0; t.addEventListener('mousedown', () => { mt = Date.now(); });
+            t.addEventListener('mouseup', () => { if (mt && Date.now() - mt > 550 && !('ontouchstart' in window)) { trLongPressed = true; trLongPaste(t, rev); } mt = 0; });
             t.addEventListener('click', e => { if (trLongPressed) { trLongPressed = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true); // 길게 누른 뒤의 손 뗌은 마이크 켜기로 치지 않음
         }
         async function trLongPaste(t, rev) {
@@ -1070,6 +1081,13 @@
                 if (txt) { t.value = txt; t.readOnly = true; t.blur(); return; } // 바로 붙여넣음 → 통역 버튼만 누르면 됨
             }
             t.readOnly = false; t.focus(); try { t.setSelectionRange(t.value.length, t.value.length); } catch (e) {} // 자판이 뜨고, 칸을 길게 누르면 폰의 '붙여넣기'가 나옴
+        }
+        async function trPasteBtn() { // 📋 COPY 버튼: 복사해 둔 글을 내 말 칸에 넣음. 안 되면 자판을 열어 길게 눌러 붙여넣게 함
+            stopVoiceInput(); trReverse = false; trKeepText = true; trEnterEdit = false;
+            const t = document.getElementById('tr-input');
+            let txt = ''; try { txt = ((await navigator.clipboard.readText()) || '').trim(); } catch (e) {}
+            if (txt) { const cur = t.value.trim(); t.readOnly = false; t.value = cur ? cur + ' ' + txt : txt; t.readOnly = true; t.blur(); showToast('붙여넣었습니다'); return; } // 칸에 있던 글은 지우지 않고 뒤에 이어 붙임
+            typeKo(); showToast('길게 눌러 붙여넣으세요');
         }
         document.addEventListener('DOMContentLoaded', () => { trSetupLongPaste('tr-input', false); trSetupLongPaste('tr-input2', true); });
         function trBoxTap(t) {
@@ -1143,6 +1161,7 @@
             const sn = document.getElementById('tr-speak-now'), b = document.getElementById('tr-input2');
             if (sn && b) sn.style.visibility = b.value.trim() ? 'hidden' : 'visible';
             document.querySelectorAll('#translator-view .tr-note').forEach(n => { n.parentElement.style.setProperty('--note-h', (n.offsetHeight + 22) + 'px'); }); // 큰 글 아래부터 입력 글자가 나오게
+            if (document.getElementById('translator-view').style.display === 'flex') document.querySelectorAll('#translator-view .tr-actions button:not(.tr-mic)').forEach(btn => { if (btn.scrollWidth > btn.clientWidth + 1) fitBtnText(btn); }); // 버튼 글자가 잘리면(글꼴이 늦게 바뀐 경우 등) 다시 칸에 맞춤
         }, 250);
         // 통역 화면에서 나라를 바꾸면 앱 전체(첫 화면·문구·관광·인사말)의 나라도 같이 바꿈 — 어디서 고르든 한 나라로 맞춤
         function clearTrNotes() { document.querySelectorAll('#translator-view .tr-note').forEach(n => n.remove()); } // 지난 대화의 작은 글(상대 말) 지우기
@@ -1328,6 +1347,19 @@
             }
             return t;
         }
+        // 한국말 시간 앞의 '저녁·밤·새벽·아침·낮'을 '오전·오후'로 바꿔 번역기가 AM/PM을 빼먹지 않게 함 (화면의 내 말은 그대로)
+        function koTimeFix(t) {
+            return t.replace(/(저녁|밤|새벽|아침|낮|점심)\s*(\d{1,2})\s*시/g, (m, w, h) => {
+                const n = +h; if (n > 12) return m;
+                let pm;
+                if (w === '저녁') pm = true;
+                else if (w === '밤') pm = n >= 6 && n <= 11; // 밤 1~5시는 새벽(AM), 밤 12시는 그대로
+                else if (w === '낮' || w === '점심') pm = n <= 6 || n === 12;
+                else pm = false; // 새벽·아침
+                if (w === '밤' && n === 12) return m;
+                return (pm ? '오후 ' : '오전 ') + n + '시';
+            });
+        }
         async function translateAndOpen(text, title, langId, reverse) {
             const L = langId || curL, toKo = !!reverse; lastL = L;
             lastSpeakLang = toKo ? 'ko-KR' : getLangCode(L);
@@ -1337,6 +1369,7 @@
             ensureSentinel(3); document.getElementById('text-country').innerText = countryLabel(toKo ? 'ko' : L); koDiv.innerText = title || text; foreignDiv.innerText = "번역 중..."; overlay.style.display = 'flex';
             document.getElementById('scroll-container').scrollTop = 0;
             try {
+                if (!toKo && (typeof NL === 'undefined' || NL === 'ko')) text = koTimeFix(text); // '저녁 9시' → '오후 9시' 로 바꿔 번역에 PM이 꼭 나오게
                 const P = protectWords(text, toKo); // 단어장의 고유명사는 번역하지 않고 그대로
                 const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(P.t)}`);
                 const data = await res.json();
