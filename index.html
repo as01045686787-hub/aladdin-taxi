@@ -413,6 +413,21 @@
         #tr-speak-now.two .sn-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
         #tr-speak-now.two .sn-l { display: block; white-space: nowrap; line-height: 1.15; font-weight: 900; }
         #tr-speak-now.two .sn-l + .sn-l { margin-top: 4px; }
+        /* ===== 단어장 · 말풍선 ===== */
+        #translator-view .tr-panel:first-child .tr-box { position: relative; }
+        #fix-bubble { display: none; position: absolute; z-index: 5; cursor: pointer; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); }
+        #fix-bubble span { color: #111; font-size: 30px; font-weight: 800; white-space: nowrap; line-height: 1.2; padding: 4px 6px; }
+        .words-tabs { flex: none; display: flex; gap: 10px; padding: 12px 16px 0; }
+        .words-tab { flex: 1 1 0; min-height: 56px; border-radius: 14px; border: 1px solid var(--hairline-soft); background: var(--card-bg); color: var(--text-dim); font-size: 18px; font-weight: 800; font-family: inherit; padding: 6px; }
+        .words-tab.on { background: var(--surface-2); color: var(--text-color); border: 2px solid var(--accent-color); }
+        .w-in { width: 100%; box-sizing: border-box; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: 14px; padding: 14px; font-size: 22px; font-weight: 700; outline: none; font-family: inherit; margin-bottom: 10px; }
+        .w-add { width: 100%; height: 56px; border: none; border-radius: 14px; font-size: 22px; font-weight: 800; background: var(--accent-bright); color: #201802; font-family: inherit; margin-bottom: 16px; }
+        .w-lab { font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 0 2px 6px; }
+        .w-wrong { color: var(--text-dim); text-decoration: line-through; font-size: 22px; }
+        .w-arrow { color: var(--text-dim); font-size: 22px; }
+        .w-right { flex: 1; min-width: 0; font-size: 22px; font-weight: 800; color: var(--text-color); }
+        .w-ro { font-size: 17px; color: var(--text-dim); font-weight: 700; }
+        .w-del { flex: none; border: none; border-radius: 12px; padding: 10px 14px; font-size: 17px; font-weight: 800; background: var(--ruby); color: #fff; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -433,6 +448,7 @@
         <div class="menu-item" onclick="exportData()">📤 데이터 백업 (내보내기)</div>
         <div class="menu-item" onclick="importData()">📥 데이터 복원 (가져오기)</div>
         <div class="menu-item" onclick="toggleMenu(); openGreetEditor()">👋 인사말 넣기</div>
+        <div class="menu-item" onclick="toggleMenu(); openWords()">📖 단어장</div>
         <button onclick="toggleMenu()" style="margin-top:50px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
@@ -505,7 +521,7 @@
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea><div id="fix-bubble" onpointerdown="bubbleTap(event)"></div></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력" style="display:none">⌨️</button>
@@ -535,6 +551,23 @@
         <div class="greet-body">
             <div style="display:flex; gap:8px; margin-bottom:14px;"><input id="greet-new" placeholder="한국어 인사말 입력" style="flex:1; min-width:0; background:var(--card-bg); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:14px; padding:14px; font-size:18px; font-weight:700; outline:none;"><button onclick="addGreet()" style="flex:none; border:none; border-radius:14px; padding:0 18px; font-size:20px; font-weight:900; background:var(--emerald); color:#fff;">추가</button></div>
             <div id="greet-edit-list"></div>
+        </div>
+    </div>
+    <div id="words-editor" class="greet-layer">
+        <div class="greet-top"><span>📖 <span data-t="words">단어장</span></span><span class="greet-x" onclick="closeWords()">✕</span></div>
+        <div class="words-tabs"><button class="words-tab on" onclick="wordsTabTo(0)" data-t="tabFix">잘못 적히는 단어</button><button class="words-tab" onclick="wordsTabTo(1)" data-t="tabNames">고유명사</button></div>
+        <div class="greet-body">
+            <div id="words-pane-fix">
+                <div class="w-lab" data-t="wrong">잘못 적히는 말</div><input id="fx-wrong" class="w-in" placeholder="북한이">
+                <div class="w-lab" data-t="right">맞는 말</div><input id="fx-right" class="w-in" placeholder="부캉이">
+                <button class="w-add" onclick="addFix()" data-t="addBtn">추가</button>
+                <div id="fix-list"></div>
+            </div>
+            <div id="words-pane-name" style="display:none">
+                <div class="w-lab"><span data-t="namesTitle">고유명사 (번역하지 않음)</span> · <span data-t="nameIn">이름</span></div><input id="nm-word" class="w-in" placeholder="부캉이">
+                <button class="w-add" onclick="addName()" data-t="addBtn">추가</button>
+                <div id="name-list"></div>
+            </div>
         </div>
     </div>
     <div id="toast"></div>
@@ -679,6 +712,7 @@
             const $ = id => document.getElementById(id);
             if ($('category-popup').style.display === 'flex') { closeCategoryPopup(); return 'category-popup'; }
             if ($('side-menu').classList.contains('active')) { toggleMenu(); return 'side-menu'; }
+            if ($('words-editor').style.display === 'flex') { closeWords(); return 'words-editor'; }
             if ($('phrase-editor').style.display === 'flex') { closePhraseEditor(); return 'phrase-editor'; }
             if ($('tour-editor').style.display === 'flex') { closeTourEditor(); return 'tour-editor'; }
             if ($('display-overlay').style.display === 'flex') { closeDisplay(); return 'display-overlay'; }
@@ -1015,6 +1049,29 @@
         let trEnterEdit = false;
         function trBoxDown(t) { if (t.readOnly && t.value.trim()) { stopVoiceInput(); trKeepText = true; t.readOnly = false; trEnterEdit = true; } }
         function trResumeMic() { trKeepText = true; setTimeout(() => { if (recog) return; trReverse = false; stopVoiceInput(); startVoiceInput(); }, 400); }
+        // ---- 길게 누르면 붙여넣기 ----
+        //  빈 칸을 길게 누르면: 복사해 둔 글을 바로 넣음 (폰이 허락을 물으면 '허용'). 안 되면 자판과 '붙여넣기' 메뉴가 뜨게 칸을 열어 줌
+        //  글이 있는 칸은 원래처럼 길게 누르면 폰의 '붙여넣기' 메뉴를 쓸 수 있게 칸을 열어 둠
+        let trLongPressed = false;
+        function trSetupLongPaste(id, rev) {
+            const t = document.getElementById(id); if (!t) return;
+            let timer = null, sx = 0, sy = 0;
+            const cancel = () => { clearTimeout(timer); timer = null; };
+            t.addEventListener('pointerdown', e => { trLongPressed = false; sx = e.clientX; sy = e.clientY; cancel(); timer = setTimeout(() => { timer = null; trLongPaste(t, rev); }, 600); });
+            t.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - sx, e.clientY - sy) > 12) cancel(); });
+            ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => t.addEventListener(ev, cancel));
+            t.addEventListener('click', e => { if (trLongPressed) { trLongPressed = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true); // 길게 누른 뒤의 손 뗌은 마이크 켜기로 치지 않음
+        }
+        async function trLongPaste(t, rev) {
+            trLongPressed = true; trEnterEdit = false;
+            stopVoiceInput(); trReverse = !!rev; trKeepText = true;
+            if (!t.value.trim()) {
+                let txt = ''; try { txt = ((await navigator.clipboard.readText()) || '').trim(); } catch (e) {}
+                if (txt) { t.value = txt; t.readOnly = true; t.blur(); return; } // 바로 붙여넣음 → 통역 버튼만 누르면 됨
+            }
+            t.readOnly = false; t.focus(); try { t.setSelectionRange(t.value.length, t.value.length); } catch (e) {} // 자판이 뜨고, 칸을 길게 누르면 폰의 '붙여넣기'가 나옴
+        }
+        document.addEventListener('DOMContentLoaded', () => { trSetupLongPaste('tr-input', false); trSetupLongPaste('tr-input2', true); });
         function trBoxTap(t) {
             if (trEnterEdit) { trEnterEdit = false; return; } // 방금 고치기를 시작한 누름
             if (!t.readOnly) { t.blur(); trResumeMic(); return; }
@@ -1280,9 +1337,10 @@
             ensureSentinel(3); document.getElementById('text-country').innerText = countryLabel(toKo ? 'ko' : L); koDiv.innerText = title || text; foreignDiv.innerText = "번역 중..."; overlay.style.display = 'flex';
             document.getElementById('scroll-container').scrollTop = 0;
             try {
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(text)}`);
+                const P = protectWords(text, toKo); // 단어장의 고유명사는 번역하지 않고 그대로
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(P.t)}`);
                 const data = await res.json();
-                lastTranslated = data[0].map(p => p[0]).join('');
+                lastTranslated = restoreWords(data[0].map(p => p[0]).join(''), P.map);
                 if (!toKo && langMap[L] === 'en') lastTranslated = localizeEnglishVocab(lastTranslated, L);
                 if (!toKo) lastTranslated = politeForeign(lastTranslated, langMap[L]); // 영어(미국)·중국어 번역을 부드러운 부탁 말투로
                 foreignDiv.innerText = lastTranslated;
@@ -1405,9 +1463,117 @@
         function deleteCategory() { if(confirm("카테고리를 삭제하면 안의 문장도 모두 삭제됩니다.")) { categories.splice(categories.indexOf(curC),1); delete phraseDB[curC]; curC=categories[0]||""; selectedPhraseIdx=-1; renderTabs(); renderPhrases(); saveCats(); saveData(); } }
         function moveCategory(dir) { const idx = categories.indexOf(curC), newIdx = idx + dir; if (newIdx >= 0 && newIdx < categories.length) { [categories[idx], categories[newIdx]] = [categories[newIdx], categories[idx]]; saveCats(); renderTabs(); } }
         function stampNow() { const d = new Date(), p = n => String(n).padStart(2, '0'); return { label: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`, file: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}` }; }
-        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB, greet: greetDB, greetPron: greetPronDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
-        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; if(data.greet) { greetDB = data.greet; saveGreet(); } if(data.greetPron) { greetPronDB = data.greetPron; saveGreetPron(); } saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
+        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB, greet: greetDB, greetPron: greetPronDB, fixes: fixesDB, names: namesDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
+        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; if(data.greet) { greetDB = data.greet; saveGreet(); } if(data.greetPron) { greetPronDB = data.greetPron; saveGreetPron(); } if (Array.isArray(data.fixes)) fixesDB = data.fixes; if (Array.isArray(data.names)) namesDB = data.names; saveWords(); saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
         window.onload = init;
+    </script>
+    <script>
+        // ===== 단어장 (잘못 적히는 단어 → 말풍선, 고유명사 → 번역하지 않음) =====
+        function WT(k) { return (typeof T === 'function') ? T(k) : ({ del: '삭제', delConfirm: '삭제할까요?' })[k]; } // 택시 앱은 한국어, 통역 앱은 그 나라 말
+        // ---- 단어장: ① 잘못 적히는 단어 (틀린 말 → 맞는 말)  ② 고유명사 (번역하지 않음) ----
+        function romanizeKo(t) { // 한글 → 로마자 (국어의 로마자 표기법, 간단판). 예: 부캉이 → Bukangi
+            const I = ['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+            const V = ['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+            const F = ['','k','k','k','n','n','n','t','l','k','m','l','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
+            const L = { 1:'g', 4:'n', 7:'d', 8:'r', 16:'m', 17:'b', 19:'s', 22:'j', 23:'ch', 24:'k', 25:'t', 26:'p' };
+            const cs = [...t]; let out = '', any = false;
+            cs.forEach((c, k) => {
+                const n = c.charCodeAt(0) - 0xAC00;
+                if (n < 0 || n > 11171) { out += c; return; }
+                any = true;
+                const ini = Math.floor(n / 588), med = Math.floor((n % 588) / 28), fin = n % 28;
+                const nx = cs[k + 1] ? cs[k + 1].charCodeAt(0) - 0xAC00 : -1, nxIniO = nx >= 0 && nx <= 11171 && Math.floor(nx / 588) === 11;
+                out += I[ini] + V[med] + (fin && nxIniO && L[fin] ? L[fin] : F[fin]);
+            });
+            return any ? out.charAt(0).toUpperCase() + out.slice(1) : out;
+        }
+        const loadArr = k => { try { const v = JSON.parse(localStorage.getItem(k)); if (Array.isArray(v)) return v; } catch (e) {} return []; };
+        let fixesDB = loadArr('taxi_v10_fixes'), namesDB = loadArr('taxi_v10_names');
+        function saveWords() { try { localStorage.setItem('taxi_v10_fixes', JSON.stringify(fixesDB)); localStorage.setItem('taxi_v10_names', JSON.stringify(namesDB)); } catch (e) {} }
+        function protectWords(t, toNative) { // 번역 전에 고유명사를 번역기가 건드리지 못하는 표시로 바꿔 두고, 번역 뒤 이름으로 되돌림
+            const map = [];
+            namesDB.slice().sort((a, b) => b.length - a.length).forEach(w => {
+                const key = toNative ? romanizeKo(w) : w; if (!key) return;
+                const re = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                t = t.replace(re, () => { map.push(toNative ? w : romanizeKo(w)); return 'ZQX' + (map.length - 1) + 'Q'; });
+            });
+            return { t, map };
+        }
+        function restoreWords(t, map) { return map.length ? t.replace(/Z\s*Q\s*X\s*(\d+)\s*Q/gi, (m, i) => map[+i] !== undefined ? map[+i] : m) : t; }
+        let wordsTab = 0;
+        function openWords() { ensureSentinel(3); document.getElementById('words-editor').style.display = 'flex'; renderWords(); }
+        function closeWords() { document.getElementById('words-editor').style.display = 'none'; document.querySelectorAll('#words-editor input').forEach(i => i.blur()); }
+        function wordsTabTo(n) { wordsTab = n; renderWords(); }
+        function renderWords() {
+            document.querySelectorAll('.words-tab').forEach((b, i) => b.classList.toggle('on', i === wordsTab));
+            document.getElementById('words-pane-fix').style.display = wordsTab === 0 ? 'block' : 'none';
+            document.getElementById('words-pane-name').style.display = wordsTab === 1 ? 'block' : 'none';
+            const del = (fn, i) => `<button onclick="${fn}(${i})" class="w-del">${escHtml(WT('del'))}</button>`;
+            document.getElementById('fix-list').innerHTML = fixesDB.map((f, i) => `<div class="greet-edit-row"><span class="w-wrong">${escHtml(f.w)}</span><span class="w-arrow">→</span><span class="w-right">${escHtml(f.r)}</span>${del('deleteFix', i)}</div>`).join('');
+            document.getElementById('name-list').innerHTML = namesDB.map((w, i) => { const ro = romanizeKo(w); return `<div class="greet-edit-row"><span class="w-right">${escHtml(w)}${ro !== w ? ` <span class="w-ro">${escHtml(ro)}</span>` : ''}</span>${del('deleteName', i)}</div>`; }).join('');
+        }
+        function addFix() { const a = document.getElementById('fx-wrong'), b = document.getElementById('fx-right'), w = a.value.trim(), r = b.value.trim(); if (!w || !r || w === r) return; fixesDB = fixesDB.filter(f => f.w !== w); fixesDB.push({ w, r }); saveWords(); a.value = ''; b.value = ''; renderWords(); }
+        function deleteFix(i) { if (!confirm(`"${fixesDB[i].w} → ${fixesDB[i].r}"\n${WT('delConfirm')}`)) return; fixesDB.splice(i, 1); saveWords(); renderWords(); }
+        function addName() { const a = document.getElementById('nm-word'), v = a.value.trim(); if (!v) return; if (!namesDB.includes(v)) namesDB.push(v); saveWords(); a.value = ''; renderWords(); }
+        function deleteName(i) { if (!confirm(`"${namesDB[i]}"\n${WT('delConfirm')}`)) return; namesDB.splice(i, 1); saveWords(); renderWords(); }
+        // 내 말 칸: 말이 끝나고 잠깐 멈추면, 단어장의 헷갈리는 단어 바로 위에 말풍선(맞는 말)을 띄움
+        //  - 말풍선을 누르면 맞는 말로 바뀌고 마이크가 다시 켜져 이어서 말함
+        //  - 고르지 않으려면 칸을 톡 치면 말풍선이 사라지고 마이크가 켜짐
+        //  - 계속 말하는 중에는 말풍선을 숨김
+        let keepCount = {}, lastVal = '', lastChange = 0, bubbleIdx = -1;
+        function countOf(v, w) { return w ? v.split(w).length - 1 : 0; }
+        function bubbleOn() { return bubbleIdx >= 0; }
+        function hideBubble() { bubbleIdx = -1; const bb = document.getElementById('fix-bubble'); if (bb) bb.style.display = 'none'; }
+        function wordPos(t, at, len) { // 글 속 단어의 화면 위치 (칸 기준)
+            const m = document.createElement('div'), cs = getComputedStyle(t);
+            ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderLeftWidth','boxSizing','wordBreak','overflowWrap'].forEach(k => m.style[k] = cs[k]);
+            m.style.position = 'absolute'; m.style.visibility = 'hidden'; m.style.whiteSpace = 'pre-wrap'; m.style.width = t.clientWidth + 'px'; m.style.left = '-9999px'; m.style.top = '0';
+            m.textContent = t.value.slice(0, at); const sp = document.createElement('span'); sp.textContent = t.value.slice(at, at + len) || '.'; m.appendChild(sp);
+            document.body.appendChild(m); const r = { x: sp.offsetLeft, y: sp.offsetTop - t.scrollTop, w: sp.offsetWidth, h: sp.offsetHeight }; m.remove(); return r;
+        }
+        setInterval(() => {
+            const t = document.getElementById('tr-input'), bb = document.getElementById('fix-bubble'); if (!t || !bb) return;
+            const v = t.value, now = Date.now();
+            if (!v.trim()) keepCount = {};
+            if (v !== lastVal) { lastVal = v; lastChange = now; if (bubbleOn()) hideBubble(); return; } // 말하는 중에는 숨김
+            if (now - lastChange < 900 || !t.readOnly || document.getElementById('translator-view').style.display !== 'flex') return; // 말이 끝나고 잠깐 멈춘 뒤에만
+            const i = fixesDB.findIndex(f => f.w && countOf(v, f.w) > (keepCount[f.w] || 0));
+            if (i === bubbleIdx) return;
+            if (i < 0) { hideBubble(); return; }
+            const f = fixesDB[i], at = v.lastIndexOf(f.w), p = wordPos(t, at, f.w.length), box = t.parentElement;
+            bubbleIdx = i; drawBubble(bb, f.r, t, p, box);
+        }, 200);
+        function drawBubble(bb, text, t, p, box) { // 만화 말풍선: 하얀 타원 + 검은 테두리 + 단어를 가리키는 꼬리
+            bb.innerHTML = `<svg></svg><span>${escHtml(text)}</span>`; bb.style.display = 'block';
+            const sp = bb.querySelector('span'), sw = sp.offsetWidth, sh = sp.offsetHeight;
+            const rx = sw / 2 * 1.22 + 8, ry = Math.max(sh / 2 * 1.3, rx * 0.62), TH = 20, S = 2.5, W = Math.ceil(rx * 2 + S * 2), EH = Math.ceil(ry * 2 + S * 2), H = EH + TH;
+            const ox = t.offsetLeft, oy = t.offsetTop, wx = ox + p.x + p.w / 2; // 단어 가운데
+            let left = wx - W / 2; left = Math.max(2, Math.min(left, box.clientWidth - W - 2));
+            let top = oy + p.y + p.h - 2; const below = top + H <= box.clientHeight - 4; if (!below) top = oy + p.y - H + 2; // 늘 단어 아래에 (칸 맨 아래라 자리가 없을 때만 위에)
+            const cx = W / 2, cy = below ? TH + EH / 2 : EH / 2;
+            let tx = Math.max(cx - rx * 0.75, Math.min(wx - left, cx + rx * 0.75)); // 꼬리 끝
+            const bx = Math.max(cx - rx * 0.55, Math.min(tx - 20, cx + rx * 0.4)), ey = x => ry * Math.sqrt(Math.max(0, 1 - ((x - cx) / rx) ** 2));
+            const x1 = bx - 14, x2 = bx + 12, d = below ? -1 : 1;
+            const y1 = cy + d * (ey(x1) - 4), y2 = cy + d * (ey(x2) - 4), tyy = below ? 1 : H - 1;
+            const tail = `M${x1},${y1} Q${x1 + 6},${tyy - d * 4} ${tx},${tyy} Q${x2 + 2},${y2 + d * 10} ${x2},${y2}`;
+            bb.querySelector('svg').outerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute; left:0; top:0; overflow:visible;"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff" stroke="#222" stroke-width="${S}"/><path d="${tail}" fill="#fff" stroke="#222" stroke-width="${S}" stroke-linejoin="round"/></svg>`;
+            Object.assign(bb.style, { width: W + 'px', height: H + 'px', left: left + 'px', top: top + 'px' });
+            Object.assign(sp.style, { position: 'absolute', left: (cx - sw / 2) + 'px', top: (cy - sh / 2) + 'px' });
+        }
+        function chipFix(i) {
+            const t = document.getElementById('tr-input'), f = fixesDB[i]; if (!f) return;
+            const at = t.value.lastIndexOf(f.w); hideBubble();
+            stopVoiceInput(); if (at >= 0) t.value = t.value.slice(0, at) + f.r + t.value.slice(at + f.w.length);
+            lastVal = t.value; lastChange = Date.now();
+            trKeepText = true; trResumeMic(); // 바꾼 뒤 글 끝에서 이어서 말함
+        }
+        function bubbleTap(e) { e.stopPropagation(); e.preventDefault(); if (bubbleIdx >= 0) chipFix(bubbleIdx); }
+        // 말풍선이 떠 있을 때 칸을 톡 치면: 말풍선만 사라지고 마이크가 켜짐 (고치기 화면으로 들어가지 않음)
+        let bubbleDismissTap = false;
+        const _trBoxDown = trBoxDown, _trBoxTap = trBoxTap;
+        trBoxDown = function (t) { if (bubbleOn()) { const f = fixesDB[bubbleIdx]; keepCount[f.w] = countOf(t.value, f.w); hideBubble(); bubbleDismissTap = true; return; } _trBoxDown(t); };
+        trBoxTap = function (t) { if (bubbleDismissTap) { bubbleDismissTap = false; if (!(recog && !trReverse)) trResumeMic(); return; } _trBoxTap(t); };
+
     </script>
 </body>
 </html>
