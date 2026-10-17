@@ -351,6 +351,7 @@
         .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 10px 16px; cursor: pointer; }
+        #sense-bubble { position: absolute; display: none; gap: 6px; padding: 8px; box-sizing: border-box; background: #fff; border: 2.5px solid #222; border-radius: 22px; z-index: 5; white-space: nowrap; } #sense-bubble button { border: 2px solid #222; border-radius: 14px; background: #fff; color: #111; font-family: inherit; font-weight: 900; font-size: 16px; padding: 8px 10px; line-height: 1.2; white-space: nowrap; } #sense-bubble small { display: block; font-size: 12px; font-weight: 700; color: #555; }
         .tr-from:active { background: var(--surface-2); }
         #tr-paste-top, #tr-kbd-top { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 2px; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; color: var(--accent-bright); white-space: nowrap; } /* 복 사·키보드·관 광·한국어를 같은 크기로 나란히 */
         .tr-lang-row > .tr-from:first-child { flex: 1.6 1 0; min-width: 0; justify-content: center; }
@@ -526,7 +527,7 @@
             <div class="tr-panel">
                 <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button id="tr-paste-top" class="tr-from tr-tb" style="margin-left:auto;" onclick="trPasteBtn()" aria-label="붙여넣기">복 사</button><button id="tr-kbd-top" class="tr-from tr-tb" onclick="typeKo()" aria-label="직접 입력">키보드</button><button class="tr-from" onclick="closeTranslator(); openTour()" style="font-family:inherit;">🗺️ 관 광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea><div id="fix-bubble" onpointerdown="bubbleTap(event)"></div></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea><div id="fix-bubble" onpointerdown="bubbleTap(event)"></div><div id="sense-bubble"></div></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력" style="display:none">⌨️</button>
@@ -1565,15 +1566,50 @@
             m.textContent = t.value.slice(0, at); const sp = document.createElement('span'); sp.textContent = t.value.slice(at, at + len) || '.'; m.appendChild(sp);
             document.body.appendChild(m); const r = { x: sp.offsetLeft, y: sp.offsetTop - t.scrollTop, w: sp.offsetWidth, h: sp.offsetHeight }; m.remove(); return r;
         }
+        // ---- 뜻이 여러 개인 말: 말풍선에서 뜻을 골라 바꿈 (말한 순서대로 하나씩) ----
+        const SENSE_DB = [ { w: '배', opts: [ { l: '과일', r: '배(과일)' }, { l: '신체', r: '배(신체)' }, { l: '선박', r: '배(선박)' } ] } ];
+        let senseOn = false, senseKey = null, senseAt = -1;
+        function nthIndex(v, w, n) { let i = -1; for (let k = 0; k < n; k++) { i = v.indexOf(w, i + 1); if (i < 0) break; } return i; }
+        function hideSense() { senseOn = false; senseKey = null; senseAt = -1; const el = document.getElementById('sense-bubble'); if (el) el.style.display = 'none'; }
+        function showSense(t, s, at) {
+            const el = document.getElementById('sense-bubble'); if (!el) return;
+            el.innerHTML = s.opts.map((o, j) => `<button type="button" onpointerdown="senseChoose(event,${j})">${escHtml(o.l)}<small>${escHtml(o.r)}</small></button>`).join('');
+            el.style.display = 'flex'; el.style.left = '0px'; el.style.top = '0px';
+            const p = wordPos(t, at, s.w.length), box = t.parentElement, W = el.offsetWidth, H = el.offsetHeight;
+            const wx = t.offsetLeft + p.x + p.w / 2;
+            const left = Math.max(2, Math.min(wx - W / 2, box.clientWidth - W - 2));
+            let top = t.offsetTop + p.y + p.h + 10; if (top + H > box.clientHeight - 4) top = t.offsetTop + p.y - H - 10;
+            el.style.left = left + 'px'; el.style.top = top + 'px';
+        }
+        function senseChoose(e, j) {
+            e.stopPropagation(); e.preventDefault();
+            const s = SENSE_DB.find(x => x.w === senseKey); if (!s) return;
+            const t = document.getElementById('tr-input');
+            const at = t.value.substr(senseAt, s.w.length) === s.w ? senseAt : t.value.indexOf(s.w);
+            if (at >= 0) t.value = t.value.slice(0, at) + s.opts[j].r + t.value.slice(at + s.w.length);
+            hideSense(); keepCount[s.w] = countOf(t.value, s.w);
+            lastVal = t.value; lastChange = Date.now();
+            trKeepText = true; trResumeMic();
+        }
         setInterval(() => {
             const t = document.getElementById('tr-input'), bb = document.getElementById('fix-bubble'); if (!t || !bb) return;
             const v = t.value, now = Date.now();
             if (!v.trim()) keepCount = {};
-            if (v !== lastVal) { lastVal = v; lastChange = now; if (bubbleOn()) hideBubble(); return; } // 말하는 중에는 숨김
+            if (v !== lastVal) { lastVal = v; lastChange = now; if (bubbleOn()) hideBubble(); hideSense(); return; } // 말하는 중에는 숨김
             if (now - lastChange < 900 || !t.readOnly || document.getElementById('translator-view').style.display !== 'flex') return; // 말이 끝나고 잠깐 멈춘 뒤에만
-            const i = fixesDB.findIndex(f => f.w && countOf(v, f.w) > (keepCount[f.w] || 0));
+            const cand = [];
+            fixesDB.forEach((f, k) => { if (f.w && countOf(v, f.w) > (keepCount[f.w] || 0)) cand.push({ fix: true, k, at: nthIndex(v, f.w, (keepCount[f.w] || 0) + 1) }); });
+            SENSE_DB.forEach((s, k) => { if (countOf(v, s.w) > (keepCount[s.w] || 0)) cand.push({ fix: false, k, at: nthIndex(v, s.w, (keepCount[s.w] || 0) + 1) }); });
+            cand.sort((a, b) => a.at - b.at); // 말한 순서대로
+            const c = cand[0];
+            if (!c) { hideBubble(); hideSense(); return; }
+            if (!c.fix) {
+                const s = SENSE_DB[c.k]; if (senseOn && senseKey === s.w && senseAt === c.at) return;
+                hideBubble(); senseOn = true; senseKey = s.w; senseAt = c.at; showSense(t, s, c.at); return;
+            }
+            hideSense();
+            const i = c.k;
             if (i === bubbleIdx) return;
-            if (i < 0) { hideBubble(); return; }
             const f = fixesDB[i], at = v.lastIndexOf(f.w), p = wordPos(t, at, f.w.length), box = t.parentElement;
             bubbleIdx = i; drawBubble(bb, f.r, t, p, box);
         }, 200);
@@ -1605,7 +1641,7 @@
         // 말풍선이 떠 있을 때 칸을 톡 치면: 말풍선만 사라지고 마이크가 켜짐 (고치기 화면으로 들어가지 않음)
         let bubbleDismissTap = false;
         const _trBoxDown = trBoxDown, _trBoxTap = trBoxTap;
-        trBoxDown = function (t) { if (bubbleOn()) { const f = fixesDB[bubbleIdx]; keepCount[f.w] = countOf(t.value, f.w); hideBubble(); bubbleDismissTap = true; return; } _trBoxDown(t); };
+        trBoxDown = function (t) { if (senseOn) { keepCount[senseKey] = countOf(t.value, senseKey); hideSense(); bubbleDismissTap = true; return; } if (bubbleOn()) { const f = fixesDB[bubbleIdx]; keepCount[f.w] = countOf(t.value, f.w); hideBubble(); bubbleDismissTap = true; return; } _trBoxDown(t); };
         trBoxTap = function (t) { if (bubbleDismissTap) { bubbleDismissTap = false; if (!(recog && !trReverse)) trResumeMic(); return; } _trBoxTap(t); };
 
     </script>
