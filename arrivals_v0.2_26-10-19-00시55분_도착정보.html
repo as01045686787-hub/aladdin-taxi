@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도착 정보</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: #000;
+    font-family: -apple-system, "Malgun Gothic", "맑은 고딕", sans-serif;
+    font-size: 20px;
+  }
+  header {
+    padding: 16px; border-bottom: 2px solid #000;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 26px; font-weight: 800; }
+  #now { font-size: 22px; font-weight: 700; }
+  .back {
+    font-size: 22px; font-weight: 800; background: #fff; color: #000;
+    border: 2px solid #000; padding: 8px 14px; cursor: pointer;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .menu-btn {
+    display: block; width: 100%; padding: 28px 16px; margin: 16px 0;
+    font-size: 28px; font-weight: 800; background: #fff; color: #000;
+    border: 2px solid #000; text-align: center; cursor: pointer;
+  }
+  .list-btn {
+    display: block; width: 100%; padding: 22px 16px; margin: 10px 0;
+    font-size: 24px; font-weight: 700; background: #fff; color: #000;
+    border: 2px solid #000; text-align: left; cursor: pointer;
+  }
+  .section-title {
+    font-size: 24px; font-weight: 900; color: #000;
+    padding: 14px 16px; border-bottom: 2px solid #000;
+  }
+  .picker { padding: 12px 16px; border-bottom: 2px solid #000; }
+  .picker select {
+    width: 100%; font-size: 22px; padding: 12px; margin: 6px 0;
+    background: #fff; color: #000; border: 2px solid #000;
+  }
+  .row {
+    padding: 14px 16px; border-bottom: 1px solid #000;
+  }
+  .row .time { font-size: 28px; font-weight: 900; }
+  .row .info { font-size: 22px; margin-top: 4px; }
+  .row .status { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .empty { padding: 24px 16px; font-size: 22px; }
+  .refresh {
+    display: block; width: calc(100% - 32px); margin: 16px;
+    padding: 20px; font-size: 26px; font-weight: 900;
+    background: #FFD400; color: #000; border: 2px solid #000; cursor: pointer;
+  }
+  .meta { padding: 0 16px 12px; font-size: 20px; }
+  footer {
+    padding: 12px 16px; border-top: 2px solid #000; font-size: 18px;
+    white-space: nowrap; overflow: hidden;
+  }
+  header h1, #now, .section-title, .row .info, .row .status, .meta {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="title">도착 정보</h1>
+  <span id="now"></span>
+</header>
+
+<!-- 첫 메뉴 -->
+<section class="screen active" id="s-home">
+  <div style="padding: 0 16px;">
+    <button class="menu-btn" onclick="go('s-airport')">공항</button>
+    <button class="menu-btn" onclick="go('s-train')">열차</button>
+  </div>
+</section>
+
+<!-- 공항: 지역 선택 -->
+<section class="screen" id="s-airport">
+  <div style="padding: 0 16px;">
+    <button class="back" onclick="go('s-home')">← 처음</button>
+  </div>
+  <div class="section-title">공항 지역</div>
+  <div id="airport-regions"></div>
+</section>
+
+<!-- 공항: 지역 안 공항 선택 -->
+<section class="screen" id="s-airport-list">
+  <div style="padding: 0 16px;">
+    <button class="back" onclick="go('s-airport')">← 지역</button>
+  </div>
+  <div class="section-title" id="airport-region-title"></div>
+  <div id="airport-items"></div>
+</section>
+
+<!-- 열차: 지역 선택 -->
+<section class="screen" id="s-train">
+  <div style="padding: 0 16px;">
+    <button class="back" onclick="go('s-home')">← 처음</button>
+  </div>
+  <div class="section-title">열차 지역</div>
+  <div id="train-regions"></div>
+</section>
+
+<!-- 열차: 지역 안 역 선택 -->
+<section class="screen" id="s-train-list">
+  <div style="padding: 0 16px;">
+    <button class="back" onclick="go('s-train')">← 지역</button>
+  </div>
+  <div class="section-title" id="train-region-title"></div>
+  <div id="train-items"></div>
+</section>
+
+<!-- 결과 화면 (공항 또는 열차 공용 틀, 내용은 따로 나옴) -->
+<section class="screen" id="s-result">
+  <div style="padding: 0 16px;">
+    <button class="back" id="result-back">← 목록</button>
+  </div>
+  <div class="section-title" id="result-title"></div>
+  <div class="meta" id="result-meta"></div>
+  <div id="result-list"></div>
+  <button class="refresh" onclick="refreshResult()">새로고침</button>
+</section>
+
+<footer>v0.2 · 26-10-19-00시 24분 · Worker 연결</footer>
+
+<script>
+/* ===== 설정 ===== */
+const WORKER_URL = "https://hidden-shadow-7539.as01045686787.workers.dev";
+
+/* ===== 지역 묶음 ===== */
+const AIRPORT_REGIONS = {
+  "서울·인천·김포": [
+    { name: "인천국제공항", code: "ICN" },
+    { name: "김포공항", code: "GMP" }
+  ],
+  "대구·경북": [
+    { name: "대구공항", code: "TAE" },
+    { name: "포항경주공항", code: "KPO" }
+  ],
+  "대전·충청": [
+    { name: "청주공항", code: "CJJ" }
+  ],
+  "부산·경남": [
+    { name: "김해공항", code: "PUS" },
+    { name: "사천공항", code: "HIN" },
+    { name: "울산공항", code: "USN" }
+  ],
+  "광주·전라": [
+    { name: "광주공항", code: "KWJ" },
+    { name: "무안공항", code: "MWX" },
+    { name: "여수공항", code: "RSU" },
+    { name: "군산공항", code: "KUV" }
+  ],
+  "강원": [
+    { name: "양양공항", code: "YNY" },
+    { name: "원주공항", code: "WJU" }
+  ],
+  "제주": [
+    { name: "제주공항", code: "CJU" }
+  ]
+};
+
+const TRAIN_REGIONS = {
+  "서울": ["서울역", "용산역", "청량리역", "수서역"],
+  "경기·강원": ["광명역", "원주역", "강릉역"],
+  "대전·충청": ["대전역", "오송역", "천안아산역"],
+  "대구·경북": ["동대구역", "신경주역", "경주역"],
+  "부산·경남": ["부산역", "부전역", "신해운대역", "센텀역", "기장역", "구포역", "밀양역"],
+  "울산": ["울산역"],
+  "광주·전라": ["광주송정역", "익산역", "전주역", "목포역", "여수엑스포역"],
+  "제주": []
+};
+
+/* ===== 샘플 데이터 (실제 API 연결 전) ===== */
+const SAMPLE_FLIGHTS = {
+  // 편명, 출발지, 예정시각, 상태(정시/지연 분)
+  PUS: [
+    { time: "16:10", from: "대만 타이베이", no: "KE 1234", delay: 0 },
+    { time: "16:25", from: "일본 후쿠오카", no: "7C 511", delay: 15 },
+    { time: "17:00", from: "중국 상하이", no: "MU 5104", delay: 0 }
+  ]
+};
+
+const SAMPLE_TRAINS = {
+  "부산역": [
+    { time: "16:12", no: "KTX 101", from: "서울역" },
+    { time: "16:40", no: "KTX-이음", from: "청량리역" }
+  ]
+};
+
+/* ===== 화면 전환 ===== */
+let current = { type: null, name: null, code: null };
+
+function go(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+/* ===== 시각 ===== */
+function nowText() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return hh + ":" + mm;
+}
+function tick() { document.getElementById("now").textContent = "현재 " + nowText(); }
+tick(); setInterval(tick, 30000);
+
+/* ===== 목록 만들기 ===== */
+function makeRegionButtons(regions, onClick) {
+  return Object.keys(regions).map(r =>
+    `<button class="list-btn" onclick="${onClick}('${r}')">${r}</button>`
+  ).join("");
+}
+
+function showAirportRegion(region) {
+  document.getElementById("airport-region-title").textContent = region;
+  document.getElementById("airport-items").innerHTML =
+    AIRPORT_REGIONS[region].map(a =>
+      `<button class="list-btn" onclick="showResult('airport','${a.name}','${a.code}')">${a.name}</button>`
+    ).join("");
+  go("s-airport-list");
+}
+
+function showTrainRegion(region) {
+  document.getElementById("train-region-title").textContent = region;
+  const items = TRAIN_REGIONS[region];
+  document.getElementById("train-items").innerHTML = items.length
+    ? items.map(s =>
+        `<button class="list-btn" onclick="showResult('train','${s}','')">${s}</button>`
+      ).join("")
+    : `<div class="empty">이 지역에는 열차 정차역이 없습니다.</div>`;
+  go("s-train-list");
+}
+
+/* ===== 결과 ===== */
+async function showResult(type, name, code) {
+  current = { type, name, code };
+  document.getElementById("result-title").textContent = name;
+  document.getElementById("result-back").onclick = () =>
+    go(type === "airport" ? "s-airport-list" : "s-train-list");
+
+  // Worker에서 도착 정보 가져오기
+  if (type === "airport") {
+    try {
+      const response = await fetch(`${WORKER_URL}/airports/korea?airport=${code}`);
+      const data = await response.json();
+      if (data && data.length) SAMPLE_FLIGHTS[code] = data;
+    } catch (err) {
+      console.error("공항 정보 조회 실패:", err);
+    }
+  } else {
+    try {
+      const response = await fetch(`${WORKER_URL}/trains?arrStation=${name}`);
+      const data = await response.json();
+      if (data && data.length) SAMPLE_TRAINS[name] = data;
+    } catch (err) {
+      console.error("열차 정보 조회 실패:", err);
+    }
+  }
+
+  renderResult();
+  go("s-result");
+}
+
+function renderResult() {
+  const now = nowText();
+  let rows = [];
+  let metaText = "";
+
+  if (current.type === "airport") {
+    rows = (SAMPLE_FLIGHTS[current.code] || [])
+      .filter(f => f.time >= now);
+    metaText = "도착 예정 (현재 이후) · 마지막 갱신 " + now;
+    document.getElementById("result-list").innerHTML = rows.length
+      ? rows.map(f => `
+          <div class="row">
+            <div class="time">${f.time}</div>
+            <div class="info">${f.from} · ${f.no}</div>
+            <div class="status">${f.delay ? "지연 " + f.delay + "분" : "정시"}</div>
+          </div>`).join("")
+      : `<div class="empty">현재 이후 도착 예정 편이 없습니다.</div>`;
+  } else {
+    rows = (SAMPLE_TRAINS[current.name] || [])
+      .filter(t => t.time >= now);
+    metaText = "도착 예정 (현재 이후) · 시간표 기준 · 마지막 갱신 " + now;
+    document.getElementById("result-list").innerHTML = rows.length
+      ? rows.map(t => `
+          <div class="row">
+            <div class="time">${t.time}</div>
+            <div class="info">${t.no} · ${t.from} 출발</div>
+            <div class="status">시간표 기준</div>
+          </div>`).join("")
+      : `<div class="empty">현재 이후 도착 예정 열차가 없습니다.</div>`;
+  }
+  document.getElementById("result-meta").textContent = metaText;
+}
+
+async function refreshResult() {
+  // Worker에서 최신 도착 정보 재조회
+  if (current.type === "airport") {
+    try {
+      const response = await fetch(`${WORKER_URL}/airports/korea?airport=${current.code}`);
+      const data = await response.json();
+      if (data && data.length) SAMPLE_FLIGHTS[current.code] = data;
+    } catch (err) {
+      console.error("공항 정보 재조회 실패:", err);
+    }
+  } else if (current.type === "train") {
+    try {
+      const response = await fetch(`${WORKER_URL}/trains?arrStation=${current.name}`);
+      const data = await response.json();
+      if (data && data.length) SAMPLE_TRAINS[current.name] = data;
+    } catch (err) {
+      console.error("열차 정보 재조회 실패:", err);
+    }
+  }
+  renderResult();
+  tick();
+}
+
+/* ===== 시작 ===== */
+document.getElementById("airport-regions").innerHTML =
+  makeRegionButtons(AIRPORT_REGIONS, "showAirportRegion");
+document.getElementById("train-regions").innerHTML =
+  makeRegionButtons(TRAIN_REGIONS, "showTrainRegion");
+</script>
+
+</body>
+</html>
