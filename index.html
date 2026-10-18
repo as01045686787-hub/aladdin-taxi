@@ -665,15 +665,12 @@
         function refreshVoiceCache() { cachedVoices = window.speechSynthesis.getVoices() || []; }
         if ('speechSynthesis' in window) { refreshVoiceCache(); window.speechSynthesis.onvoiceschanged = refreshVoiceCache; }
         // 폰에 목소리가 없는 말 → 비슷한 말 목소리로 (우즈베크어는 같은 튀르크어인 터키어, 카자흐어·몽골어는 같은 키릴 문자인 러시아어)
-        const VOICE_FALLBACK = { uz: 'tr', kk: 'ru', mn: 'ru', ky: 'ru', tg: 'ru' };
-        function noVoiceMsg() { return (typeof T === 'function') ? T('noVoice') : '이 나라 말은 폰에 읽어 주는 목소리가 없어요'; }
         function pickBestVoice(langCode) {
             if (!cachedVoices.length) return null;
             const exact = cachedVoices.filter(v => v.lang.toLowerCase() === langCode.toLowerCase());
             const base = langCode.split('-')[0].toLowerCase();
             const baseMatch = cachedVoices.filter(v => v.lang.toLowerCase().startsWith(base));
-            let pool = exact.length ? exact : baseMatch;
-            if (!pool.length && VOICE_FALLBACK[base]) pool = cachedVoices.filter(v => v.lang.toLowerCase().startsWith(VOICE_FALLBACK[base])); // 목소리가 없는 말은 가장 비슷한 말의 목소리로 읽음
+            const pool = exact.length ? exact : baseMatch;
             if (!pool.length) return null;
             const networkVoice = pool.find(v => v.localService === false);
             return networkVoice || pool[0];
@@ -818,7 +815,7 @@
         const greetCache = {};
         function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
         function speakGreet(t) {
-            try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) { u.voice = v; u.lang = v.lang; } else if (cachedVoices.length) { showToast(noVoiceMsg()); return; } /* 목소리가 없으면 엉뚱한 억양으로 읽지 않음 */ window.speechSynthesis.speak(u); } catch (e) {}
+            try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) u.voice = v; /* 목소리가 없으면 엉뚱한 억양으로 읽지 않음 */ window.speechSynthesis.speak(u); } catch (e) {}
         }
         function openGreet() {
             const c = findCountry(curL); if (!c) return;
@@ -1456,8 +1453,7 @@
             }
 
             const bestVoice = pickBestVoice(l);
-            if (bestVoice) { u.voice = bestVoice; u.lang = bestVoice.lang; }
-            else if (cachedVoices.length) { showToast(noVoiceMsg()); resumeCtx = null; return; } // 목소리가 없으면 엉뚱한 억양(직전에 쓴 말)으로 읽지 않고 글자만 보여 줌
+            if (bestVoice) u.voice = bestVoice;
             u.onstart = () => startLoop(false);
             u.onend = () => {
                 if (token !== speakToken) return;
