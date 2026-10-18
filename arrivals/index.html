@@ -1,138 +1,173 @@
 <!DOCTYPE html>
+<!-- 알라딘 택시 도착 정보 | v0.4 · 26-10-19-01시 30분 · 공항열차도착정보 | 글자 크게·도착시간 강조·택시 앱 디자인·공항/열차 버튼에서 바로 진입 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0b10">
 <title>도착 정보</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
 <style>
-  :root { color-scheme: light; }
-  * { box-sizing: border-box; }
+  :root {
+    --bg: #0a0b10;
+    --card: #14161d;
+    --surface-2: #1b1e28;
+    --hairline: rgba(201,162,74,0.16);
+    --hairline-strong: rgba(201,162,74,0.38);
+    --hairline-soft: rgba(255,255,255,0.06);
+    --text: #ece5d6;
+    --dim: #8d8c92;
+    --accent: #c9a227;
+    --accent-bright: #e7c766;
+    --accent-deep: #8a6a1c;
+    --major-grad: linear-gradient(150deg, #1c2230, #12151d);
+    --shadow: 0 14px 34px -16px rgba(0,0,0,0.65);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
   body {
-    margin: 0; background: #fff; color: #000;
-    font-family: -apple-system, "Malgun Gothic", "맑은 고딕", sans-serif;
-    font-size: 20px;
+    background: radial-gradient(circle at 50% -8%, rgba(201,162,74,0.06), transparent 55%), var(--bg);
+    color: var(--text);
+    font-family: 'Pretendard', -apple-system, "Noto Sans CJK KR", "Malgun Gothic", sans-serif;
+    letter-spacing: -0.2px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-user-select: none;
   }
   header {
-    padding: 16px; border-bottom: 2px solid #000;
-    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    height: 70px; padding: 0 12px;
+    display: grid; grid-template-columns: 56px minmax(0, 1fr) 72px; align-items: center;
+    background: rgba(10, 11, 16, 0.92);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
   }
-  header h1 { margin: 0; font-size: 26px; font-weight: 800; }
-  #now { font-size: 22px; font-weight: 700; }
-  .back {
-    font-size: 22px; font-weight: 800; background: #fff; color: #000;
-    border: 2px solid #000; padding: 8px 14px; cursor: pointer;
+  #back {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--hairline-soft); box-shadow: var(--shadow);
+    font-size: 30px; line-height: 1; padding: 0 0 3px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
   }
-  .screen { display: none; }
-  .screen.active { display: block; }
-  .menu-btn {
-    display: block; width: 100%; padding: 28px 16px; margin: 16px 0;
-    font-size: 28px; font-weight: 800; background: #fff; color: #000;
-    border: 2px solid #000; text-align: center; cursor: pointer;
-  }
-  .list-btn {
-    display: block; width: 100%; padding: 22px 16px; margin: 10px 0;
-    font-size: 24px; font-weight: 700; background: #fff; color: #000;
-    border: 2px solid #000; text-align: left; cursor: pointer;
-  }
-  .section-title {
-    font-size: 24px; font-weight: 900; color: #000;
-    padding: 14px 16px; border-bottom: 2px solid #000;
-  }
-  .picker { padding: 12px 16px; border-bottom: 2px solid #000; }
-  .picker select {
-    width: 100%; font-size: 22px; padding: 12px; margin: 6px 0;
-    background: #fff; color: #000; border: 2px solid #000;
-  }
-  .row {
-    padding: 14px 16px; border-bottom: 1px solid #000;
-  }
-  .row .time { font-size: 28px; font-weight: 900; }
-  .row .info { font-size: 22px; margin-top: 4px; }
-  .row .status { font-size: 22px; font-weight: 700; margin-top: 4px; }
-  .empty { padding: 24px 16px; font-size: 22px; }
-  .refresh {
-    display: block; width: calc(100% - 32px); margin: 16px;
-    padding: 20px; font-size: 26px; font-weight: 900;
-    background: #FFD400; color: #000; border: 2px solid #000; cursor: pointer;
-  }
-  .meta { padding: 0 16px 12px; font-size: 20px; }
-  footer {
-    padding: 12px 16px; border-top: 2px solid #000; font-size: 18px;
-    white-space: nowrap; overflow: hidden;
-  }
-  header h1, #now, .section-title, .row .info, .row .status, .meta {
+  #title {
+    font-family: 'Noto Serif KR', "Noto Serif CJK KR", serif;
+    font-weight: 700; font-size: 26px; letter-spacing: 0.2px; text-align: center;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    background: linear-gradient(135deg, var(--accent-bright), var(--accent) 55%, var(--accent-deep));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
+  #now {
+    justify-self: end; font-size: 21px; font-weight: 800; color: var(--text);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .screen { display: none; padding: 16px 16px 40px; }
+  .screen.active { display: block; }
+
+  .section-title {
+    color: var(--text); font-size: 22px; font-weight: 800;
+    margin: 10px 0 16px 4px; display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .section-title::before { content: ""; width: 4px; height: 22px; background: var(--accent); border-radius: 2px; display: inline-block; }
+
+  .card {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    width: 100%; min-height: 104px; margin: 0 0 12px; padding: 0 12px;
+    background: var(--major-grad); color: var(--text);
+    border: 1px solid var(--hairline-soft); border-radius: var(--radius); box-shadow: var(--shadow);
+    font-family: inherit; font-size: 34px; font-weight: 800; text-align: center;
+    white-space: nowrap; overflow: hidden; cursor: pointer;
+  }
+  .card:active { border-color: var(--accent); }
+  .card.big { min-height: 150px; font-size: 40px; }
+  .card .ico { font-size: 56px; line-height: 1; }
+
+  .place {
+    font-family: 'Noto Serif KR', "Noto Serif CJK KR", serif; font-weight: 700;
+    font-size: 38px; text-align: center; margin: 14px 0 6px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .meta { text-align: center; color: var(--dim); font-size: 20px; font-weight: 700; margin: 0 0 18px; white-space: nowrap; }
+  .meta .tag { color: var(--accent-bright); font-weight: 800; }
+
+  .row {
+    background: var(--card); border: 1px solid var(--hairline-soft); border-radius: var(--radius);
+    padding: 16px 18px 18px; margin-bottom: 12px;
+  }
+  .row .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .row .arr { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+  .row .arr small { color: var(--dim); font-size: 20px; font-weight: 800; }
+  .row .arr b { font-size: 46px; font-weight: 900; line-height: 1.05; color: var(--accent-bright); font-variant-numeric: tabular-nums; }
+  .row .from { font-size: 28px; font-weight: 800; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .sub { font-size: 21px; font-weight: 600; color: var(--dim); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .dep { display: flex; align-items: center; justify-content: space-between; gap: 10px; white-space: nowrap; margin-bottom: 8px; }
+  .row .dep .st { font-size: 30px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+  .row .dep .tm { font-size: 30px; font-weight: 800; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .chip {
+    display: inline-block; padding: 6px 16px; border-radius: 999px;
+    font-size: 20px; font-weight: 800; white-space: nowrap;
+    border: 1px solid var(--hairline-strong); color: var(--text);
+  }
+  .chip.late { background: var(--accent); border-color: var(--accent); color: #1a1305; }
+  .empty { text-align: center; color: var(--text); font-size: 24px; font-weight: 700; padding: 32px 0; }
+
+  .refresh-wrap { text-align: center; margin: 22px 0 4px; }
+  .refresh {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 16px 40px; font-family: inherit; font-size: 28px; font-weight: 900; white-space: nowrap;
+    background: var(--accent); color: #1a1305; border: none; border-radius: 14px; cursor: pointer;
+  }
+  .refresh:active { background: var(--accent-bright); }
+  footer { text-align: center; color: var(--dim); font-size: 16px; font-weight: 600; line-height: 1.6; padding: 22px 12px 32px; white-space: nowrap; overflow: hidden; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1 id="title">도착 정보</h1>
+  <button id="back" data-act="back" aria-label="뒤로">←</button>
+  <div id="title">도착 정보</div>
   <span id="now"></span>
 </header>
 
-<!-- 첫 메뉴 -->
-<section class="screen active" id="s-home">
-  <div style="padding: 0 16px;">
-    <button class="menu-btn" onclick="go('s-airport')">공항</button>
-    <button class="menu-btn" onclick="go('s-train')">열차</button>
-  </div>
+<!-- 공항/열차 직접 선택 (택시 앱 버튼 없이 열었을 때만 보임) -->
+<section class="screen" id="s-home">
+  <button class="card big" data-act="kind" data-kind="airport"><span class="ico">✈️</span><span>공항</span></button>
+  <button class="card big" data-act="kind" data-kind="train"><span class="ico">🚆</span><span>열차</span></button>
 </section>
 
-<!-- 공항: 지역 선택 -->
-<section class="screen" id="s-airport">
-  <div style="padding: 0 16px;">
-    <button class="back" onclick="go('s-home')">← 처음</button>
-  </div>
-  <div class="section-title">공항 지역</div>
-  <div id="airport-regions"></div>
+<!-- 지역 선택 -->
+<section class="screen" id="s-regions">
+  <div class="section-title" id="regions-label"></div>
+  <div id="regions-list"></div>
 </section>
 
-<!-- 공항: 지역 안 공항 선택 -->
-<section class="screen" id="s-airport-list">
-  <div style="padding: 0 16px;">
-    <button class="back" onclick="go('s-airport')">← 지역</button>
-  </div>
-  <div class="section-title" id="airport-region-title"></div>
-  <div id="airport-items"></div>
+<!-- 공항·역 선택 -->
+<section class="screen" id="s-places">
+  <div class="section-title" id="places-label"></div>
+  <div id="places-list"></div>
 </section>
 
-<!-- 열차: 지역 선택 -->
-<section class="screen" id="s-train">
-  <div style="padding: 0 16px;">
-    <button class="back" onclick="go('s-home')">← 처음</button>
-  </div>
-  <div class="section-title">열차 지역</div>
-  <div id="train-regions"></div>
+<!-- 국내선·국제선 선택 (공항만) -->
+<section class="screen" id="s-scope">
+  <div class="place" id="scope-place"></div>
+  <div class="section-title">노선 선택</div>
+  <div id="scope-list"></div>
 </section>
 
-<!-- 열차: 지역 안 역 선택 -->
-<section class="screen" id="s-train-list">
-  <div style="padding: 0 16px;">
-    <button class="back" onclick="go('s-train')">← 지역</button>
-  </div>
-  <div class="section-title" id="train-region-title"></div>
-  <div id="train-items"></div>
-</section>
-
-<!-- 결과 화면 (공항 또는 열차 공용 틀, 내용은 따로 나옴) -->
+<!-- 도착 목록 -->
 <section class="screen" id="s-result">
-  <div style="padding: 0 16px;">
-    <button class="back" id="result-back">← 목록</button>
-  </div>
-  <div class="section-title" id="result-title"></div>
+  <div class="place" id="result-place"></div>
   <div class="meta" id="result-meta"></div>
   <div id="result-list"></div>
-  <button class="refresh" onclick="refreshResult()">새로고침</button>
+  <div class="refresh-wrap"><button class="refresh" data-act="refresh">새로고침</button></div>
 </section>
 
-<footer>v0.2 · 26-10-19-00시 24분 · Worker 연결</footer>
+<footer>도착 정보 v0.5<br>26-10-19-01시 40분 · 공항열차도착정보</footer>
 
 <script>
-/* ===== 설정 ===== */
-const WORKER_URL = "https://hidden-shadow-7539.as01045686787.workers.dev";
-
 /* ===== 지역 묶음 ===== */
 const AIRPORT_REGIONS = {
   "서울·인천·김포": [
@@ -173,165 +208,154 @@ const TRAIN_REGIONS = {
   "대구·경북": ["동대구역", "신경주역", "경주역"],
   "부산·경남": ["부산역", "부전역", "신해운대역", "센텀역", "기장역", "구포역", "밀양역"],
   "울산": ["울산역"],
-  "광주·전라": ["광주송정역", "익산역", "전주역", "목포역", "여수엑스포역"],
-  "제주": []
+  "광주·전라": ["광주송정역", "익산역", "전주역", "목포역", "여수엑스포역"]
 };
 
-/* ===== 샘플 데이터 (실제 API 연결 전) ===== */
+const KIND = {
+  airport: { label: "공항", regions: AIRPORT_REGIONS },
+  train:   { label: "열차", regions: TRAIN_REGIONS }
+};
+
+/* ===== 예시 데이터 (실제 연결 전) =====
+   arr = 도착 시각(큰 글자), dep = 출발 시각(작은 글자, 열차만) */
 const SAMPLE_FLIGHTS = {
-  // 편명, 출발지, 예정시각, 상태(정시/지연 분)
   PUS: [
-    { time: "16:10", from: "대만 타이베이", no: "KE 1234", delay: 0 },
-    { time: "16:25", from: "일본 후쿠오카", no: "7C 511", delay: 15 },
-    { time: "17:00", from: "중국 상하이", no: "MU 5104", delay: 0 }
+    { dom: false, arr: "16:10", from: "대만 타이베이", no: "KE 1234", delay: 0 },
+    { dom: false, arr: "16:40", from: "일본 후쿠오카", no: "7C 511", delay: 15 },
+    { dom: false, arr: "17:00", from: "중국 상하이", no: "MU 5104", delay: 0 },
+    { dom: true,  arr: "16:15", from: "서울 김포", no: "KE 1402", delay: 0 },
+    { dom: true,  arr: "16:35", from: "제주", no: "7C 603", delay: 10 },
+    { dom: true,  arr: "17:05", from: "서울 김포", no: "OZ 8132", delay: 0 }
+  ],
+  ICN: [
+    { dom: false, arr: "16:05", from: "일본 도쿄", no: "KE 704", delay: 0 },
+    { dom: false, arr: "16:30", from: "미국 로스앤젤레스", no: "KE 18", delay: 20 }
   ]
 };
-
 const SAMPLE_TRAINS = {
   "부산역": [
-    { time: "16:12", no: "KTX 101", from: "서울역" },
-    { time: "16:40", no: "KTX-이음", from: "청량리역" }
+    { arr: "16:12", dep: "13:30", from: "서울역", no: "KTX 101" },
+    { arr: "16:40", dep: "13:55", from: "청량리역", no: "KTX-이음" }
+  ],
+  "서울역": [
+    { arr: "16:20", dep: "13:40", from: "부산역", no: "KTX 120" }
   ]
 };
-
-/* ===== 화면 전환 ===== */
-let current = { type: null, name: null, code: null };
-
-function go(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0, 0);
-}
 
 /* ===== 시각 ===== */
 function nowText() {
   const d = new Date();
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return hh + ":" + mm;
+  return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
 }
-function tick() { document.getElementById("now").textContent = "현재 " + nowText(); }
+function tick() { document.getElementById("now").textContent = nowText(); }
 tick(); setInterval(tick, 30000);
 
-/* ===== 목록 만들기 ===== */
-function makeRegionButtons(regions, onClick) {
-  return Object.keys(regions).map(r =>
-    `<button class="list-btn" onclick="${onClick}('${r}')">${r}</button>`
-  ).join("");
-}
+/* ===== 화면 이동 (폰 뒤로가기 버튼도 같은 순서로 동작) ===== */
+const params = new URLSearchParams(location.search);
+const ENTRY = KIND[params.get("type")] ? params.get("type") : null;
+let state = null;
 
-function showAirportRegion(region) {
-  document.getElementById("airport-region-title").textContent = region;
-  document.getElementById("airport-items").innerHTML =
-    AIRPORT_REGIONS[region].map(a =>
-      `<button class="list-btn" onclick="showResult('airport','${a.name}','${a.code}')">${a.name}</button>`
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function setTitle(t) { document.getElementById("title").textContent = t; }
+
+function show(st) {
+  state = st;
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(st.id).classList.add("active");
+
+  if (st.id === "s-home") {
+    setTitle("도착 정보");
+  } else if (st.id === "s-regions") {
+    setTitle(KIND[st.kind].label + " 도착");
+    document.getElementById("regions-label").textContent = "지역 선택";
+    document.getElementById("regions-list").innerHTML = Object.keys(KIND[st.kind].regions).map(r =>
+      `<button class="card" data-act="region" data-kind="${st.kind}" data-region="${esc(r)}">${esc(r)}</button>`
     ).join("");
-  go("s-airport-list");
-}
-
-function showTrainRegion(region) {
-  document.getElementById("train-region-title").textContent = region;
-  const items = TRAIN_REGIONS[region];
-  document.getElementById("train-items").innerHTML = items.length
-    ? items.map(s =>
-        `<button class="list-btn" onclick="showResult('train','${s}','')">${s}</button>`
-      ).join("")
-    : `<div class="empty">이 지역에는 열차 정차역이 없습니다.</div>`;
-  go("s-train-list");
-}
-
-/* ===== 결과 ===== */
-async function showResult(type, name, code) {
-  current = { type, name, code };
-  document.getElementById("result-title").textContent = name;
-  document.getElementById("result-back").onclick = () =>
-    go(type === "airport" ? "s-airport-list" : "s-train-list");
-
-  // Worker에서 도착 정보 가져오기
-  if (type === "airport") {
-    try {
-      const response = await fetch(`${WORKER_URL}/airports/korea?airport=${code}`);
-      const data = await response.json();
-      if (data && data.length) SAMPLE_FLIGHTS[code] = data;
-    } catch (err) {
-      console.error("공항 정보 조회 실패:", err);
-    }
-  } else {
-    try {
-      const response = await fetch(`${WORKER_URL}/trains?arrStation=${name}`);
-      const data = await response.json();
-      if (data && data.length) SAMPLE_TRAINS[name] = data;
-    } catch (err) {
-      console.error("열차 정보 조회 실패:", err);
-    }
+  } else if (st.id === "s-places") {
+    setTitle(st.region);
+    document.getElementById("places-label").textContent = KIND[st.kind].label + " 선택";
+    const items = KIND[st.kind].regions[st.region];
+    document.getElementById("places-list").innerHTML = items.map(it => {
+      const name = st.kind === "airport" ? it.name : it;
+      const code = st.kind === "airport" ? it.code : "";
+      return `<button class="card" data-act="place" data-kind="${st.kind}" data-name="${esc(name)}" data-code="${code}">${esc(name)}</button>`;
+    }).join("");
+  } else if (st.id === "s-scope") {
+    setTitle("공항 도착");
+    document.getElementById("scope-place").textContent = st.name;
+    document.getElementById("scope-list").innerHTML =
+      ["국내선", "국제선"].map(sc =>
+        `<button class="card big" data-act="scope" data-name="${esc(st.name)}" data-code="${st.code}" data-scope="${sc}"><span class="ico">${sc === "국내선" ? "🛫" : "🌏"}</span><span>${sc}</span></button>`
+      ).join("");
+  } else if (st.id === "s-result") {
+    setTitle(KIND[st.kind].label + " 도착");
+    renderResult();
   }
-
-  renderResult();
-  go("s-result");
+  window.scrollTo(0, 0);
 }
 
+function go(st) { history.pushState(st, ""); show(st); }
+
+function goBack() {
+  if (state && state.root) { location.replace("../"); }   // 처음 화면에서 뒤로 = 택시 앱으로
+  else { history.back(); }
+}
+
+window.addEventListener("popstate", e => { if (e.state) show(e.state); });
+
+/* ===== 도착 목록 ===== */
 function renderResult() {
+  const st = state;
   const now = nowText();
-  let rows = [];
-  let metaText = "";
+  const src = st.kind === "airport"
+    ? (SAMPLE_FLIGHTS[st.code] || []).filter(r => r.dom === (st.scope === "국내선"))
+    : (SAMPLE_TRAINS[st.name] || []);
+  const rows = src.filter(r => r.arr >= now).sort((a, b) => a.arr < b.arr ? -1 : 1);
 
-  if (current.type === "airport") {
-    rows = (SAMPLE_FLIGHTS[current.code] || [])
-      .filter(f => f.time >= now);
-    metaText = "도착 예정 (현재 이후) · 마지막 갱신 " + now;
-    document.getElementById("result-list").innerHTML = rows.length
-      ? rows.map(f => `
-          <div class="row">
-            <div class="time">${f.time}</div>
-            <div class="info">${f.from} · ${f.no}</div>
-            <div class="status">${f.delay ? "지연 " + f.delay + "분" : "정시"}</div>
-          </div>`).join("")
-      : `<div class="empty">현재 이후 도착 예정 편이 없습니다.</div>`;
-  } else {
-    rows = (SAMPLE_TRAINS[current.name] || [])
-      .filter(t => t.time >= now);
-    metaText = "도착 예정 (현재 이후) · 시간표 기준 · 마지막 갱신 " + now;
-    document.getElementById("result-list").innerHTML = rows.length
-      ? rows.map(t => `
-          <div class="row">
-            <div class="time">${t.time}</div>
-            <div class="info">${t.no} · ${t.from} 출발</div>
-            <div class="status">시간표 기준</div>
-          </div>`).join("")
-      : `<div class="empty">현재 이후 도착 예정 열차가 없습니다.</div>`;
-  }
-  document.getElementById("result-meta").textContent = metaText;
+  document.getElementById("result-place").textContent = st.kind === "airport" ? st.name + " " + st.scope : st.name;
+  document.getElementById("result-meta").innerHTML = "현재 이후 도착 · <span class=\"tag\">예시</span>";
+
+  document.getElementById("result-list").innerHTML = rows.length
+    ? rows.map(r => {
+        const sub = esc(r.no);
+        const chip = st.kind === "airport"
+          ? (r.delay ? `<span class="chip late">지연 ${r.delay}분</span>` : `<span class="chip">정시</span>`)
+          : `<span class="chip">시간표</span>`;
+        const dep = st.kind === "train"
+          ? `<div class="dep"><span class="st">${esc(r.from)} 출발</span><span class="tm">${esc(r.dep)}</span></div>` : "";
+        const from = st.kind === "airport" ? `<div class="from">${esc(r.from)}</div>` : "";
+        return `<div class="row">
+          ${dep}<div class="top"><div class="arr"><small>도착</small><b>${esc(r.arr)}</b></div>${chip}</div>
+          ${from}<div class="sub">${sub}</div>
+        </div>`;
+      }).join("")
+    : `<div class="empty">현재 이후 도착 예정이 없습니다</div>`;
 }
 
-async function refreshResult() {
-  // Worker에서 최신 도착 정보 재조회
-  if (current.type === "airport") {
-    try {
-      const response = await fetch(`${WORKER_URL}/airports/korea?airport=${current.code}`);
-      const data = await response.json();
-      if (data && data.length) SAMPLE_FLIGHTS[current.code] = data;
-    } catch (err) {
-      console.error("공항 정보 재조회 실패:", err);
-    }
-  } else if (current.type === "train") {
-    try {
-      const response = await fetch(`${WORKER_URL}/trains?arrStation=${current.name}`);
-      const data = await response.json();
-      if (data && data.length) SAMPLE_TRAINS[current.name] = data;
-    } catch (err) {
-      console.error("열차 정보 재조회 실패:", err);
-    }
+/* ===== 버튼 처리 ===== */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  const d = b.dataset;
+  if (d.act === "back") goBack();
+  else if (d.act === "kind") go({ id: "s-regions", kind: d.kind });
+  else if (d.act === "region") go({ id: "s-places", kind: d.kind, region: d.region });
+  else if (d.act === "place") {
+    if (d.kind === "airport") go({ id: "s-scope", kind: d.kind, name: d.name, code: d.code });
+    else go({ id: "s-result", kind: d.kind, name: d.name, code: d.code });
   }
-  renderResult();
-  tick();
-}
+  else if (d.act === "scope") go({ id: "s-result", kind: "airport", name: d.name, code: d.code, scope: d.scope });
+  else if (d.act === "refresh") { renderResult(); tick(); }
+});
 
-/* ===== 시작 ===== */
-document.getElementById("airport-regions").innerHTML =
-  makeRegionButtons(AIRPORT_REGIONS, "showAirportRegion");
-document.getElementById("train-regions").innerHTML =
-  makeRegionButtons(TRAIN_REGIONS, "showTrainRegion");
+/* ===== 시작: 택시 앱 버튼(?type=airport / ?type=train)으로 열면 바로 지역 선택 화면 ===== */
+const rootState = ENTRY ? { id: "s-regions", kind: ENTRY, root: true } : { id: "s-home", root: true };
+history.replaceState(rootState, "");
+show(rootState);
 </script>
 
+<!-- 방: 공항열차도착정보 · v0.5 · 26-10-19-01시 40분 -->
 </body>
 </html>
