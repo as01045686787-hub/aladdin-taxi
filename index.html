@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- 알라딘 택시 index.html | v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -351,11 +352,7 @@
         .tr-lang-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .tr-lang-row.reversed { flex-direction: row-reverse; }
         .tr-from { font-size: 17px; font-weight: 800; color: var(--accent-bright); white-space: nowrap; background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--border-radius-lg); padding: 10px 16px; cursor: pointer; }
-        #sense-bubble { position: absolute; display: none; gap: 6px; padding: 8px; box-sizing: border-box; background: #fff; border: 2.5px solid #222; border-radius: 22px; z-index: 5; white-space: nowrap; } #sense-bubble button { border: 2px solid #222; border-radius: 14px; background: #fff; color: #111; font-family: inherit; font-weight: 900; font-size: 16px; padding: 8px 10px; line-height: 1.2; white-space: nowrap; } #sense-bubble small { display: block; font-size: 12px; font-weight: 700; color: #555; }
         .tr-from:active { background: var(--surface-2); }
-        #tr-paste-top, #tr-kbd-top { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 2px; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; color: var(--accent-bright); white-space: nowrap; } /* 복 사·키보드·관 광·한국어를 같은 크기로 나란히 */
-        .tr-lang-row > .tr-from:first-child { flex: 1.6 1 0; min-width: 0; justify-content: center; }
-        .tr-lang-row > button[onclick^="closeTranslator(); openTour()"] { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 2px; font-size: 15px; display: flex; align-items: center; justify-content: center; }
         .tr-swap { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--hairline); background: var(--surface-2); color: var(--accent-bright); font-size: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
         .tr-swap:active { transform: scale(0.92); }
         #tr-lang { flex: 1; min-width: 0; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: var(--border-radius-lg); padding: 10px 12px; font-size: 34px; font-weight: 700; white-space: nowrap; outline: none; font-family: inherit; }
@@ -417,23 +414,6 @@
         #tr-speak-now.two .sn-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
         #tr-speak-now.two .sn-l { display: block; white-space: nowrap; line-height: 1.15; font-weight: 900; }
         #tr-speak-now.two .sn-l + .sn-l { margin-top: 4px; }
-        #translator-view .tr-box:has(.tr-note:not(:empty)) .tr-icon { display: none; } /* 상대 말(큰 글)이 있으면 귀 그림이 글을 가리지 않게 숨김 */
-        /* ===== 단어장 · 말풍선 ===== */
-        #translator-view .tr-panel:first-child .tr-box { position: relative; }
-        #fix-bubble { display: none; position: absolute; z-index: 5; cursor: pointer; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); }
-        #fix-bubble span { color: #111; font-size: 30px; font-weight: 800; white-space: nowrap; line-height: 1.2; padding: 4px 6px; }
-        .words-tabs { flex: none; display: flex; gap: 10px; padding: 12px 16px 0; }
-        .words-tab { flex: 1 1 0; min-height: 56px; border-radius: 14px; border: 1px solid var(--hairline-soft); background: var(--card-bg); color: var(--text-dim); font-size: 18px; font-weight: 800; font-family: inherit; padding: 6px; }
-        .words-tab.on { background: var(--surface-2); color: var(--text-color); border: 2px solid var(--accent-color); }
-        .w-in { width: 100%; box-sizing: border-box; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--hairline-soft); border-radius: 14px; padding: 14px; font-size: 22px; font-weight: 700; outline: none; font-family: inherit; margin-bottom: 10px; }
-        .w-add { width: 100%; height: 56px; border: none; border-radius: 14px; font-size: 22px; font-weight: 800; background: var(--accent-bright); color: #201802; font-family: inherit; margin-bottom: 16px; }
-        .w-lab { font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 0 2px 6px; }
-        .w-wrong { color: var(--text-dim); text-decoration: line-through; font-size: 22px; }
-        .w-arrow { color: var(--text-dim); font-size: 22px; }
-        .w-right { flex: 1; min-width: 0; font-size: 22px; font-weight: 800; color: var(--text-color); }
-        .w-ro { font-size: 17px; color: var(--text-dim); font-weight: 700; }
-        .w-del { flex: none; border: none; border-radius: 12px; padding: 10px 14px; font-size: 17px; font-weight: 800; background: var(--ruby); color: #fff; font-family: inherit; }
-        #tr-input[readonly], #tr-input2[readonly] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* 길게 누르기를 붙여넣기에 쓰려고 글자 선택 막음 (고치는 중에는 선택 가능) */
     </style>
 </head>
 <body>
@@ -454,12 +434,16 @@
         <div class="menu-item" onclick="exportData()">📤 데이터 백업 (내보내기)</div>
         <div class="menu-item" onclick="importData()">📥 데이터 복원 (가져오기)</div>
         <div class="menu-item" onclick="toggleMenu(); openGreetEditor()">👋 인사말 넣기</div>
-        <div class="menu-item" onclick="toggleMenu(); openWords()">📖 단어장</div>
-        <button onclick="toggleMenu()" style="margin-top:50px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
+        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1016-A<br>26-10-16-21시 32분</div>
+        <button onclick="toggleMenu()" style="margin-top:20px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
         <div id="country-top" style="position:sticky; top:70px; z-index:50; background:var(--bg-color); margin:-16px -16px 0; padding:16px 16px 4px;">
         <div id="last-country-btn" onclick="openLastCountry()" style="display:none; align-items:center; gap:12px; padding:14px 18px; margin-bottom:12px; border-radius:var(--radius-xl); background:var(--major-grad); border:1px solid var(--accent-color); box-shadow:var(--premium-shadow); cursor:pointer; font-size:22px; font-weight:800; color:var(--text-color);"><span id="last-country-flag" style="font-size:32px; line-height:1;"></span><span id="last-country-name" style="flex:1; min-width:0;"></span><span onclick="event.stopPropagation(); openGreet()" style="flex:none; width:46px; height:46px; border-radius:50%; background:var(--surface-2); border:1px solid var(--hairline); display:flex; align-items:center; justify-content:center; font-size:24px;">👋</span><span style="color:var(--accent-bright); font-size:20px;">▶</span></div>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;">
+            <button style="padding:18px 12px; background:linear-gradient(150deg,#4a7796,#2f5670); color:#eef4f8; border:1px solid rgba(255,255,255,0.08); border-radius:16px; font-size:18px; font-weight:700; cursor:pointer; box-shadow:0 10px 22px -8px rgba(74,119,150,0.55);" onclick="window.location.href='arrivals/index.html?type=airport'">✈️ 공항</button>
+            <button style="padding:18px 12px; background:linear-gradient(150deg,#4b8467,#366852); color:#eef4f8; border:1px solid rgba(255,255,255,0.08); border-radius:16px; font-size:18px; font-weight:700; cursor:pointer; box-shadow:0 10px 22px -8px rgba(75,132,103,0.55);" onclick="window.location.href='arrivals/index.html?type=train'">🚆 열차</button>
+        </div>
         <input type="text" id="country-search" class="country-search-bar" placeholder="찾으시는 국가명을 입력하세요..." oninput="filterCountries(this.value)">
         </div>
         <div id="major-section"><div class="section-title">영어권 국가</div><div id="major-list" class="grid"></div></div>
@@ -525,9 +509,9 @@
     <div id="translator-view">
         <div class="tr-body">
             <div class="tr-panel">
-                <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button id="tr-paste-top" class="tr-from tr-tb" style="margin-left:auto;" onclick="trPasteBtn()" aria-label="붙여넣기">복 사</button><button id="tr-kbd-top" class="tr-from tr-tb" onclick="typeKo()" aria-label="직접 입력">키보드</button><button class="tr-from" onclick="closeTranslator(); openTour()" style="font-family:inherit;">🗺️ 관 광</button></div>
+                <div class="tr-lang-row" onclick="if (!event.target.closest('button') &amp;&amp; this.closest('.tr-panel').classList.contains('listener')) toggleVoiceInput(false)"><span class="tr-from">🇰🇷 Korean</span><button class="tr-from" onclick="closeTranslator(); openTour()" style="margin-left:auto; font-family:inherit;">🗺️ 관광</button></div>
                 <div class="tr-box"><div class="tr-role"><div class="tr-icon"></div><div class="tr-say">말씀하세요</div></div>
-                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea><div id="fix-bubble" onpointerdown="bubbleTap(event)"></div><div id="sense-bubble"></div></div>
+                <textarea id="tr-input" readonly placeholder="🎤 눌러서 말씀하세요" onpointerdown="trBoxDown(this)" onclick="trBoxTap(this)" onblur="this.readOnly=true"></textarea></div>
                 <div class="tr-actions">
                     <button id="tr-mic" class="tr-mic" onclick="toggleVoiceInput(false)" oncontextmenu="return false" aria-label="음성 입력">🎤</button>
                     <button id="tr-kbd" class="tr-mic" onclick="typeKo()" aria-label="직접 입력" style="display:none">⌨️</button>
@@ -559,23 +543,6 @@
             <div id="greet-edit-list"></div>
         </div>
     </div>
-    <div id="words-editor" class="greet-layer">
-        <div class="greet-top"><span>📖 <span data-t="words">단어장</span></span><span class="greet-x" onclick="closeWords()">✕</span></div>
-        <div class="words-tabs"><button class="words-tab on" onclick="wordsTabTo(0)" data-t="tabFix">잘못 적히는 단어</button><button class="words-tab" onclick="wordsTabTo(1)" data-t="tabNames">고유명사</button></div>
-        <div class="greet-body">
-            <div id="words-pane-fix">
-                <div class="w-lab" data-t="wrong">잘못 적히는 말</div><input id="fx-wrong" class="w-in" placeholder="북한이">
-                <div class="w-lab" data-t="right">맞는 말</div><input id="fx-right" class="w-in" placeholder="부캉이">
-                <button class="w-add" onclick="addFix()" data-t="addBtn">추가</button>
-                <div id="fix-list"></div>
-            </div>
-            <div id="words-pane-name" style="display:none">
-                <div class="w-lab"><span data-t="namesTitle">고유명사 (번역하지 않음)</span> · <span data-t="nameIn">이름</span></div><input id="nm-word" class="w-in" placeholder="부캉이">
-                <button class="w-add" onclick="addName()" data-t="addBtn">추가</button>
-                <div id="name-list"></div>
-            </div>
-        </div>
-    </div>
     <div id="toast"></div>
     <script>
         // ---- 음성 기능이 없는 브라우저(카카오톡 안에서 열린 화면 등) 대비 ----
@@ -593,7 +560,7 @@
 
         const majorLangs = [
             {id:'en_us', name:'미국', flag:'🇺🇸'}, {id:'en_gb', name:'영국', flag:'🇬🇧'}, {id:'en_ca', name:'캐나다', flag:'🇨🇦'}, {id:'en_au', name:'호주', flag:'🇦🇺'}, {id:'en_sg', name:'싱가포르', flag:'🇸🇬'},
-            {id:'en_in', name:'인도(영어)', flag:'🇮🇳'}, {id:'en_nz', name:'뉴질랜드', flag:'🇳🇿'}, {id:'en_ie', name:'아일랜드', flag:'🇮🇪'}, {id:'en_za', name:'남아공', flag:'🇿🇦'}, {id:'en_ph', name:'필리핀(영어)', flag:'🇵🇭'}
+            {id:'en_in', name:'인도(영어)', flag:'🇮🇳'}, {id:'en_nz', name:'뉴질랜드', flag:'🇳🇿'}, {id:'en_ie', name:'아일랜드', flag:'🇮🇪'}, {id:'en_za', name:'남아공', flag:'🇿🇦'}, {id:'en_ph', name:'필리핀(영어)', flag:'🇵🇭'}, {id:'en_hk', name:'홍콩(영어)', flag:'🇭🇰'}
         ];
         const fixedOther = [{id:'ko', name:'한국', flag:'🇰🇷'}, {id:'tw', name:'대만', flag:'🇹🇼'}, {id:'ja', name:'일본', flag:'🇯🇵'}, {id:'zh', name:'중국', flag:'🇨🇳'}];
         const sortedOther = [
@@ -608,7 +575,7 @@
         ].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const otherLangs = [...fixedOther, ...sortedOther];
         const enNames = {
-            en_us:'United States', en_gb:'United Kingdom', en_ca:'Canada', en_au:'Australia', en_sg:'Singapore', en_in:'India (English)', en_nz:'New Zealand', en_ie:'Ireland', en_za:'South Africa', en_ph:'Philippines (English)',
+            en_us:'United States', en_gb:'United Kingdom', en_ca:'Canada', en_au:'Australia', en_sg:'Singapore', en_in:'India (English)', en_nz:'New Zealand', en_ie:'Ireland', en_za:'South Africa', en_ph:'Philippines (English)', en_hk:'Hong Kong (English)',
             ko:'Korea', tw:'Taiwan', ja:'Japan', zh:'China', vn:'Vietnam', th:'Thailand', ph:'Philippines (Tagalog)', hk:'Hong Kong', my:'Malaysia', id:'Indonesia', ru:'Russia', mn:'Mongolia', uz:'Uzbekistan', kz:'Kazakhstan',
             fr:'France', de:'Germany', es:'Spain', it:'Italy', tr:'Türkiye (Turkey)', ae:'United Arab Emirates', sa:'Saudi Arabia', in:'India (Hindi)', br:'Brazil', mx:'Mexico', nl:'Netherlands', se:'Sweden', pl:'Poland', cz:'Czech Republic', eg:'Egypt',
             pt:'Portugal', no:'Norway', ne:'Nepal', mm:'Myanmar',
@@ -616,7 +583,7 @@
         };
         function countryLabel(id) { const c = [...majorLangs, ...otherLangs].find(x => x.id === id); return c ? `${c.flag} ${enNames[c.id] || ''}`.trim() : ''; }
         const langMap = {
-            'en_us':'en', 'en_gb':'en', 'en_ca':'en', 'en_au':'en', 'en_sg':'en', 'en_in':'en', 'en_nz':'en', 'en_ie':'en', 'en_za':'en', 'en_ph':'en',
+            'en_us':'en', 'en_gb':'en', 'en_ca':'en', 'en_au':'en', 'en_sg':'en', 'en_in':'en', 'en_nz':'en', 'en_ie':'en', 'en_za':'en', 'en_ph':'en', 'en_hk':'en',
             'ko':'ko', 'tw':'zh-TW', 'ja':'ja', 'zh':'zh-CN', 'hk':'zh-HK', 'vn':'vi', 'th':'th', 'ph':'tl', 'my':'ms', 'id':'id', 'mm':'my',
             'de':'de', 'fr':'fr', 'es':'es', 'it':'it', 'nl':'nl', 'pt':'pt', 'pl':'pl', 'cz':'cs', 'se':'sv', 'tr':'tr', 'ru':'ru',
             'mn':'mn', 'uz':'uz', 'kz':'kk', 'ae':'ar', 'sa':'ar', 'eg':'ar', 'in':'hi', 'br':'pt', 'mx':'es', 'no':'no', 'ne':'ne',
@@ -629,7 +596,7 @@
 
         // 영어권이라도 국가마다 관용적으로 쓰는 단어가 달라 번역 후 일부 어휘를 현지식으로 치환한다.
         // (구글 번역 자체는 영어 변형(en-GB 등)을 별도로 구분해 번역하지 않으므로, 번역 결과에 후처리를 적용)
-        const britishStyleCountries = new Set(['en_gb', 'en_au', 'en_nz', 'en_ie', 'en_za', 'en_in', 'en_sg']);
+        const britishStyleCountries = new Set(['en_gb', 'en_au', 'en_nz', 'en_ie', 'en_za', 'en_in', 'en_sg', 'en_hk']);
         const usToBritishVocab = [
             [/\bgas station\b/gi, 'petrol station'],
             [/\btrunk\b/gi, 'boot'],
@@ -665,12 +632,25 @@
         function refreshVoiceCache() { cachedVoices = window.speechSynthesis.getVoices() || []; }
         if ('speechSynthesis' in window) { refreshVoiceCache(); window.speechSynthesis.onvoiceschanged = refreshVoiceCache; }
         // 폰에 목소리가 없는 말 → 비슷한 말 목소리로 (우즈베크어는 같은 튀르크어인 터키어, 카자흐어·몽골어는 같은 키릴 문자인 러시아어)
+        const VOICE_FALLBACK = { nb: 'no', fil: 'tl' }; // 26-10-16: 몽골·우즈벡·카자흐는 다른 나라 목소리로 읽지 않고 글자만 보여 줌
+        // 26-10-16: 홍콩·마카오는 광둥어(yue)로 번역, 안 되면 번체 중국어(zh-TW)로 다시 번역
+        const GT_CODE = { 'zh-HK': 'yue' };
+        async function gtFetch(sl, tl, q) {
+            const url = (a, b) => `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${a}&tl=${b}&dt=t&q=${encodeURIComponent(q)}`;
+            const s1 = GT_CODE[sl] || sl, t1 = GT_CODE[tl] || tl;
+            try { const r = await fetch(url(s1, t1)); if (!r.ok) throw new Error('gt ' + r.status); const d = await r.json(); if (d && d[0] && d[0].map(p => p[0]).join('')) return d; throw new Error('gt empty'); }
+            catch (e) { if (s1 === sl && t1 === tl) throw e; const r = await fetch(url(s1 === 'yue' ? 'zh-TW' : s1, t1 === 'yue' ? 'zh-TW' : t1)); return r.json(); }
+        }
+        const VOICE_EXACT_FALLBACK = { 'en-hk': 'en-gb' }; // 홍콩 영어는 영국식 목소리로 읽음
+        function noVoiceMsg() { return (typeof T === 'function') ? T('noVoice') : '이 나라 말은 폰에 읽어 주는 목소리가 없어요'; }
         function pickBestVoice(langCode) {
             if (!cachedVoices.length) return null;
-            const exact = cachedVoices.filter(v => v.lang.toLowerCase() === langCode.toLowerCase());
+            let exact = cachedVoices.filter(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase());
+            const ex2 = VOICE_EXACT_FALLBACK[langCode.toLowerCase()]; if (!exact.length && ex2) exact = cachedVoices.filter(v => v.lang.replace('_', '-').toLowerCase() === ex2);
             const base = langCode.split('-')[0].toLowerCase();
             const baseMatch = cachedVoices.filter(v => v.lang.toLowerCase().startsWith(base));
-            const pool = exact.length ? exact : baseMatch;
+            let pool = exact.length ? exact : baseMatch;
+            if (!pool.length && VOICE_FALLBACK[base]) pool = cachedVoices.filter(v => v.lang.toLowerCase().startsWith(VOICE_FALLBACK[base])); // 목소리가 없는 말은 가장 비슷한 말의 목소리로 읽음
             if (!pool.length) return null;
             const networkVoice = pool.find(v => v.localService === false);
             return networkVoice || pool[0];
@@ -715,7 +695,6 @@
             const $ = id => document.getElementById(id);
             if ($('category-popup').style.display === 'flex') { closeCategoryPopup(); return 'category-popup'; }
             if ($('side-menu').classList.contains('active')) { toggleMenu(); return 'side-menu'; }
-            if ($('words-editor').style.display === 'flex') { closeWords(); return 'words-editor'; }
             if ($('phrase-editor').style.display === 'flex') { closePhraseEditor(); return 'phrase-editor'; }
             if ($('tour-editor').style.display === 'flex') { closeTourEditor(); return 'tour-editor'; }
             if ($('display-overlay').style.display === 'flex') { closeDisplay(); return 'display-overlay'; }
@@ -815,7 +794,7 @@
         const greetCache = {};
         function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
         function speakGreet(t) {
-            try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) u.voice = v; /* 목소리가 없으면 엉뚱한 억양으로 읽지 않음 */ window.speechSynthesis.speak(u); } catch (e) {}
+            try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) { u.voice = v; u.lang = v.lang; } else if (cachedVoices.length) { showToast(noVoiceMsg()); return; } /* 목소리가 없으면 엉뚱한 억양으로 읽지 않음 */ window.speechSynthesis.speak(u); } catch (e) {}
         }
         function openGreet() {
             const c = findCountry(curL); if (!c) return;
@@ -848,7 +827,7 @@
         async function fetchGreet(code, ko) {
             const key = code + '|' + ko; greetCache[key] = undefined;
             if (fetchGreet.busy && fetchGreet.busy[key]) return; (fetchGreet.busy = fetchGreet.busy || {})[key] = true;
-            try { const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=${code}&dt=t&q=${encodeURIComponent(ko)}`); const data = await res.json(); greetCache[key] = data[0].map(p => p[0]).join(''); }
+            try { const data = await gtFetch('ko', code, ko); greetCache[key] = data[0].map(p => p[0]).join(''); }
             catch (e) { greetCache[key] = ''; }
             delete fetchGreet.busy[key];
             if (document.getElementById('greet-view').style.display === 'flex' && langMap[curL] === code) renderGreet();
@@ -866,7 +845,7 @@
             translateAndOpen('즐거운 여행 되세요. 괜찮으셨다면 좋은 평가 부탁드려요.');
         }
         function openLastCountry() { const c = findCountry(curL); if (c) showPhraseView(c.id, c.name); }
-        function init() { ensureSentinel('init'); setTimeout(() => logNav('버전 1005-C ' + (IN_APP_VIEW ? '앱안화면' : '일반브라우저')), 0); buildTrLangOptions(); initFab(); renderCountryLists(majorLangs, otherLangs); try { curL = localStorage.getItem('taxi_v10_lastlang') || ''; } catch (e) {} renderLastCountry(); }
+        function init() { ensureSentinel('init'); setTimeout(() => logNav('버전 1016-A ' + (IN_APP_VIEW ? '앱안화면' : '일반브라우저')), 0); buildTrLangOptions(); initFab(); renderCountryLists(majorLangs, otherLangs); try { curL = localStorage.getItem('taxi_v10_lastlang') || ''; } catch (e) {} renderLastCountry(); }
         function renderCountryLists(majors, others) {
             const majorDiv = document.getElementById('major-list'); majorDiv.innerHTML = majors.map(c => `<div class="item-btn major-btn" onclick="showPhraseView('${c.id}', '${c.name}')"><span class="flag">${c.flag}</span><span class="name">${c.name.replace('(', '<wbr>(')}</span></div>`).join('');
             const otherDiv = document.getElementById('other-list'); otherDiv.innerHTML = others.map(c => `<div class="item-btn" onclick="showPhraseView('${c.id}', '${c.name}')"><span class="flag">${c.flag}</span><span class="name">${c.name.replace('(', '<wbr>(')}</span></div>`).join('');
@@ -1052,43 +1031,6 @@
         let trEnterEdit = false;
         function trBoxDown(t) { if (t.readOnly && t.value.trim()) { stopVoiceInput(); trKeepText = true; t.readOnly = false; trEnterEdit = true; } }
         function trResumeMic() { trKeepText = true; setTimeout(() => { if (recog) return; trReverse = false; stopVoiceInput(); startVoiceInput(); }, 400); }
-        // ---- 길게 누르면 붙여넣기 ----
-        //  빈 칸을 길게 누르면: 복사해 둔 글을 바로 넣음 (폰이 허락을 물으면 '허용'). 안 되면 자판과 '붙여넣기' 메뉴가 뜨게 칸을 열어 줌
-        //  글이 있는 칸은 원래처럼 길게 누르면 폰의 '붙여넣기' 메뉴를 쓸 수 있게 칸을 열어 둠
-        let trLongPressed = false;
-        // 폰은 손가락을 '뗄 때'에만 붙여넣기 권한이 생겨서: 길게 누르면 '드르륵' 진동 → 손을 떼는 순간 붙여넣음
-        function trSetupLongPaste(id, rev) {
-            const t = document.getElementById(id); if (!t) return;
-            let timer = null, armed = false, sx = 0, sy = 0;
-            const reset = () => { clearTimeout(timer); timer = null; armed = false; };
-            t.addEventListener('touchstart', e => { trLongPressed = false; reset(); const p = e.touches[0]; sx = p.clientX; sy = p.clientY;
-                timer = setTimeout(() => { timer = null; armed = true; try { navigator.vibrate && navigator.vibrate(40); } catch (err) {} }, 550); }, { passive: true });
-            t.addEventListener('touchmove', e => { const p = e.touches[0]; if (Math.hypot(p.clientX - sx, p.clientY - sy) > 12) reset(); }, { passive: true });
-            t.addEventListener('touchend', e => { const go = armed; reset(); if (!go) return; e.preventDefault(); trLongPressed = true; trLongPaste(t, rev); }, { passive: false });
-            t.addEventListener('touchcancel', reset);
-            t.addEventListener('contextmenu', e => { if (t.readOnly) e.preventDefault(); }); // 길게 누를 때 폰의 글자 선택 메뉴가 끼어들지 않게
-            // 컴퓨터(마우스)용: 길게 눌렀다 떼면 붙여넣기
-            let mt = 0; t.addEventListener('mousedown', () => { mt = Date.now(); });
-            t.addEventListener('mouseup', () => { if (mt && Date.now() - mt > 550 && !('ontouchstart' in window)) { trLongPressed = true; trLongPaste(t, rev); } mt = 0; });
-            t.addEventListener('click', e => { if (trLongPressed) { trLongPressed = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true); // 길게 누른 뒤의 손 뗌은 마이크 켜기로 치지 않음
-        }
-        async function trLongPaste(t, rev) {
-            trLongPressed = true; trEnterEdit = false;
-            stopVoiceInput(); trReverse = !!rev; trKeepText = true;
-            if (!t.value.trim()) {
-                let txt = ''; try { txt = ((await navigator.clipboard.readText()) || '').trim(); } catch (e) {}
-                if (txt) { t.value = txt; t.readOnly = true; t.blur(); return; } // 바로 붙여넣음 → 통역 버튼만 누르면 됨
-            }
-            t.readOnly = false; t.focus(); try { t.setSelectionRange(t.value.length, t.value.length); } catch (e) {} // 자판이 뜨고, 칸을 길게 누르면 폰의 '붙여넣기'가 나옴
-        }
-        async function trPasteBtn() { // 📋 COPY 버튼: 복사해 둔 글을 내 말 칸에 넣음. 안 되면 자판을 열어 길게 눌러 붙여넣게 함
-            stopVoiceInput(); trReverse = false; trKeepText = true; trEnterEdit = false;
-            const t = document.getElementById('tr-input');
-            let txt = ''; try { txt = ((await navigator.clipboard.readText()) || '').trim(); } catch (e) {}
-            if (txt) { const cur = t.value.trim(); t.readOnly = false; t.value = cur ? cur + ' ' + txt : txt; t.readOnly = true; t.blur(); showToast('붙여넣었습니다'); return; } // 칸에 있던 글은 지우지 않고 뒤에 이어 붙임
-            typeKo(); showToast('길게 눌러 붙여넣으세요');
-        }
-        document.addEventListener('DOMContentLoaded', () => { trSetupLongPaste('tr-input', false); trSetupLongPaste('tr-input2', true); });
         function trBoxTap(t) {
             if (trEnterEdit) { trEnterEdit = false; return; } // 방금 고치기를 시작한 누름
             if (!t.readOnly) { t.blur(); trResumeMic(); return; }
@@ -1160,7 +1102,6 @@
             const sn = document.getElementById('tr-speak-now'), b = document.getElementById('tr-input2');
             if (sn && b) sn.style.visibility = b.value.trim() ? 'hidden' : 'visible';
             document.querySelectorAll('#translator-view .tr-note').forEach(n => { n.parentElement.style.setProperty('--note-h', (n.offsetHeight + 22) + 'px'); }); // 큰 글 아래부터 입력 글자가 나오게
-            if (document.getElementById('translator-view').style.display === 'flex') document.querySelectorAll('#translator-view .tr-actions button:not(.tr-mic)').forEach(btn => { if (btn.scrollWidth > btn.clientWidth + 1) fitBtnText(btn); }); // 버튼 글자가 잘리면(글꼴이 늦게 바뀐 경우 등) 다시 칸에 맞춤
         }, 250);
         // 통역 화면에서 나라를 바꾸면 앱 전체(첫 화면·문구·관광·인사말)의 나라도 같이 바꿈 — 어디서 고르든 한 나라로 맞춤
         function clearTrNotes() { document.querySelectorAll('#translator-view .tr-note').forEach(n => n.remove()); } // 지난 대화의 작은 글(상대 말) 지우기
@@ -1346,19 +1287,6 @@
             }
             return t;
         }
-        // 한국말 시간 앞의 '저녁·밤·새벽·아침·낮'을 '오전·오후'로 바꿔 번역기가 AM/PM을 빼먹지 않게 함 (화면의 내 말은 그대로)
-        function koTimeFix(t) {
-            return t.replace(/(저녁|밤|새벽|아침|낮|점심)\s*(\d{1,2})\s*시/g, (m, w, h) => {
-                const n = +h; if (n > 12) return m;
-                let pm;
-                if (w === '저녁') pm = true;
-                else if (w === '밤') pm = n >= 6 && n <= 11; // 밤 1~5시는 새벽(AM), 밤 12시는 그대로
-                else if (w === '낮' || w === '점심') pm = n <= 6 || n === 12;
-                else pm = false; // 새벽·아침
-                if (w === '밤' && n === 12) return m;
-                return (pm ? '오후 ' : '오전 ') + n + '시';
-            });
-        }
         async function translateAndOpen(text, title, langId, reverse) {
             const L = langId || curL, toKo = !!reverse; lastL = L;
             lastSpeakLang = toKo ? 'ko-KR' : getLangCode(L);
@@ -1368,11 +1296,8 @@
             ensureSentinel(3); document.getElementById('text-country').innerText = countryLabel(toKo ? 'ko' : L); koDiv.innerText = title || text; foreignDiv.innerText = "번역 중..."; overlay.style.display = 'flex';
             document.getElementById('scroll-container').scrollTop = 0;
             try {
-                if (!toKo && (typeof NL === 'undefined' || NL === 'ko')) text = koTimeFix(text); // '저녁 9시' → '오후 9시' 로 바꿔 번역에 PM이 꼭 나오게
-                const P = protectWords(text, toKo); // 단어장의 고유명사는 번역하지 않고 그대로
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${toKo ? (langMap[L]||'en') : 'ko'}&tl=${toKo ? 'ko' : (langMap[L]||'en')}&dt=t&q=${encodeURIComponent(P.t)}`);
-                const data = await res.json();
-                lastTranslated = restoreWords(data[0].map(p => p[0]).join(''), P.map);
+                const data = await gtFetch(toKo ? (langMap[L]||'en') : 'ko', toKo ? 'ko' : (langMap[L]||'en'), text);
+                lastTranslated = data[0].map(p => p[0]).join('');
                 if (!toKo && langMap[L] === 'en') lastTranslated = localizeEnglishVocab(lastTranslated, L);
                 if (!toKo) lastTranslated = politeForeign(lastTranslated, langMap[L]); // 영어(미국)·중국어 번역을 부드러운 부탁 말투로
                 foreignDiv.innerText = lastTranslated;
@@ -1453,7 +1378,8 @@
             }
 
             const bestVoice = pickBestVoice(l);
-            if (bestVoice) u.voice = bestVoice;
+            if (bestVoice) { u.voice = bestVoice; u.lang = bestVoice.lang; }
+            else if (cachedVoices.length) { showToast(noVoiceMsg()); resumeCtx = null; return; } // 목소리가 없으면 엉뚱한 억양(직전에 쓴 말)으로 읽지 않고 글자만 보여 줌
             u.onstart = () => startLoop(false);
             u.onend = () => {
                 if (token !== speakToken) return;
@@ -1477,10 +1403,10 @@
         function repeatVoice() { if (lastTranslated) speak(lastTranslated, lastSpeakLang || getLangCode(curL)); }
         function getLangCode(l) {
             const codes = {
-                'en_us':'en-US', 'en_gb':'en-GB', 'en_ca':'en-CA', 'en_au':'en-AU', 'en_sg':'en-SG', 'en_in':'en-IN', 'en_nz':'en-NZ', 'en_ie':'en-IE', 'en_za':'en-ZA', 'en_ph':'en-PH',
-                'ko':'ko-KR', 'tw':'zh-TW', 'ja':'ja-JP', 'zh':'zh-CN', 'hk':'zh-HK', 'vn':'vi-VN', 'th':'th-TH', 'ph':'tl-PH', 'my':'ms-MY', 'id':'id-ID', 'mm':'my-MM',
+                'en_us':'en-US', 'en_gb':'en-GB', 'en_ca':'en-CA', 'en_au':'en-AU', 'en_sg':'en-SG', 'en_in':'en-IN', 'en_nz':'en-NZ', 'en_ie':'en-IE', 'en_za':'en-ZA', 'en_ph':'en-PH', 'en_hk':'en-HK',
+                'ko':'ko-KR', 'tw':'zh-TW', 'ja':'ja-JP', 'zh':'zh-CN', 'hk':'zh-HK', 'vn':'vi-VN', 'th':'th-TH', 'ph':'fil-PH', 'my':'ms-MY', 'id':'id-ID', 'mm':'my-MM',
                 'de':'de-DE', 'fr':'fr-FR', 'es':'es-ES', 'it':'it-IT', 'nl':'nl-NL', 'pt':'pt-PT', 'pl':'pl-PL', 'cz':'cs-CZ', 'se':'sv-SE', 'tr':'tr-TR', 'ru':'ru-RU',
-                'mn':'mn-MN', 'uz':'uz-UZ', 'kz':'kk-KZ', 'ae':'ar-AE', 'sa':'ar-SA', 'eg':'ar-EG', 'in':'hi-IN', 'br':'pt-BR', 'mx':'es-MX', 'no':'no-NO', 'ne':'ne-NP',
+                'mn':'mn-MN', 'uz':'uz-UZ', 'kz':'kk-KZ', 'ae':'ar-AE', 'sa':'ar-SA', 'eg':'ar-EG', 'in':'hi-IN', 'br':'pt-BR', 'mx':'es-MX', 'no':'nb-NO', 'ne':'ne-NP',
                 'ch':'de-CH', 'at':'de-AT', 'be':'fr-BE', 'dk':'da-DK', 'fi':'fi-FI', 'gr':'el-GR', 'lu':'fr-FR', 'il':'he-IL', 'qa':'ar-QA', 'kw':'ar-KW', 'mo':'zh-HK', 'kh':'km-KH', 'bd':'bn-BD', 'pk':'ur-PK', 'lk':'si-LK', 'arg':'es-AR', 'cl':'es-CL', 'co':'es-CO', 'pe':'es-PE', 'ua':'uk-UA', 'hu':'hu-HU', 'ro':'ro-RO'
             };
             return codes[l] || 'en-US';
@@ -1494,152 +1420,10 @@
         function deleteCategory() { if(confirm("카테고리를 삭제하면 안의 문장도 모두 삭제됩니다.")) { categories.splice(categories.indexOf(curC),1); delete phraseDB[curC]; curC=categories[0]||""; selectedPhraseIdx=-1; renderTabs(); renderPhrases(); saveCats(); saveData(); } }
         function moveCategory(dir) { const idx = categories.indexOf(curC), newIdx = idx + dir; if (newIdx >= 0 && newIdx < categories.length) { [categories[idx], categories[newIdx]] = [categories[newIdx], categories[idx]]; saveCats(); renderTabs(); } }
         function stampNow() { const d = new Date(), p = n => String(n).padStart(2, '0'); return { label: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`, file: `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}` }; }
-        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB, greet: greetDB, greetPron: greetPronDB, fixes: fixesDB, names: namesDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
-        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; if(data.greet) { greetDB = data.greet; saveGreet(); } if(data.greetPron) { greetPronDB = data.greetPron; saveGreetPron(); } if (Array.isArray(data.fixes)) fixesDB = data.fixes; if (Array.isArray(data.names)) namesDB = data.names; saveWords(); saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
+        function exportData() { const t = stampNow(); const data = { savedAt: t.label, db: phraseDB, cats: categories, tour: tourDB, greet: greetDB, greetPron: greetPronDB }; const blob = new Blob([JSON.stringify(data)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `taxi_backup_${t.file}.json`; a.click(); }
+        function importData() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const picked = e.target.files[0]; if (!picked) return; const reader = new FileReader(); reader.onload = f => { const data = JSON.parse(f.target.result); if (!confirm(`이 백업 파일의 날짜: ${data.savedAt || '날짜 없음(예전 파일)'}\n파일 이름: ${picked.name}\n\n이 파일로 가져올까요? (지금 내용은 이 파일 내용으로 바뀝니다)`)) return; if(data.db) phraseDB = data.db; if(data.cats) categories = data.cats; if(data.tour) tourDB = data.tour; if(data.greet) { greetDB = data.greet; saveGreet(); } if(data.greetPron) { greetPronDB = data.greetPron; saveGreetPron(); } saveData(); saveCats(); saveTour(); location.reload(); }; reader.readAsText(picked); }; input.click(); }
         window.onload = init;
-    </script>
-    <script>
-        // ===== 단어장 (잘못 적히는 단어 → 말풍선, 고유명사 → 번역하지 않음) =====
-        function WT(k) { return (typeof T === 'function') ? T(k) : ({ del: '삭제', delConfirm: '삭제할까요?' })[k]; } // 택시 앱은 한국어, 통역 앱은 그 나라 말
-        // ---- 단어장: ① 잘못 적히는 단어 (틀린 말 → 맞는 말)  ② 고유명사 (번역하지 않음) ----
-        function romanizeKo(t) { // 한글 → 로마자 (국어의 로마자 표기법, 간단판). 예: 부캉이 → Bukangi
-            const I = ['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
-            const V = ['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
-            const F = ['','k','k','k','n','n','n','t','l','k','m','l','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
-            const L = { 1:'g', 4:'n', 7:'d', 8:'r', 16:'m', 17:'b', 19:'s', 22:'j', 23:'ch', 24:'k', 25:'t', 26:'p' };
-            const cs = [...t]; let out = '', any = false;
-            cs.forEach((c, k) => {
-                const n = c.charCodeAt(0) - 0xAC00;
-                if (n < 0 || n > 11171) { out += c; return; }
-                any = true;
-                const ini = Math.floor(n / 588), med = Math.floor((n % 588) / 28), fin = n % 28;
-                const nx = cs[k + 1] ? cs[k + 1].charCodeAt(0) - 0xAC00 : -1, nxIniO = nx >= 0 && nx <= 11171 && Math.floor(nx / 588) === 11;
-                out += I[ini] + V[med] + (fin && nxIniO && L[fin] ? L[fin] : F[fin]);
-            });
-            return any ? out.charAt(0).toUpperCase() + out.slice(1) : out;
-        }
-        const loadArr = k => { try { const v = JSON.parse(localStorage.getItem(k)); if (Array.isArray(v)) return v; } catch (e) {} return []; };
-        let fixesDB = loadArr('taxi_v10_fixes'), namesDB = loadArr('taxi_v10_names');
-        function saveWords() { try { localStorage.setItem('taxi_v10_fixes', JSON.stringify(fixesDB)); localStorage.setItem('taxi_v10_names', JSON.stringify(namesDB)); } catch (e) {} }
-        function protectWords(t, toNative) { // 번역 전에 고유명사를 번역기가 건드리지 못하는 표시로 바꿔 두고, 번역 뒤 이름으로 되돌림
-            const map = [];
-            namesDB.slice().sort((a, b) => b.length - a.length).forEach(w => {
-                const key = toNative ? romanizeKo(w) : w; if (!key) return;
-                const re = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                t = t.replace(re, () => { map.push(toNative ? w : romanizeKo(w)); return 'ZQX' + (map.length - 1) + 'Q'; });
-            });
-            return { t, map };
-        }
-        function restoreWords(t, map) { return map.length ? t.replace(/Z\s*Q\s*X\s*(\d+)\s*Q/gi, (m, i) => map[+i] !== undefined ? map[+i] : m) : t; }
-        let wordsTab = 0;
-        function openWords() { ensureSentinel(3); document.getElementById('words-editor').style.display = 'flex'; renderWords(); }
-        function closeWords() { document.getElementById('words-editor').style.display = 'none'; document.querySelectorAll('#words-editor input').forEach(i => i.blur()); }
-        function wordsTabTo(n) { wordsTab = n; renderWords(); }
-        function renderWords() {
-            document.querySelectorAll('.words-tab').forEach((b, i) => b.classList.toggle('on', i === wordsTab));
-            document.getElementById('words-pane-fix').style.display = wordsTab === 0 ? 'block' : 'none';
-            document.getElementById('words-pane-name').style.display = wordsTab === 1 ? 'block' : 'none';
-            const del = (fn, i) => `<button onclick="${fn}(${i})" class="w-del">${escHtml(WT('del'))}</button>`;
-            document.getElementById('fix-list').innerHTML = fixesDB.map((f, i) => `<div class="greet-edit-row"><span class="w-wrong">${escHtml(f.w)}</span><span class="w-arrow">→</span><span class="w-right">${escHtml(f.r)}</span>${del('deleteFix', i)}</div>`).join('');
-            document.getElementById('name-list').innerHTML = namesDB.map((w, i) => { const ro = romanizeKo(w); return `<div class="greet-edit-row"><span class="w-right">${escHtml(w)}${ro !== w ? ` <span class="w-ro">${escHtml(ro)}</span>` : ''}</span>${del('deleteName', i)}</div>`; }).join('');
-        }
-        function addFix() { const a = document.getElementById('fx-wrong'), b = document.getElementById('fx-right'), w = a.value.trim(), r = b.value.trim(); if (!w || !r || w === r) return; fixesDB = fixesDB.filter(f => f.w !== w); fixesDB.push({ w, r }); saveWords(); a.value = ''; b.value = ''; renderWords(); }
-        function deleteFix(i) { if (!confirm(`"${fixesDB[i].w} → ${fixesDB[i].r}"\n${WT('delConfirm')}`)) return; fixesDB.splice(i, 1); saveWords(); renderWords(); }
-        function addName() { const a = document.getElementById('nm-word'), v = a.value.trim(); if (!v) return; if (!namesDB.includes(v)) namesDB.push(v); saveWords(); a.value = ''; renderWords(); }
-        function deleteName(i) { if (!confirm(`"${namesDB[i]}"\n${WT('delConfirm')}`)) return; namesDB.splice(i, 1); saveWords(); renderWords(); }
-        // 내 말 칸: 말이 끝나고 잠깐 멈추면, 단어장의 헷갈리는 단어 바로 위에 말풍선(맞는 말)을 띄움
-        //  - 말풍선을 누르면 맞는 말로 바뀌고 마이크가 다시 켜져 이어서 말함
-        //  - 고르지 않으려면 칸을 톡 치면 말풍선이 사라지고 마이크가 켜짐
-        //  - 계속 말하는 중에는 말풍선을 숨김
-        let keepCount = {}, lastVal = '', lastChange = 0, bubbleIdx = -1;
-        function countOf(v, w) { return w ? v.split(w).length - 1 : 0; }
-        function bubbleOn() { return bubbleIdx >= 0; }
-        function hideBubble() { bubbleIdx = -1; const bb = document.getElementById('fix-bubble'); if (bb) bb.style.display = 'none'; }
-        function wordPos(t, at, len) { // 글 속 단어의 화면 위치 (칸 기준)
-            const m = document.createElement('div'), cs = getComputedStyle(t);
-            ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderLeftWidth','boxSizing','wordBreak','overflowWrap'].forEach(k => m.style[k] = cs[k]);
-            m.style.position = 'absolute'; m.style.visibility = 'hidden'; m.style.whiteSpace = 'pre-wrap'; m.style.width = t.clientWidth + 'px'; m.style.left = '-9999px'; m.style.top = '0';
-            m.textContent = t.value.slice(0, at); const sp = document.createElement('span'); sp.textContent = t.value.slice(at, at + len) || '.'; m.appendChild(sp);
-            document.body.appendChild(m); const r = { x: sp.offsetLeft, y: sp.offsetTop - t.scrollTop, w: sp.offsetWidth, h: sp.offsetHeight }; m.remove(); return r;
-        }
-        // ---- 뜻이 여러 개인 말: 말풍선에서 뜻을 골라 바꿈 (말한 순서대로 하나씩) ----
-        const SENSE_DB = [ { w: '배', opts: [ { l: '과일', r: '배(과일)' }, { l: '신체', r: '배(신체)' }, { l: '선박', r: '배(선박)' } ] } ];
-        let senseOn = false, senseKey = null, senseAt = -1;
-        function nthIndex(v, w, n) { let i = -1; for (let k = 0; k < n; k++) { i = v.indexOf(w, i + 1); if (i < 0) break; } return i; }
-        function hideSense() { senseOn = false; senseKey = null; senseAt = -1; const el = document.getElementById('sense-bubble'); if (el) el.style.display = 'none'; }
-        function showSense(t, s, at) {
-            const el = document.getElementById('sense-bubble'); if (!el) return;
-            el.innerHTML = s.opts.map((o, j) => `<button type="button" onpointerdown="senseChoose(event,${j})">${escHtml(o.l)}<small>${escHtml(o.r)}</small></button>`).join('');
-            el.style.display = 'flex'; el.style.left = '0px'; el.style.top = '0px';
-            const p = wordPos(t, at, s.w.length), box = t.parentElement, W = el.offsetWidth, H = el.offsetHeight;
-            const wx = t.offsetLeft + p.x + p.w / 2;
-            const left = Math.max(2, Math.min(wx - W / 2, box.clientWidth - W - 2));
-            let top = t.offsetTop + p.y + p.h + 10; if (top + H > box.clientHeight - 4) top = t.offsetTop + p.y - H - 10;
-            el.style.left = left + 'px'; el.style.top = top + 'px';
-        }
-        function senseChoose(e, j) {
-            e.stopPropagation(); e.preventDefault();
-            const s = SENSE_DB.find(x => x.w === senseKey); if (!s) return;
-            const t = document.getElementById('tr-input');
-            const at = t.value.substr(senseAt, s.w.length) === s.w ? senseAt : t.value.indexOf(s.w);
-            if (at >= 0) t.value = t.value.slice(0, at) + s.opts[j].r + t.value.slice(at + s.w.length);
-            hideSense(); keepCount[s.w] = countOf(t.value, s.w);
-            lastVal = t.value; lastChange = Date.now();
-            trKeepText = true; trResumeMic();
-        }
-        setInterval(() => {
-            const t = document.getElementById('tr-input'), bb = document.getElementById('fix-bubble'); if (!t || !bb) return;
-            const v = t.value, now = Date.now();
-            if (!v.trim()) keepCount = {};
-            if (v !== lastVal) { lastVal = v; lastChange = now; if (bubbleOn()) hideBubble(); hideSense(); return; } // 말하는 중에는 숨김
-            if (now - lastChange < 900 || !t.readOnly || document.getElementById('translator-view').style.display !== 'flex') return; // 말이 끝나고 잠깐 멈춘 뒤에만
-            const cand = [];
-            fixesDB.forEach((f, k) => { if (f.w && countOf(v, f.w) > (keepCount[f.w] || 0)) cand.push({ fix: true, k, at: nthIndex(v, f.w, (keepCount[f.w] || 0) + 1) }); });
-            SENSE_DB.forEach((s, k) => { if (countOf(v, s.w) > (keepCount[s.w] || 0)) cand.push({ fix: false, k, at: nthIndex(v, s.w, (keepCount[s.w] || 0) + 1) }); });
-            cand.sort((a, b) => a.at - b.at); // 말한 순서대로
-            const c = cand[0];
-            if (!c) { hideBubble(); hideSense(); return; }
-            if (!c.fix) {
-                const s = SENSE_DB[c.k]; if (senseOn && senseKey === s.w && senseAt === c.at) return;
-                hideBubble(); senseOn = true; senseKey = s.w; senseAt = c.at; showSense(t, s, c.at); return;
-            }
-            hideSense();
-            const i = c.k;
-            if (i === bubbleIdx) return;
-            const f = fixesDB[i], at = v.lastIndexOf(f.w), p = wordPos(t, at, f.w.length), box = t.parentElement;
-            bubbleIdx = i; drawBubble(bb, f.r, t, p, box);
-        }, 200);
-        function drawBubble(bb, text, t, p, box) { // 만화 말풍선: 하얀 타원 + 검은 테두리 + 단어를 가리키는 꼬리
-            bb.innerHTML = `<svg></svg><span>${escHtml(text)}</span>`; bb.style.display = 'block';
-            const sp = bb.querySelector('span'), sw = sp.offsetWidth, sh = sp.offsetHeight;
-            const rx = sw / 2 * 1.22 + 8, ry = Math.max(sh / 2 * 1.3, rx * 0.62), TH = 20, S = 2.5, W = Math.ceil(rx * 2 + S * 2), EH = Math.ceil(ry * 2 + S * 2), H = EH + TH;
-            const ox = t.offsetLeft, oy = t.offsetTop, wx = ox + p.x + p.w / 2; // 단어 가운데
-            let left = wx - W / 2; left = Math.max(2, Math.min(left, box.clientWidth - W - 2));
-            let top = oy + p.y + p.h - 2; const below = top + H <= box.clientHeight - 4; if (!below) top = oy + p.y - H + 2; // 늘 단어 아래에 (칸 맨 아래라 자리가 없을 때만 위에)
-            const cx = W / 2, cy = below ? TH + EH / 2 : EH / 2;
-            let tx = Math.max(cx - rx * 0.75, Math.min(wx - left, cx + rx * 0.75)); // 꼬리 끝
-            const bx = Math.max(cx - rx * 0.55, Math.min(tx - 20, cx + rx * 0.4)), ey = x => ry * Math.sqrt(Math.max(0, 1 - ((x - cx) / rx) ** 2));
-            const x1 = bx - 14, x2 = bx + 12, d = below ? -1 : 1;
-            const y1 = cy + d * (ey(x1) - 4), y2 = cy + d * (ey(x2) - 4), tyy = below ? 1 : H - 1;
-            const tail = `M${x1},${y1} Q${x1 + 6},${tyy - d * 4} ${tx},${tyy} Q${x2 + 2},${y2 + d * 10} ${x2},${y2}`;
-            bb.querySelector('svg').outerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute; left:0; top:0; overflow:visible;"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff" stroke="#222" stroke-width="${S}"/><path d="${tail}" fill="#fff" stroke="#222" stroke-width="${S}" stroke-linejoin="round"/></svg>`;
-            Object.assign(bb.style, { width: W + 'px', height: H + 'px', left: left + 'px', top: top + 'px' });
-            Object.assign(sp.style, { position: 'absolute', left: (cx - sw / 2) + 'px', top: (cy - sh / 2) + 'px' });
-        }
-        function chipFix(i) {
-            const t = document.getElementById('tr-input'), f = fixesDB[i]; if (!f) return;
-            const at = t.value.lastIndexOf(f.w); hideBubble();
-            stopVoiceInput(); if (at >= 0) t.value = t.value.slice(0, at) + f.r + t.value.slice(at + f.w.length);
-            lastVal = t.value; lastChange = Date.now();
-            trKeepText = true; trResumeMic(); // 바꾼 뒤 글 끝에서 이어서 말함
-        }
-        function bubbleTap(e) { e.stopPropagation(); e.preventDefault(); if (bubbleIdx >= 0) chipFix(bubbleIdx); }
-        // 말풍선이 떠 있을 때 칸을 톡 치면: 말풍선만 사라지고 마이크가 켜짐 (고치기 화면으로 들어가지 않음)
-        let bubbleDismissTap = false;
-        const _trBoxDown = trBoxDown, _trBoxTap = trBoxTap;
-        trBoxDown = function (t) { if (senseOn) { keepCount[senseKey] = countOf(t.value, senseKey); hideSense(); bubbleDismissTap = true; return; } if (bubbleOn()) { const f = fixesDB[bubbleIdx]; keepCount[f.w] = countOf(t.value, f.w); hideBubble(); bubbleDismissTap = true; return; } _trBoxDown(t); };
-        trBoxTap = function (t) { if (bubbleDismissTap) { bubbleDismissTap = false; if (!(recog && !trReverse)) trResumeMic(); return; } _trBoxTap(t); };
-
     </script>
 </body>
 </html>
+<!-- v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 -->
