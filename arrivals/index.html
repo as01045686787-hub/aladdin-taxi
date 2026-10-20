@@ -94,7 +94,7 @@
   .meta .tag { color: var(--accent-bright); font-weight: 800; }
 
   .row {
-    background: var(--card); border: 1px solid var(--hairline-soft); border-radius: var(--radius);
+    background: var(--card); border: 1.5px solid #ffffff; border-radius: var(--radius);
     padding: 16px 18px 18px; margin-bottom: 12px;
   }
   .row .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -106,6 +106,12 @@
   .row .dep { display: flex; align-items: center; justify-content: space-between; gap: 10px; white-space: nowrap; margin-bottom: 8px; }
   .row .dep .st { font-size: 30px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
   .row .dep .tm { font-size: 30px; font-weight: 800; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .line { display: flex; justify-content: space-between; align-items: center; gap: 10px; white-space: nowrap; }
+  .line .lbl { font-size: 26px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+  .line .lbl.big { font-size: 26px; }
+  .line .tm { font-size: 30px; font-weight: 800; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .line .tm2 { font-size: 50px; font-weight: 900; line-height: 1.05; color: var(--accent-bright); font-variant-numeric: tabular-nums; }
+  .row .sub { margin-top: 8px; }
   .chip {
     display: inline-block; padding: 6px 16px; border-radius: 999px;
     font-size: 20px; font-weight: 800; white-space: nowrap;
@@ -165,7 +171,7 @@
   <div class="refresh-wrap"><button class="refresh" data-act="refresh">새로고침</button></div>
 </section>
 
-<footer>도착 정보 v0.6<br>26-10-19-13시 30분 · 공항열차도착정보</footer>
+<footer>도착 정보 v0.7<br>26-10-19-20시 10분 · 공항열차도착정보</footer>
 
 <script>
 /* ===== 지역 묶음 ===== */
@@ -307,7 +313,11 @@ async function renderResult() {
   let rows = [], msg = "";
   try {
     if (st.kind === "airport") {
-      if (st.code !== "PUS") msg = "이 공항은 아직 연결되지 않았습니다";
+      if (st.code === "ICN") {
+        const d = await loadData("incheon", "/airport/incheon");
+        rows = (d.rows || []).map(r => ({ ...r, arr: r.arr, from: r.from, no: r.no, airline: r.airline }));
+      }
+      else if (st.code !== "PUS") msg = "이 공항은 아직 연결되지 않았습니다";
       else {
         const d = await loadData("gimhae", "/airport/gimhae");
         rows = (d.rows || []).filter(r => r.dom === (st.scope === "국내선"));
@@ -327,15 +337,17 @@ async function renderResult() {
   rows = uniq(rows.filter(r => r.arr >= now)).sort((x, y) => (x.arr < y.arr ? -1 : 1));
   listEl.innerHTML = rows.length
     ? rows.map(r => {
-        const dep = st.kind === "train"
-          ? `<div class="dep"><span class="st">${esc(r.from)} 출발</span><span class="tm">${esc(r.dep)}</span></div>` : "";
-        const from = st.kind === "airport" ? `<div class="from">${esc(r.from)}</div>` : "";
         const sub = st.kind === "train" ? esc(r.sub) : esc(r.no) + " · " + esc(r.airline || "");
+        const head = st.kind === "train"
+          ? `<div class="line"><span class="lbl">${esc(r.from)} 출발</span><span class="tm">${esc(r.dep)}</span></div>`
+          : `<div class="line"><span class="lbl">${esc(r.from)}</span></div>`;
+        const arrLbl = st.kind === "train" ? esc(st.name) + " 도착" : "도착";
         return `<div class="row">
-          ${dep}<div class="top"><div class="arr"><small>도착</small><b>${esc(r.arr)}</b></div><span class="chip">시간표</span></div>
-          ${from}<div class="sub">${sub}</div>
+          ${head}
+          <div class="line"><span class="lbl big">${arrLbl}</span><span class="tm2">${esc(r.arr)}</span></div>
+          <div class="sub">${sub}</div>
         </div>`;
-      }).join("")
+        }).join("")
     : '<div class="empty">현재 이후 도착 예정이 없습니다</div>';
 }
 
@@ -361,6 +373,6 @@ history.replaceState(rootState, "");
 show(rootState);
 </script>
 
-<!-- 방: 공항열차도착정보 · v0.6 · 26-10-19-13시 30분 -->
+<!-- 방: 공항열차도착정보 · v0.7 · 26-10-19-20시 10분 -->
 </body>
 </html>
