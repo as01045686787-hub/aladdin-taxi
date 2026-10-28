@@ -175,7 +175,7 @@
   <div class="refresh-wrap"><button class="refresh" data-act="refresh">새로고침</button></div>
 </section>
 
-<footer>도착 정보 v1.11<br>26-10-28-21시 45분 · 공항열차도착정보</footer>
+<footer>도착 정보 v1.12<br>26-10-28-22시 41분 · 공항열차도착정보</footer>
 
 <script>
 /* ===== 지역 묶음 ===== */
@@ -351,7 +351,7 @@ async function renderResult() {
             : /KTX|SRT/i.test(r.kind || ""))
           .filter(r => normStn(r.from) !== normStn(st.name))
           .filter(r => r.arrFull >= new Date(Date.now() + 9 * 3600e3).toISOString().replace(/[-:T.Z]/g, "").slice(0, 14))
-          .map(r => ({ ...r, sub: r.kind + " " + r.no }));
+          .map(r => ({ ...r, sub: r.kind + " " + r.no + " · 도착역 " + r.to }));
         // 같은 열차(번호+도착시간)는 한 번만: 출발 시간이 가장 이른 역이 실제 출발역
         const best = {};
         rows.forEach(r => { const k = r.no + "|" + r.arrFull; if (!best[k] || r.dep < best[k].dep) best[k] = r; });
