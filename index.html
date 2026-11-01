@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 알라딘 택시 index.html | v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
+<!-- 알라딘 택시 index.html | v1020 · 26-11-01-22시 15분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -422,17 +422,79 @@
 <script>
 (function () {
   var QR_URL = "https://as01045686787-hub.github.io/aladdin-taxi/";
+  var QR_TITLE = "알라딘 택시 - 부산 택시 가이드";
+  var enc = encodeURIComponent;
   function makeQr(el, size) { el.innerHTML = ""; new QRCode(el, { text: QR_URL, width: size, height: size, correctLevel: QRCode.CorrectLevel.M }); }
   window.addEventListener("load", function () { var s = document.getElementById("qr-btn"); if (s && window.QRCode) makeQr(s, 38); });
+  var LINKS = {
+    kakao: "https://sharer.kakao.com/talk/friends/picker/link?url=" + enc(QR_URL),
+    whatsapp: "https://wa.me/?text=" + enc(QR_TITLE + "\n" + QR_URL),
+    line: "https://social-plugins.line.me/lineit/share?url=" + enc(QR_URL),
+    telegram: "https://t.me/share/url?url=" + enc(QR_URL) + "&text=" + enc(QR_TITLE),
+    facebook: "https://www.facebook.com/sharer/sharer.php?u=" + enc(QR_URL),
+    x: "https://twitter.com/intent/tweet?url=" + enc(QR_URL) + "&text=" + enc(QR_TITLE),
+    sms: "sms:?&body=" + enc(QR_TITLE + "\n" + QR_URL)
+  };
+  function say(m) { var t = document.getElementById("qr-toast"); if (t) t.textContent = m; }
+  async function nativeShare() {
+    if (!navigator.share) return false;
+    try { await navigator.share({ title: QR_TITLE, text: QR_TITLE, url: QR_URL }); return true; } catch (e) { return false; }
+  }
+  function onShare(k) {
+    if (k === "copy") {
+      if (navigator.clipboard) navigator.clipboard.writeText(QR_URL).then(function () { say("주소를 복사했습니다"); }, function () { say("주소를 길게 눌러 복사하세요"); });
+      else say("주소를 길게 눌러 복사하세요");
+      return;
+    }
+    if (k === "save") {
+      var c = document.querySelector("#qr-big canvas") || document.querySelector("#qr-big img");
+      if (!c) return;
+      var a = document.createElement("a");
+      a.download = "aladdin-taxi-qr.png";
+      a.href = c.tagName === "CANVAS" ? c.toDataURL("image/png") : c.src;
+      a.click();
+      say("QR 사진을 저장했습니다");
+      return;
+    }
+    if (k === "more" || k === "memo" || k === "insta") {
+      nativeShare().then(function (ok) {
+        if (!ok) say(k === "insta" ? "인스타그램은 주소를 복사해서 붙여넣어 주세요" : "이 휴대폰에서 공유 창을 열 수 없습니다. 주소 복사를 쓰세요");
+      });
+      return;
+    }
+    if (LINKS[k]) location.href = LINKS[k];
+  }
   window.openQrBig = function () {
     var ov = document.getElementById("qr-ov");
     if (!ov) {
       ov = document.createElement("div"); ov.id = "qr-ov";
-      ov.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;";
-      ov.innerHTML = '<div style="background:#fff;border-radius:18px;padding:20px 16px;text-align:center;"><div id="qr-big" style="display:flex;justify-content:center;"></div><div style="margin-top:12px;font-size:15px;font-weight:700;color:#000;word-break:break-all;">' + QR_URL + '</div></div>';
-      ov.onclick = function () { ov.style.display = "none"; };
+      ov.style.cssText = "position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;overflow-y:auto;";
+      var btn = 'display:block;width:100%;border:2px solid #000;background:#fff;color:#000;border-radius:12px;padding:12px 0;font-size:17px;font-weight:800;cursor:pointer;';
+      var sb = function (k, label, extra) { return '<button data-share="' + k + '" style="' + btn + (extra || '') + '">' + label + '</button>'; };
+      ov.innerHTML =
+        '<div style="width:100%;max-width:390px;padding:16px;box-sizing:border-box;text-align:center;color:#000;">' +
+          '<div style="display:flex;justify-content:flex-end;"><button id="qr-close" style="' + btn + 'width:auto;padding:8px 16px;">닫기</button></div>' +
+          '<div id="qr-big" style="display:flex;justify-content:center;margin-top:10px;"></div>' +
+          '<div style="margin-top:10px;font-size:20px;font-weight:900;">알라딘 택시</div>' +
+          '<div style="margin-top:4px;font-size:13px;font-weight:700;word-break:break-all;">' + QR_URL + '</div>' +
+          '<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+            sb("kakao", "카카오톡", "background:#FEE500;") + sb("sms", "문자") +
+            sb("memo", "메모") + sb("insta", "인스타그램") +
+            sb("whatsapp", "WhatsApp") + sb("line", "LINE") +
+            sb("telegram", "Telegram") + sb("facebook", "Facebook") +
+            sb("x", "X") + sb("copy", "주소 복사") +
+            sb("more", "다른 앱으로") +
+            sb("save", "QR 사진 저장", "grid-column:1 / -1;") +
+          '</div>' +
+          '<div id="qr-toast" style="margin-top:12px;font-size:15px;font-weight:800;min-height:20px;color:#000;"></div>' +
+        '</div>';
       document.body.appendChild(ov);
-      makeQr(document.getElementById("qr-big"), 151);
+      ov.addEventListener("click", function (e) {
+        if (e.target === ov || e.target.id === "qr-close") { ov.style.display = "none"; return; }
+        var b = e.target.closest && e.target.closest("[data-share]");
+        if (b) onShare(b.getAttribute("data-share"));
+      });
+      makeQr(document.getElementById("qr-big"), 240);
     }
     ov.style.display = "flex";
   };
@@ -460,7 +522,7 @@
         <div style="margin-top:24px; padding:0 12px 4px; font-size:15px; font-weight:800; color:var(--accent-bright);">문의</div>
         <a class="menu-item" href="mailto:as01045686787@gmail.com" style="text-decoration:none;">✉️ as01045686787@gmail.com</a>
         <a class="menu-item" href="mailto:aladin9900@naver.com" style="text-decoration:none;">✉️ aladin9900@naver.com</a>
-        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1018<br>26-10-25-23시 57분</div>
+        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1020<br>26-11-01-22시 15분</div>
         <button onclick="toggleMenu()" style="margin-top:20px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
