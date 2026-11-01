@@ -458,7 +458,7 @@ document.addEventListener("click", e => {
 });
 
 /* ===== 시작: 택시 앱 버튼(?type=airport / ?type=train)으로 열면 바로 지역 선택 화면 ===== */
-const rootState = ENTRY ? { id: "s-regions", kind: ENTRY, root: true } : { id: "s-home", root: true };
+const rootState = params.get("type") === "cruise" ? { id: "s-cruise", kind: "cruise", root: true } : ENTRY ? { id: "s-regions", kind: ENTRY, root: true } : { id: "s-home", root: true };
 history.replaceState(rootState, "");
 show(rootState);
 </script>
