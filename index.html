@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 알라딘 택시 index.html | v1022 · 26-11-01-22시 35분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
+<!-- 알라딘 택시 index.html | v1024 · 26-11-01-22시 45분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -456,9 +456,27 @@
   function makeQr(el, size) { el.innerHTML = ""; new QRCode(el, { text: QR_URL, width: size, height: size, correctLevel: QRCode.CorrectLevel.M }); }
   window.addEventListener("load", function () { var s = document.getElementById("qr-btn"); if (s && window.QRCode) makeQr(s, 38); });
   function say(m) { var t = document.getElementById("qr-toast"); if (t) t.textContent = m; }
+  // 반환: "ok"(공유 완료), "cancel"(사용자가 공유 창을 닫음), "none"(이 휴대폰에서 공유 기능 없음)
   async function nativeShare(title) {
-    if (!navigator.share) return false;
-    try { await navigator.share({ title: title, text: title, url: QR_URL }); return true; } catch (e) { return false; }
+    if (!navigator.share) return "none";
+    try { await navigator.share({ title: title, text: title, url: QR_URL }); return "ok"; }
+    catch (e) { return (e && e.name === "AbortError") ? "cancel" : "none"; }
+  }
+  // 복사: 최신 방식이 없으면 예전 방식(선택 후 복사)으로 처리
+  function copyAddr(cb) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(QR_URL).then(function () { cb(true); }, function () { cb(legacyCopy()); });
+    } else cb(legacyCopy());
+  }
+  function legacyCopy() {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = QR_URL; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
   }
   function onShare(k, t) {
     var LINKS = {
@@ -471,8 +489,7 @@
       sms: "sms:?&body=" + enc(t.title + "\n" + QR_URL)
     };
     if (k === "copy") {
-      if (navigator.clipboard) navigator.clipboard.writeText(QR_URL).then(function () { say(t.copied); }, function () { say(t.copyFail); });
-      else say(t.copyFail);
+      copyAddr(function (ok) { say(ok ? t.copied : t.copyFail); });
       return;
     }
     if (k === "save") {
@@ -486,8 +503,9 @@
       return;
     }
     if (k === "more" || k === "memo" || k === "insta") {
-      nativeShare(t.title).then(function (ok) {
-        if (!ok) say(k === "insta" ? t.insNo : t.noShare);
+      nativeShare(t.title).then(function (r) {
+        // 이 브라우저에서 공유 창이 없으면 주소를 자동으로 복사해 둠
+        if (r === "none") copyAddr(function (ok) { say(ok ? (k === "insta" ? t.insNo : t.noShare) : t.copyFail); });
       });
       return;
     }
@@ -551,7 +569,7 @@
         <div style="margin-top:24px; padding:0 12px 4px; font-size:15px; font-weight:800; color:var(--accent-bright);">문의</div>
         <a class="menu-item" href="mailto:as01045686787@gmail.com" style="text-decoration:none;">✉️ as01045686787@gmail.com</a>
         <a class="menu-item" href="mailto:aladin9900@naver.com" style="text-decoration:none;">✉️ aladin9900@naver.com</a>
-        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1022<br>26-11-01-22시 35분</div>
+        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1024<br>26-11-01-22시 45분</div>
         <button onclick="toggleMenu()" style="margin-top:20px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
