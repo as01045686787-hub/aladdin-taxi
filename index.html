@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 알라딘 택시 index.html | v1021 · 26-11-01-22시 25분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
+<!-- 알라딘 택시 index.html | v1022 · 26-11-01-22시 35분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -422,28 +422,57 @@
 <script>
 (function () {
   var QR_URL = "https://as01045686787-hub.github.io/aladdin-taxi/";
-  var QR_TITLE = "알라딘 택시 - 부산 택시 가이드";
   var enc = encodeURIComponent;
+  var T = {
+    ko: { close:"닫기", kakao:"카카오톡", sms:"문자", memo:"메모", insta:"인스타그램", copy:"주소 복사", more:"다른 앱으로", save:"QR 사진 저장", title:"알라딘 택시 - 부산 택시 가이드", copied:"주소를 복사했습니다", savedMsg:"QR 사진을 저장했습니다", copyFail:"주소를 길게 눌러 복사하세요", noShare:"이 휴대폰에서 공유 창을 열 수 없습니다. 주소 복사를 쓰세요", insNo:"인스타그램은 주소를 복사해서 붙여넣어 주세요" },
+    en: { close:"Close", kakao:"KakaoTalk", sms:"SMS", memo:"Memo", insta:"Instagram", copy:"Copy link", more:"More apps", save:"Save QR image", title:"Aladdin Taxi - Busan Taxi Guide", copied:"Link copied", savedMsg:"QR image saved", copyFail:"Press and hold the address to copy", noShare:"Sharing is not available on this phone. Please use Copy link", insNo:"For Instagram, copy the link and paste it" },
+    ja: { close:"閉じる", kakao:"KakaoTalk", sms:"SMS", memo:"メモ", insta:"Instagram", copy:"リンクをコピー", more:"他のアプリ", save:"QR画像を保存", title:"アラディン タクシー - 釜山タクシーガイド", copied:"リンクをコピーしました", savedMsg:"QR画像を保存しました", copyFail:"アドレスを長押しでコピーしてください", noShare:"この端末では共有画面を開けません。リンクコピーを使ってください", insNo:"Instagramはリンクをコピーして貼り付けてください" },
+    zh: { close:"关闭", kakao:"KakaoTalk", sms:"短信", memo:"备忘录", insta:"Instagram", copy:"复制链接", more:"其他应用", save:"保存二维码图片", title:"阿拉丁出租车 - 釜山出租车指南", copied:"已复制链接", savedMsg:"二维码图片已保存", copyFail:"长按地址即可复制", noShare:"此手机无法打开分享窗口，请使用复制链接", insNo:"Instagram请复制链接后粘贴" },
+    zhtw: { close:"關閉", kakao:"KakaoTalk", sms:"簡訊", memo:"備忘錄", insta:"Instagram", copy:"複製連結", more:"其他應用程式", save:"儲存QR圖片", title:"阿拉丁計程車 - 釜山計程車指南", copied:"已複製連結", savedMsg:"QR圖片已儲存", copyFail:"長按地址即可複製", noShare:"此手機無法開啟分享視窗，請使用複製連結", insNo:"Instagram請複製連結後貼上" },
+    vi: { close:"Đóng", kakao:"KakaoTalk", sms:"Tin nhắn", memo:"Ghi chú", insta:"Instagram", copy:"Sao chép liên kết", more:"Ứng dụng khác", save:"Lưu ảnh mã QR", title:"Aladdin Taxi - Hướng dẫn taxi Busan", copied:"Đã sao chép liên kết", savedMsg:"Đã lưu ảnh mã QR", copyFail:"Nhấn giữ địa chỉ để sao chép", noShare:"Điện thoại này không mở được cửa sổ chia sẻ. Hãy dùng Sao chép liên kết", insNo:"Với Instagram, hãy sao chép liên kết rồi dán vào" },
+    th: { close:"ปิด", kakao:"KakaoTalk", sms:"SMS", memo:"บันทึก", insta:"Instagram", copy:"คัดลอกลิงก์", more:"แอปอื่น", save:"บันทึกรูป QR", title:"Aladdin Taxi - คู่มือแท็กซี่ปูซาน", copied:"คัดลอกลิงก์แล้ว", savedMsg:"บันทึกรูป QR แล้ว", copyFail:"กดค้างที่ที่อยู่เพื่อคัดลอก", noShare:"โทรศัพท์นี้เปิดหน้าต่างแชร์ไม่ได้ กรุณาใช้คัดลอกลิงก์", insNo:"สำหรับ Instagram กรุณาคัดลอกลิงก์แล้ววาง" },
+    ru: { close:"Закрыть", kakao:"KakaoTalk", sms:"SMS", memo:"Заметки", insta:"Instagram", copy:"Копировать ссылку", more:"Другие приложения", save:"Сохранить QR", title:"Aladdin Taxi - Путеводитель по такси Пусана", copied:"Ссылка скопирована", savedMsg:"QR-изображение сохранено", copyFail:"Нажмите и удерживайте адрес, чтобы скопировать", noShare:"На этом телефоне нельзя открыть окно отправки. Используйте «Копировать ссылку»", insNo:"Для Instagram скопируйте ссылку и вставьте её" },
+    es: { close:"Cerrar", kakao:"KakaoTalk", sms:"SMS", memo:"Notas", insta:"Instagram", copy:"Copiar enlace", more:"Otras apps", save:"Guardar QR", title:"Aladdin Taxi - Guía de taxi de Busan", copied:"Enlace copiado", savedMsg:"Imagen QR guardada", copyFail:"Mantenga pulsada la dirección para copiar", noShare:"Este teléfono no puede abrir la ventana de compartir. Use Copiar enlace", insNo:"Para Instagram, copie el enlace y péguelo" },
+    fr: { close:"Fermer", kakao:"KakaoTalk", sms:"SMS", memo:"Notes", insta:"Instagram", copy:"Copier le lien", more:"Autres applis", save:"Enregistrer le QR", title:"Aladdin Taxi - Guide des taxis de Busan", copied:"Lien copié", savedMsg:"Image QR enregistrée", copyFail:"Appuyez longuement sur l'adresse pour copier", noShare:"Ce téléphone ne peut pas ouvrir la fenêtre de partage. Utilisez Copier le lien", insNo:"Pour Instagram, copiez le lien puis collez-le" },
+    de: { close:"Schließen", kakao:"KakaoTalk", sms:"SMS", memo:"Notiz", insta:"Instagram", copy:"Link kopieren", more:"Andere Apps", save:"QR-Bild speichern", title:"Aladdin Taxi - Busan Taxi-Guide", copied:"Link kopiert", savedMsg:"QR-Bild gespeichert", copyFail:"Adresse lange drücken zum Kopieren", noShare:"Auf diesem Telefon lässt sich das Teilen-Fenster nicht öffnen. Bitte Link kopieren verwenden", insNo:"Für Instagram den Link kopieren und einfügen" }
+  };
+  // 통역 앱에서 지금 고른 나라(curL) → 언어 코드(langMap) → 공유 화면 언어
+  function pickLang() {
+    var code = "";
+    try { code = (typeof langMap !== "undefined" && typeof curL !== "undefined") ? langMap[curL] : ""; } catch (e) { code = ""; }
+    if (code === "ko") return "ko";
+    if (code === "en") return "en";
+    if (code === "ja") return "ja";
+    if (code === "zh-CN") return "zh";
+    if (code === "zh-TW" || code === "zh-HK") return "zhtw";
+    if (code === "vi") return "vi";
+    if (code === "th") return "th";
+    if (code === "ru") return "ru";
+    if (code === "es") return "es";
+    if (code === "fr") return "fr";
+    if (code === "de") return "de";
+    return "en";
+  }
   function makeQr(el, size) { el.innerHTML = ""; new QRCode(el, { text: QR_URL, width: size, height: size, correctLevel: QRCode.CorrectLevel.M }); }
   window.addEventListener("load", function () { var s = document.getElementById("qr-btn"); if (s && window.QRCode) makeQr(s, 38); });
-  var LINKS = {
-    kakao: "https://sharer.kakao.com/talk/friends/picker/link?url=" + enc(QR_URL),
-    whatsapp: "https://wa.me/?text=" + enc(QR_TITLE + "\n" + QR_URL),
-    line: "https://social-plugins.line.me/lineit/share?url=" + enc(QR_URL),
-    telegram: "https://t.me/share/url?url=" + enc(QR_URL) + "&text=" + enc(QR_TITLE),
-    facebook: "https://www.facebook.com/sharer/sharer.php?u=" + enc(QR_URL),
-    x: "https://twitter.com/intent/tweet?url=" + enc(QR_URL) + "&text=" + enc(QR_TITLE),
-    sms: "sms:?&body=" + enc(QR_TITLE + "\n" + QR_URL)
-  };
   function say(m) { var t = document.getElementById("qr-toast"); if (t) t.textContent = m; }
-  async function nativeShare() {
+  async function nativeShare(title) {
     if (!navigator.share) return false;
-    try { await navigator.share({ title: QR_TITLE, text: QR_TITLE, url: QR_URL }); return true; } catch (e) { return false; }
+    try { await navigator.share({ title: title, text: title, url: QR_URL }); return true; } catch (e) { return false; }
   }
-  function onShare(k) {
+  function onShare(k, t) {
+    var LINKS = {
+      kakao: "https://sharer.kakao.com/talk/friends/picker/link?url=" + enc(QR_URL),
+      whatsapp: "https://wa.me/?text=" + enc(t.title + "\n" + QR_URL),
+      line: "https://social-plugins.line.me/lineit/share?url=" + enc(QR_URL),
+      telegram: "https://t.me/share/url?url=" + enc(QR_URL) + "&text=" + enc(t.title),
+      facebook: "https://www.facebook.com/sharer/sharer.php?u=" + enc(QR_URL),
+      x: "https://twitter.com/intent/tweet?url=" + enc(QR_URL) + "&text=" + enc(t.title),
+      sms: "sms:?&body=" + enc(t.title + "\n" + QR_URL)
+    };
     if (k === "copy") {
-      if (navigator.clipboard) navigator.clipboard.writeText(QR_URL).then(function () { say("주소를 복사했습니다"); }, function () { say("주소를 길게 눌러 복사하세요"); });
-      else say("주소를 길게 눌러 복사하세요");
+      if (navigator.clipboard) navigator.clipboard.writeText(QR_URL).then(function () { say(t.copied); }, function () { say(t.copyFail); });
+      else say(t.copyFail);
       return;
     }
     if (k === "save") {
@@ -453,49 +482,49 @@
       a.download = "aladdin-taxi-qr.png";
       a.href = c.tagName === "CANVAS" ? c.toDataURL("image/png") : c.src;
       a.click();
-      say("QR 사진을 저장했습니다");
+      say(t.savedMsg);
       return;
     }
     if (k === "more" || k === "memo" || k === "insta") {
-      nativeShare().then(function (ok) {
-        if (!ok) say(k === "insta" ? "인스타그램은 주소를 복사해서 붙여넣어 주세요" : "이 휴대폰에서 공유 창을 열 수 없습니다. 주소 복사를 쓰세요");
+      nativeShare(t.title).then(function (ok) {
+        if (!ok) say(k === "insta" ? t.insNo : t.noShare);
       });
       return;
     }
     if (LINKS[k]) location.href = LINKS[k];
   }
   window.openQrBig = function () {
-    var ov = document.getElementById("qr-ov");
-    if (!ov) {
-      ov = document.createElement("div"); ov.id = "qr-ov";
-      ov.style.cssText = "position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;overflow-y:auto;";
-      var btn = 'display:block;width:100%;border:2px solid #000;background:#fff;color:#000;border-radius:10px;padding:8px 0;font-size:15px;font-weight:800;cursor:pointer;';
-      var sb = function (k, label, extra) { return '<button data-share="' + k + '" style="' + btn + (extra || '') + '">' + label + '</button>'; };
-      ov.innerHTML =
-        '<div style="width:100%;max-width:390px;padding:10px 14px;box-sizing:border-box;text-align:center;color:#000;">' +
-          '<div style="display:flex;justify-content:flex-end;"><button id="qr-close" style="' + btn + 'width:auto;padding:8px 16px;">닫기</button></div>' +
-          '<div id="qr-big" style="display:flex;justify-content:center;margin-top:4px;"></div>' +
-          '<div style="margin-top:6px;font-size:17px;font-weight:900;">알라딘 택시</div>' +
-          '<div style="margin-top:4px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + QR_URL + '</div>' +
-          '<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px;">' +
-            sb("kakao", "카카오톡", "background:#FEE500;") + sb("sms", "문자") +
-            sb("memo", "메모") + sb("insta", "인스타그램") +
-            sb("whatsapp", "WhatsApp") + sb("line", "LINE") +
-            sb("telegram", "Telegram") + sb("facebook", "Facebook") +
-            sb("x", "X") + sb("copy", "주소 복사") +
-            sb("more", "다른 앱으로") +
-            sb("save", "QR 사진 저장", "grid-column:1 / -1;") +
-          '</div>' +
-          '<div id="qr-toast" style="margin-top:8px;font-size:13px;font-weight:800;min-height:18px;color:#000;"></div>' +
-        '</div>';
-      document.body.appendChild(ov);
-      ov.addEventListener("click", function (e) {
-        if (e.target === ov || e.target.id === "qr-close") { ov.style.display = "none"; return; }
-        var b = e.target.closest && e.target.closest("[data-share]");
-        if (b) onShare(b.getAttribute("data-share"));
-      });
-      makeQr(document.getElementById("qr-big"), 170);
-    }
+    var old = document.getElementById("qr-ov");
+    if (old) old.remove();
+    var L = pickLang(), t = T[L];
+    var ov = document.createElement("div"); ov.id = "qr-ov";
+    ov.style.cssText = "position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;overflow-y:auto;";
+    var btn = 'display:block;width:100%;border:2px solid #000;background:#fff;color:#000;border-radius:10px;padding:8px 0;font-size:15px;font-weight:800;cursor:pointer;';
+    var sb = function (k, label, extra) { return '<button data-share="' + k + '" style="' + btn + (extra || '') + '">' + label + '</button>'; };
+    ov.innerHTML =
+      '<div style="width:100%;max-width:390px;padding:10px 14px;box-sizing:border-box;text-align:center;color:#000;">' +
+        '<div style="display:flex;justify-content:flex-end;"><button id="qr-close" style="' + btn + 'width:auto;padding:8px 16px;">' + t.close + '</button></div>' +
+        '<div id="qr-big" style="display:flex;justify-content:center;margin-top:4px;"></div>' +
+        '<div style="margin-top:6px;font-size:17px;font-weight:900;">알라딘 택시</div>' +
+        '<div style="margin-top:4px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + QR_URL + '</div>' +
+        '<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px;">' +
+          sb("kakao", t.kakao, "background:#FEE500;") + sb("sms", t.sms) +
+          sb("memo", t.memo) + sb("insta", t.insta) +
+          sb("whatsapp", "WhatsApp") + sb("line", "LINE") +
+          sb("telegram", "Telegram") + sb("facebook", "Facebook") +
+          sb("x", "X") + sb("copy", t.copy) +
+          sb("more", t.more) +
+          sb("save", t.save, "grid-column:1 / -1;") +
+        '</div>' +
+        '<div id="qr-toast" style="margin-top:8px;font-size:13px;font-weight:800;min-height:18px;color:#000;"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener("click", function (e) {
+      if (e.target === ov || e.target.id === "qr-close") { ov.style.display = "none"; return; }
+      var b = e.target.closest && e.target.closest("[data-share]");
+      if (b) onShare(b.getAttribute("data-share"), t);
+    });
+    makeQr(document.getElementById("qr-big"), 170);
     ov.style.display = "flex";
   };
 })();
@@ -522,7 +551,7 @@
         <div style="margin-top:24px; padding:0 12px 4px; font-size:15px; font-weight:800; color:var(--accent-bright);">문의</div>
         <a class="menu-item" href="mailto:as01045686787@gmail.com" style="text-decoration:none;">✉️ as01045686787@gmail.com</a>
         <a class="menu-item" href="mailto:aladin9900@naver.com" style="text-decoration:none;">✉️ aladin9900@naver.com</a>
-        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1021<br>26-11-01-22시 25분</div>
+        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1022<br>26-11-01-22시 35분</div>
         <button onclick="toggleMenu()" style="margin-top:20px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
