@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 알라딘 택시 도착 정보 | v1.23 · 26-11-02-10시 25분 · 공항열차도착정보 | 인천·김포 실데이터 연결, 국내선·국제선 분리, 크루즈 입출항(부산·인천) -->
+<!-- 알라딘 택시 도착 정보 | v1.24 · 26-11-02-11시 35분 · 공항열차도착정보 | 인천·김포 실데이터 연결, 국내선·국제선 분리, 크루즈 입출항(부산·인천) -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -191,7 +191,7 @@
   <div class="refresh-wrap"><button class="refresh" data-act="refresh">새로고침</button></div>
 </section>
 
-<footer>도착 정보 v1.23<br>26-11-02-10시 25분 · 공항열차도착정보</footer>
+<footer>도착 정보 v1.24<br>26-11-02-11시 35분 · 공항열차도착정보</footer>
 
 <script>
 /* ===== 지역 묶음 ===== */
@@ -346,9 +346,13 @@ async function renderResult() {
         const d = await loadData("gimpo", "/airport/gimpo");
         rows = (d.rows || []).filter(r => r.dom === (st.scope === "국내선"));
       }
-      else if (st.code !== "PUS") msg = "이 공항은 아직 연결되지 않았습니다";
-      else {
+      else if (st.code === "PUS") {
         const d = await loadData("gimhae", "/airport/gimhae");
+        rows = (d.rows || []).filter(r => r.dom === (st.scope === "국내선"));
+      }
+      else {
+        // 나머지 공항: 워커 /airport/regional?code=공항코드 (한국공항공사 스케줄 API)
+        const d = await loadData("apt-" + st.code, "/airport/regional?code=" + encodeURIComponent(st.code));
         rows = (d.rows || []).filter(r => r.dom === (st.scope === "국내선"));
       }
     } else {
@@ -485,6 +489,6 @@ history.replaceState(rootState, "");
 show(rootState);
 </script>
 
-<!-- 방: 공항열차도착정보 · v1.23 · 26-11-02-10시 25분 -->
+<!-- 방: 공항열차도착정보 · v1.24 · 26-11-02-11시 35분 -->
 </body>
 </html>
