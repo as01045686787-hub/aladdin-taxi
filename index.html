@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 알라딘 택시 index.html | v1025 · 26-11-07-14시 20분 · 구글 음성(워커 /tts) 연결: 목소리 있는 나라 구글 음성으로 읽음 | 이전 v1024 · 26-11-01-22시 45분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
+<!-- 알라딘 택시 index.html | v1024 · 26-11-01-22시 45분 · 크루즈 버튼 → 도착정보 크루즈 화면 | 이전 v1018 · 26-10-25-23시 57분 · QR 추가 + 공항·열차·크루즈 3칸 | 기존 v1016-A · 26-10-16-21시 32분 · 공항열차도착정보 | 통역 언어 수정: 홍콩 광둥어·홍콩(영어) 추가·필리핀/노르웨이 음성 코드·목소리 없는 말 처리 -->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -569,7 +569,7 @@
         <div style="margin-top:24px; padding:0 12px 4px; font-size:15px; font-weight:800; color:var(--accent-bright);">문의</div>
         <a class="menu-item" href="mailto:as01045686787@gmail.com" style="text-decoration:none;">✉️ as01045686787@gmail.com</a>
         <a class="menu-item" href="mailto:aladin9900@naver.com" style="text-decoration:none;">✉️ aladin9900@naver.com</a>
-        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1025<br>26-11-07-14시 20분</div>
+        <div style="margin-top:30px; font-size:14px; color:var(--text-dim); text-align:center; line-height:1.6;">v1024<br>26-11-01-22시 45분</div>
         <button onclick="toggleMenu()" style="margin-top:20px; width:100%; padding:18px; background:var(--surface-2); color:var(--text-color); border:1px solid var(--hairline-soft); border-radius:var(--radius-xl); font-size: 16px; font-weight: 700; cursor:pointer;">설정 닫기</button>
     </div>
     <div class="container" id="country-view">
@@ -930,9 +930,6 @@
         const greetCache = {};
         function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
         function speakGreet(t) {
-            try { window.speechSynthesis.cancel(); stopCloud(); const cg = CLOUD_MAP[getLangCode(curL)]; if (cg) { cloudSpeakOrFallback(t, cg, () => speakGreetDevice(t)); return; } speakGreetDevice(t); } catch (e) {}
-        }
-        function speakGreetDevice(t) {
             try { window.speechSynthesis.cancel(); const code = getLangCode(curL); const u = new SpeechSynthesisUtterance(t); u.lang = code; u.rate = 0.8; const v = pickBestVoice(code); if (v) { u.voice = v; u.lang = v.lang; } else if (cachedVoices.length) { showToast(noVoiceMsg()); return; } /* 목소리가 없으면 엉뚱한 억양으로 읽지 않음 */ window.speechSynthesis.speak(u); } catch (e) {}
         }
         function openGreet() {
@@ -944,7 +941,7 @@
             renderGreet();
         }
         function greetLangChanged() { const id = document.getElementById('greet-lang').value; syncCountryFromTr(id); document.getElementById('tr-lang').value = id; openGreet(); } // 인사말 화면에서 나라를 바꾸면 앱 전체 나라도 같이 바뀜
-        function closeGreet() { document.getElementById('greet-view').style.display = 'none'; try { window.speechSynthesis.cancel(); } catch (e) {} stopCloud(); }
+        function closeGreet() { document.getElementById('greet-view').style.display = 'none'; try { window.speechSynthesis.cancel(); } catch (e) {} }
         // 인사말 화면: 한 번 누르면 고르기(옆줄 표시), 한 번 더 누르면 읽기. 아래 줄 버튼으로 추가·이동·수정·삭제
         let selectedGreetIdx = -1;
         function selectGreet(i) { if (selectedGreetIdx === i) speakGreetAt(i); else { selectedGreetIdx = i; renderGreet(); } }
@@ -1456,18 +1453,6 @@
             } catch(e) { logNav(`번역오류 ${e && e.name}:${e && String(e.message).slice(0,60)}`); foreignDiv.innerText = "통신 오류가 발생했습니다."; }
         }
         // ---- 통역 음성 속도 / 스크롤 동기화 ----
-        // v1025: 구글 음성(워커 /tts) 사용 나라 목록 — 앱 언어코드 → 구글 음성 코드
-        const TTS_BASE = 'https://hidden-shadow-7539.as01045686787.workers.dev';
-        const CLOUD_MAP = { 'zh-CN':'cmn-CN', 'zh-TW':'cmn-TW', 'zh-HK':'yue-HK', 'en-US':'en-US', 'ja-JP':'ja-JP', 'vi-VN':'vi-VN', 'th-TH':'th-TH', 'fil-PH':'fil-PH', 'ms-MY':'ms-MY', 'id-ID':'id-ID', 'de-DE':'de-DE', 'fr-FR':'fr-FR', 'es-ES':'es-ES', 'it-IT':'it-IT', 'nl-NL':'nl-NL', 'pt-BR':'pt-BR', 'pl-PL':'pl-PL', 'cs-CZ':'cs-CZ', 'sv-SE':'sv-SE', 'tr-TR':'tr-TR', 'ru-RU':'ru-RU', 'ar-AE':'ar-XA', 'ar-SA':'ar-XA', 'ar-EG':'ar-XA', 'hi-IN':'hi-IN', 'da-DK':'da-DK', 'fi-FI':'fi-FI', 'el-GR':'el-GR', 'he-IL':'he-IL', 'hu-HU':'hu-HU', 'uk-UA':'uk-UA', 'nb-NO':'nb-NO', 'bn-IN':'bn-IN' };
-        let cloudAudio = null;
-        function stopCloud() { if (cloudAudio) { try { cloudAudio.pause(); } catch (e) {} cloudAudio = null; } }
-        function cloudSpeakOrFallback(t, cc, onFail) {
-            const a = new Audio(TTS_BASE + '/tts?lang=' + encodeURIComponent(cc) + '&text=' + encodeURIComponent(t));
-            cloudAudio = a;
-            a.onerror = () => { if (cloudAudio === a) cloudAudio = null; onFail(); };
-            const p = a.play(); if (p && p.catch) p.catch(() => { if (cloudAudio === a) cloudAudio = null; onFail(); });
-            return a;
-        }
         const SPEECH_RATE = 0.81; // 기존 0.85의 95%
         const BASE_MS_PER_CHAR = { en: 60, ko: 90, zh: 190, ja: 130, other: 75 }; // 속도 1.0 기준 글자당 소요 시간(초기 추정값)
         let speechCal = {};
@@ -1490,32 +1475,11 @@
             if (!out.length) out.push({ start: 0, text });
             return out;
         }
-        function speak(t, l, offset = 0, fullOverride = null, noCloud = false) {
+        function speak(t, l, offset = 0, fullOverride = null) {
             const token = ++speakToken;
             const fullText = fullOverride || t, fullLen = fullText.length;
             resumeCtx = { fullText, lang: l, offset };
-            window.speechSynthesis.cancel(); stopCloud(); if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            // v1025: 구글 음성이 있는 말은 워커에서 받은 음성으로 읽음 (실패하면 아래 기존 방식으로 읽음)
-            const cc = CLOUD_MAP[l];
-            if (cc && !noCloud) {
-                const cBox = document.getElementById('scroll-container');
-                let cRaf = null;
-                const cSync = () => {
-                    if (token !== speakToken || !cloudAudio) return;
-                    const a = cloudAudio, d = a.duration;
-                    if (d && isFinite(d) && d > 0) {
-                        const p = Math.min(a.currentTime / d, 1);
-                        const ov = fullText.length ? Math.min((offset + p * t.length) / fullText.length, 1) : p;
-                        cBox.scrollTop = ov * Math.max(0, cBox.scrollHeight - cBox.clientHeight);
-                        if (resumeCtx) resumeCtx.offset = offset + p * t.length;
-                    }
-                    cRaf = requestAnimationFrame(cSync);
-                };
-                const a = cloudSpeakOrFallback(t, cc, () => { if (cRaf) cancelAnimationFrame(cRaf); if (token === speakToken) speak(t, l, offset, fullOverride, true); });
-                a.onplay = () => { if (!cRaf) cRaf = requestAnimationFrame(cSync); };
-                a.onended = () => { if (cRaf) cancelAnimationFrame(cRaf); cRaf = null; if (token !== speakToken) return; cBox.scrollTop = cBox.scrollHeight; resumeCtx = null; cloudAudio = null; };
-                return;
-            }
+            window.speechSynthesis.cancel(); if (animationFrameId) cancelAnimationFrame(animationFrameId);
             const u = new SpeechSynthesisUtterance(t); u.lang = l; u.pitch = 1.0; u.rate = SPEECH_RATE;
             const container = document.getElementById('scroll-container');
             const maxScroll = () => Math.max(0, container.scrollHeight - container.clientHeight);
@@ -1595,7 +1559,7 @@
             };
             return codes[l] || 'en-US';
         }
-        function closeDisplay() { speakToken++; resumeCtx = null; if (animationFrameId) cancelAnimationFrame(animationFrameId); document.getElementById('display-overlay').style.display = 'none'; window.speechSynthesis.cancel(); stopCloud(); if(isTourMode) { openTour(); isTourMode = false; } }
+        function closeDisplay() { speakToken++; resumeCtx = null; if (animationFrameId) cancelAnimationFrame(animationFrameId); document.getElementById('display-overlay').style.display = 'none'; window.speechSynthesis.cancel(); if(isTourMode) { openTour(); isTourMode = false; } }
         function saveTour() { localStorage.setItem('taxi_v10_tour', JSON.stringify(tourDB)); }
         function saveData() { localStorage.setItem('taxi_v10_db', JSON.stringify(phraseDB)); }
         function saveCats() { localStorage.setItem('taxi_v10_cats', JSON.stringify(categories)); }
